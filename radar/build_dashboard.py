@@ -1,6 +1,9 @@
 """Generate a static, self-contained Arabic dashboard from the radar database.
 
 Run:  python -m radar.build_dashboard   ->  docs/dashboard.html
+
+Colors follow the validated reference palette (light + dark selected separately,
+CVD-checked). Role colors are fixed per entity, never cycled.
 """
 import html
 import json
@@ -11,14 +14,25 @@ from . import db
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "dashboard.html"
 
-ROLE_COLORS = {
-    "Data Analyst": "#4f8ef7",
-    "Data Engineer": "#34c98e",
-    "Data Scientist": "#a78bfa",
-    "BI Developer": "#f0b429",
-    "ML Engineer": "#ef6461",
-    "Analytics Engineer": "#2dd4bf",
-    "Other (Data)": "#7c8aa5",
+# fixed categorical assignment: color follows the role entity
+ROLE_VARS = {
+    "Data Analyst": "--c-analyst",
+    "Data Engineer": "--c-engineer",
+    "BI Developer": "--c-bi",
+    "Data Scientist": "--c-scientist",
+    "ML Engineer": "--c-ml",
+    "Analytics Engineer": "--c-analytics",
+    "Other (Data)": "--c-other",
+}
+
+ROLE_LABELS_AR = {
+    "Data Analyst": "محلل بيانات",
+    "Data Engineer": "مهندس بيانات",
+    "BI Developer": "مطوّر BI",
+    "Data Scientist": "عالم بيانات",
+    "ML Engineer": "مهندس تعلم آلي",
+    "Analytics Engineer": "مهندس تحليلات",
+    "Other (Data)": "أخرى (بيانات)",
 }
 
 
@@ -26,17 +40,21 @@ def esc(s) -> str:
     return html.escape(str(s or ""))
 
 
-def bar_rows(pairs: list[tuple[str, int]], color: str | None = None) -> str:
+def bar_rows(pairs: list[tuple[str, int]], total: int, color_var: str | None = None,
+             labels_map: dict | None = None) -> str:
     if not pairs:
-        return '<div class="empty">لا توجد بيانات بعد — الرادار جديد وكل يوم يجمع أكثر</div>'
+        return '<p class="empty">لا توجد بيانات كافية بعد — الرادار يجمع يومياً وتكتمل الصورة مع الوقت.</p>'
     mx = max(n for _, n in pairs)
     rows = []
     for label, n in pairs:
-        c = color or ROLE_COLORS.get(label, "#4f8ef7")
+        var = color_var or ROLE_VARS.get(label, "--c-other")
+        shown = (labels_map or {}).get(label, label)
+        pct = f"{n / total * 100:.0f}٪" if total else ""
         rows.append(
-            f'<div class="bar-row"><div class="bar-label">{esc(label)}</div>'
-            f'<div class="bar-track"><div class="bar-fill" style="width:{n / mx * 100:.0f}%;background:{c}"></div></div>'
-            f'<div class="bar-count">{n}</div></div>'
+            f'<div class="bar-row" title="{esc(shown)} — {n} وظيفة ({pct})">'
+            f'<span class="bar-label">{esc(shown)}</span>'
+            f'<span class="bar-track"><span class="bar-fill" style="width:{n / mx * 100:.1f}%;background:var({var})"></span></span>'
+            f'<span class="bar-count">{n}</span></div>'
         )
     return "".join(rows)
 
@@ -45,11 +63,11 @@ def build() -> None:
     con = db.connect()
     total = con.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
     companies = con.execute("SELECT COUNT(DISTINCT company) FROM jobs").fetchone()[0]
-    sources = con.execute("SELECT COUNT(DISTINCT source) FROM jobs").fetchone()[0]
-    with_salary = con.execute("SELECT COUNT(*) FROM jobs WHERE salary != ''").fetchone()[0]
+    n_sources = con.execute("SELECT COUNT(DISTINCT source) FROM jobs").fetchone()[0]
+    first_day = con.execute("SELECT MIN(substr(collected_at,1,10)) FROM jobs").fetchone()[0] or "—"
 
     top_skills = con.execute(
-        "SELECT skill, COUNT(*) n FROM job_skills GROUP BY skill ORDER BY n DESC, skill LIMIT 15"
+        "SELECT skill, COUNT(*) n FROM job_skills GROUP BY skill ORDER BY n DESC, skill LIMIT 12"
     ).fetchall()
     roles = con.execute(
         "SELECT role, COUNT(*) n FROM jobs GROUP BY role ORDER BY n DESC"
@@ -75,14 +93,16 @@ def build() -> None:
     if last_run_path.exists():
         new_last = json.loads(last_run_path.read_text(encoding="utf-8")).get("new", 0)
 
+    n_skilled = sum(n for _, n in top_skills)
+
     job_rows = "".join(
         f"""<tr>
-          <td><div class="jt">{esc(t)}</div><div class="jc">{esc(c)}</div></td>
-          <td>{esc(loc)}</td>
-          <td><span class="chip" style="--c:{ROLE_COLORS.get(role, '#7c8aa5')}">{esc(role)}</span></td>
-          <td>{esc(sal) or '—'}</td>
-          <td>{esc(posted) or '—'}</td>
-          <td>{f'<a href="{esc(url)}" target="_blank" rel="noopener">فتح ↗</a>' if url else ''}</td>
+          <td><span class="jt">{esc(t)}</span><span class="jc">{esc(c)}</span></td>
+          <td class="dim">{esc(loc)}</td>
+          <td><span class="chip" style="--c:var({ROLE_VARS.get(role, '--c-other')})">{esc(ROLE_LABELS_AR.get(role, role))}</span></td>
+          <td class="num">{esc(sal) or '—'}</td>
+          <td class="num dim">{esc(posted) or '—'}</td>
+          <td>{f'<a href="{esc(url)}" target="_blank" rel="noopener">عرض</a>' if url else ''}</td>
         </tr>"""
         for t, c, loc, role, sal, url, posted in recent
     )
@@ -94,73 +114,184 @@ def build() -> None:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>رادار مسار — سوق وظائف البيانات</title>
+<title>الرادار — مؤشر سوق وظائف البيانات | مسار</title>
 <style>
-  :root {{ --bg:#0f1420; --surface:#1a2233; --border:#2e3a55; --text:#e8ecf4; --dim:#9aa7c0; --accent:#4f8ef7; }}
+  :root {{
+    --page:      #f9f9f7;
+    --surface:   #fcfcfb;
+    --ink:       #0b0b0b;
+    --ink-2:     #52514e;
+    --muted:     #898781;
+    --hairline:  rgba(11,11,11,0.10);
+    --grid:      #e1e0d9;
+    --track:     #f0efec;
+    --good:      #006300;
+    --c-analyst:   #2a78d6;
+    --c-engineer:  #1baf7a;
+    --c-bi:        #eda100;
+    --c-scientist: #4a3aa7;
+    --c-ml:        #e34948;
+    --c-analytics: #eb6834;
+    --c-other:     #898781;
+  }}
+  @media (prefers-color-scheme: dark) {{
+    :root {{
+      --page:      #0d0d0d;
+      --surface:   #1a1a19;
+      --ink:       #ffffff;
+      --ink-2:     #c3c2b7;
+      --muted:     #898781;
+      --hairline:  rgba(255,255,255,0.10);
+      --grid:      #2c2c2a;
+      --track:     #262624;
+      --good:      #0ca30c;
+      --c-analyst:   #3987e5;
+      --c-engineer:  #199e70;
+      --c-bi:        #c98500;
+      --c-scientist: #9085e9;
+      --c-ml:        #e66767;
+      --c-analytics: #d95926;
+    }}
+  }}
   * {{ margin:0; padding:0; box-sizing:border-box; }}
-  body {{ font-family:"Segoe UI",Tahoma,Arial,sans-serif; background:var(--bg); color:var(--text); padding:24px 16px 60px; }}
-  .container {{ max-width:1100px; margin:0 auto; }}
-  header {{ margin-bottom:24px; }}
-  h1 {{ font-size:1.5rem; }}
-  .sub {{ color:var(--dim); font-size:0.9rem; margin-top:4px; }}
-  .stats {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:24px; }}
-  .card {{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }}
-  .card .label {{ color:var(--dim); font-size:0.8rem; margin-bottom:6px; }}
-  .card .value {{ font-size:1.7rem; font-weight:700; }}
-  .grid2 {{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }}
+  body {{
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page); color: var(--ink);
+    padding: 0 20px 64px; line-height: 1.5;
+  }}
+  .container {{ max-width: 1080px; margin: 0 auto; }}
+
+  .topbar {{
+    display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    padding: 28px 0 8px;
+  }}
+  .brand {{ display:flex; align-items:baseline; gap:10px; }}
+  .brand .mark {{ font-size:1.35rem; font-weight:700; letter-spacing:-0.01em; }}
+  .brand .sep {{ color:var(--muted); }}
+  .brand .prod {{ font-size:1.05rem; color:var(--ink-2); font-weight:600; }}
+  .updated {{ font-size:0.8rem; color:var(--muted); font-variant-numeric: tabular-nums; }}
+
+  .lede {{ color:var(--ink-2); font-size:0.92rem; max-width:60ch; margin-bottom:28px; }}
+
+  .tiles {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:28px; }}
+  .tile {{
+    background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
+    padding:16px 18px;
+  }}
+  .tile .label {{ font-size:0.78rem; color:var(--muted); margin-bottom:4px; }}
+  .tile .value {{ font-size:1.85rem; font-weight:650; letter-spacing:-0.02em; }}
+  .tile .delta {{ font-size:0.78rem; color:var(--good); font-weight:600; margin-top:2px; }}
+  .tile .note  {{ font-size:0.78rem; color:var(--muted); margin-top:2px; }}
+
+  .grid2 {{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px; }}
   @media (max-width:720px) {{ .grid2 {{ grid-template-columns:1fr; }} }}
-  .card h3 {{ font-size:0.95rem; margin-bottom:14px; color:var(--dim); font-weight:600; }}
-  .bar-row {{ display:flex; align-items:center; gap:10px; margin-bottom:9px; }}
-  .bar-label {{ width:130px; font-size:0.8rem; color:var(--dim); flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
-  .bar-track {{ flex:1; background:#222c42; border-radius:6px; height:20px; overflow:hidden; }}
-  .bar-fill {{ height:100%; border-radius:6px; min-width:2px; }}
-  .bar-count {{ width:34px; text-align:left; font-size:0.85rem; font-weight:600; flex-shrink:0; }}
-  .empty {{ color:var(--dim); font-size:0.85rem; text-align:center; padding:24px 0; }}
-  .table-wrap {{ background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow-x:auto; }}
-  table {{ width:100%; border-collapse:collapse; min-width:760px; }}
-  th {{ text-align:right; padding:12px 14px; font-size:0.78rem; color:var(--dim); border-bottom:1px solid var(--border); white-space:nowrap; }}
-  td {{ padding:12px 14px; border-bottom:1px solid var(--border); font-size:0.86rem; }}
+  .panel {{
+    background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
+    padding:18px 20px;
+  }}
+  .panel h2 {{ font-size:0.88rem; font-weight:650; margin-bottom:4px; }}
+  .panel .hint {{ font-size:0.76rem; color:var(--muted); margin-bottom:16px; }}
+
+  .bar-row {{ display:flex; align-items:center; gap:12px; padding:4px 0; }}
+  .bar-row:hover .bar-fill {{ filter:brightness(0.9); }}
+  .bar-label {{
+    width:128px; flex-shrink:0; font-size:0.8rem; color:var(--ink-2);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }}
+  .bar-track {{ flex:1; display:block; background:var(--track); border-radius:4px; height:12px; overflow:hidden; }}
+  .bar-fill {{ display:block; height:100%; border-radius:0 4px 4px 0; min-width:2px; }}
+  [dir="rtl"] .bar-fill {{ border-radius:4px 0 0 4px; }}
+  .bar-count {{
+    width:32px; flex-shrink:0; text-align:left; font-size:0.8rem; font-weight:600;
+    font-variant-numeric: tabular-nums;
+  }}
+  .empty {{ color:var(--muted); font-size:0.84rem; padding:20px 0; }}
+
+  .section-title {{ font-size:0.88rem; font-weight:650; margin-bottom:12px; }}
+  .table-wrap {{
+    background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
+    overflow-x:auto;
+  }}
+  table {{ width:100%; border-collapse:collapse; min-width:740px; }}
+  th {{
+    text-align:right; padding:11px 16px; font-size:0.74rem; font-weight:600;
+    color:var(--muted); border-bottom:1px solid var(--grid); white-space:nowrap;
+  }}
+  td {{ padding:11px 16px; border-bottom:1px solid var(--grid); font-size:0.85rem; vertical-align:top; }}
   tr:last-child td {{ border-bottom:none; }}
-  .jt {{ font-weight:600; }}
-  .jc {{ color:var(--dim); font-size:0.78rem; margin-top:2px; }}
-  .chip {{ background:color-mix(in srgb, var(--c) 18%, transparent); color:var(--c); padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; white-space:nowrap; }}
-  a {{ color:var(--accent); text-decoration:none; }}
+  .jt {{ display:block; font-weight:600; }}
+  .jc {{ display:block; color:var(--muted); font-size:0.78rem; margin-top:1px; }}
+  .dim {{ color:var(--ink-2); }}
+  .num {{ font-variant-numeric: tabular-nums; white-space:nowrap; }}
+  .chip {{
+    display:inline-block; font-size:0.74rem; font-weight:600; color:var(--c);
+    padding:2px 0; white-space:nowrap;
+  }}
+  .chip::before {{
+    content:""; display:inline-block; width:8px; height:8px; border-radius:50%;
+    background:var(--c); margin-inline-end:6px;
+  }}
+  a {{ color:var(--c-analyst); text-decoration:none; font-size:0.8rem; font-weight:600; }}
   a:hover {{ text-decoration:underline; }}
-  footer {{ color:var(--dim); font-size:0.75rem; margin-top:30px; text-align:center; line-height:1.9; }}
+
+  footer {{
+    color:var(--muted); font-size:0.76rem; margin-top:32px;
+    padding-top:16px; border-top:1px solid var(--grid); line-height:1.9;
+  }}
+  footer a {{ color:var(--ink-2); font-size:inherit; font-weight:500; }}
 </style>
 </head>
 <body>
 <div class="container">
-  <header>
-    <h1>📡 رادار مسار — سوق وظائف البيانات</h1>
-    <div class="sub">يُجمع آلياً يومياً · آخر تحديث: {updated}</div>
-  </header>
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark">مسار</span><span class="sep">/</span><span class="prod">الرادار</span>
+    </div>
+    <span class="updated">آخر تحديث: {updated}</span>
+  </div>
+  <p class="lede">مؤشر يومي لسوق وظائف البيانات: يجمع الإعلانات آلياً من مصادر مفتوحة، ويستخرج المهارات المطلوبة واتجاهات الأدوار.</p>
 
-  <section class="stats">
-    <div class="card"><div class="label">إجمالي الوظائف المرصودة</div><div class="value">{total}</div></div>
-    <div class="card"><div class="label">جديدة في آخر تشغيلة</div><div class="value" style="color:#34c98e">+{new_last}</div></div>
-    <div class="card"><div class="label">شركات</div><div class="value">{companies}</div></div>
-    <div class="card"><div class="label">مصادر</div><div class="value">{sources}</div></div>
-    <div class="card"><div class="label">تعلن الراتب</div><div class="value">{with_salary}</div></div>
+  <section class="tiles">
+    <div class="tile"><div class="label">الوظائف المرصودة</div><div class="value">{total}</div><div class="delta">+{new_last} في آخر تحديث</div></div>
+    <div class="tile"><div class="label">شركات</div><div class="value">{companies}</div></div>
+    <div class="tile"><div class="label">مصادر البيانات</div><div class="value">{n_sources}</div></div>
+    <div class="tile"><div class="label">يُجمع منذ</div><div class="value" style="font-size:1.2rem;padding-top:8px">{first_day}</div><div class="note">تشغيلة يومية مجدولة</div></div>
   </section>
 
   <section class="grid2">
-    <div class="card"><h3>🏆 أكثر المهارات طلباً</h3>{bar_rows(top_skills, "#4f8ef7")}</div>
-    <div class="card"><h3>👔 توزيع الأدوار</h3>{bar_rows(roles)}</div>
-    <div class="card"><h3>📊 مهارات محلل البيانات / BI</h3>{bar_rows(analyst_skills, "#f0b429")}</div>
-    <div class="card"><h3>⚙️ مهارات مهندس البيانات</h3>{bar_rows(engineer_skills, "#34c98e")}</div>
+    <div class="panel">
+      <h2>أكثر المهارات طلباً</h2>
+      <p class="hint">عدد الإعلانات التي وردت فيها كل مهارة</p>
+      {bar_rows(top_skills, n_skilled, "--c-analyst")}
+    </div>
+    <div class="panel">
+      <h2>توزيع الأدوار</h2>
+      <p class="hint">تصنيف آلي من المسمى الوظيفي</p>
+      {bar_rows(roles, total, None, ROLE_LABELS_AR)}
+    </div>
+    <div class="panel">
+      <h2>مهارات محلل البيانات وBI</h2>
+      <p class="hint">الأكثر وروداً في إعلانات التحليل</p>
+      {bar_rows(analyst_skills, sum(n for _, n in analyst_skills), "--c-analyst")}
+    </div>
+    <div class="panel">
+      <h2>مهارات مهندس البيانات</h2>
+      <p class="hint">الأكثر وروداً في إعلانات الهندسة</p>
+      {bar_rows(engineer_skills, sum(n for _, n in engineer_skills), "--c-engineer")}
+    </div>
   </section>
 
+  <h2 class="section-title">أحدث الوظائف المرصودة</h2>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>الوظيفة / الشركة</th><th>الموقع</th><th>الدور</th><th>الراتب</th><th>نُشرت</th><th></th></tr></thead>
+      <thead><tr><th>الوظيفة</th><th>الموقع</th><th>الدور</th><th>الراتب</th><th>نُشرت</th><th></th></tr></thead>
       <tbody>{job_rows}</tbody>
     </table>
   </div>
 
   <footer>
-    رادار مسار v0.1 — خط أنابيب بيانات مفتوح المصدر (Python + SQLite + GitHub Actions)<br>
-    المصادر: <a href="https://remotive.com" target="_blank">Remotive</a> · <a href="https://remoteok.com" target="_blank">Remote OK</a> — شكراً لواجهاتهم المفتوحة
+    الرادار — أحد مكوّنات منصة مسار · خط أنابيب بيانات مفتوح المصدر (Python · SQLite · GitHub Actions)<br>
+    البيانات بواسطة الواجهات العامة لـ <a href="https://remotive.com" target="_blank" rel="noopener">Remotive</a> و<a href="https://remoteok.com" target="_blank" rel="noopener">Remote OK</a>.
   </footer>
 </div>
 </body>
