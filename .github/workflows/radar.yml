@@ -1,0 +1,35 @@
+name: Daily radar collection
+
+on:
+  schedule:
+    - cron: "17 3 * * *"   # daily 03:17 UTC (06:17 KSA)
+  workflow_dispatch:        # manual run button
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Collect jobs
+        env:
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+        run: python -m radar.collect
+
+      - name: Build dashboard
+        run: python -m radar.build_dashboard
+
+      - name: Commit results
+        run: |
+          git config user.name "masar-radar-bot"
+          git config user.email "actions@github.com"
+          git add data/ docs/
+          git diff --cached --quiet || git commit -m "radar: daily collection $(date -u +%F)"
+          git push
