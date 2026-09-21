@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS jobs (
     url          TEXT,
     salary       TEXT,
     posted_at    TEXT,
-    collected_at TEXT NOT NULL
+    collected_at TEXT NOT NULL,
+    last_seen    TEXT,
+    description  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS job_skills (
@@ -33,18 +35,50 @@ def connect() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB_PATH)
     con.executescript(SCHEMA)
+    _migrate(con)
     return con
 
 
+def _migrate(con: sqlite3.Connection) -> None:
+    """Bring a database created by an earlier version up to the current schema."""
+    cols = {row[1] for row in con.execute("PRAGMA table_info(jobs)")}
+    if "last_seen" not in cols:
+        con.execute("ALTER TABLE jobs ADD COLUMN last_seen TEXT")
+        con.execute("UPDATE jobs SET last_seen = collected_at WHERE last_seen IS NULL")
+    if "description" not in cols:
+        con.execute("ALTER TABLE jobs ADD COLUMN description TEXT")
+    # created here, not in SCHEMA: the column must exist before the index can.
+    con.execute("CREATE INDEX IF NOT EXISTS idx_jobs_last_seen ON jobs(last_seen)")
+    con.commit()
+
+
 def insert_job(con: sqlite3.Connection, job: dict, skills: list[str]) -> bool:
-    """Insert a job if new. Returns True when the row was actually added."""
+    """Insert a job if new, otherwise refresh last_seen.
+
+    Returns True only when the row was actually added, so callers can count new
+    postings. Touching last_seen on a repeat sighting is what lets the dashboard
+    tell a live opening from one that closed months ago.
+    """
     cur = con.execute(
         """INSERT OR IGNORE INTO jobs
-           (id, source, title, company, location, role, url, salary, posted_at, collected_at)
-           VALUES (:id, :source, :title, :company, :location, :role, :url, :salary, :posted_at, :collected_at)""",
+           (id, source, title, company, location, role, url, salary, posted_at,
+            collected_at, last_seen, description)
+           VALUES (:id, :source, :title, :company, :location, :role, :url, :salary,
+                   :posted_at, :collected_at, :last_seen, :description)""",
         job,
     )
     if cur.rowcount == 0:
+        # Seen again: refresh the timestamp, and fill in a description if this
+        # row predates description storage. COALESCE keeps the stored one when
+        # there is one, so a truncated re-fetch never overwrites a fuller copy.
+        con.execute(
+            """UPDATE jobs
+                  SET last_seen = :last_seen,
+                      description = COALESCE(NULLIF(description, ''), :description)
+                WHERE id = :id""",
+            {"last_seen": job["last_seen"], "description": job["description"],
+             "id": job["id"]},
+        )
         return False
     con.executemany(
         "INSERT OR IGNORE INTO job_skills (job_id, skill) VALUES (?, ?)",
