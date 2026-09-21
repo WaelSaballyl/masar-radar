@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write
 
+# A run started while the previous one is still committing would push a database
+# rebuilt from stale files, silently dropping that run's postings.
+concurrency:
+  group: radar-collection
+  cancel-in-progress: false
+
 jobs:
   collect:
     runs-on: ubuntu-latest
@@ -18,10 +24,19 @@ jobs:
         with:
           python-version: "3.12"
 
+      # data/radar.db is not committed: SQLite is binary, so git would store a
+      # full copy of a growing file on every daily run. The database is rebuilt
+      # from the line-delimited JSON in data/ instead.
+      - name: Restore database from committed data
+        run: python -m radar.store restore
+
       - name: Collect jobs
         env:
           RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
         run: python -m radar.collect
+
+      - name: Export database back to committed data
+        run: python -m radar.store export
 
       - name: Build dashboard
         run: python -m radar.build_dashboard
@@ -30,6 +45,6 @@ jobs:
         run: |
           git config user.name "masar-radar-bot"
           git config user.email "actions@github.com"
-          git add data/ docs/
+          git add data/*.jsonl docs/
           git diff --cached --quiet || git commit -m "radar: daily collection $(date -u +%F)"
           git push

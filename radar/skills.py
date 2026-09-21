@@ -118,15 +118,21 @@ _COMPILED = {skill: re.compile(pat, re.IGNORECASE) for skill, pat in SKILL_PATTE
 ROLE_PATTERNS: list[tuple[str, str]] = [
     ("Analytics Engineer", r"analytics\s+engineer"),
     ("Data Engineer",      r"data\s+engineer|etl\s+developer|big\s*data\s+engineer"
-                           r"|data\s+(?:platform|infrastructure|pipeline)\s+engineer"),
+                           r"|data\s+(?:platform|infrastructure|pipeline)\s+engineer"
+                           r"|data\s+architect|analytics\s+platform"
+                           r"|data\s+(?:lake|warehous)"),
     ("ML Engineer",        r"(?:\bml|machine\s*learning|\bai)\s+engineer|\bmlops\b"
                            r"|(?:\bml|machine\s*learning)\s+scientist"),
-    ("Data Scientist",     r"data\s+scien"),
+    ("Data Scientist",     r"data\s+scien|statistician|biostatistic"),
     ("BI Developer",       r"business\s+intelligence"
                            r"|\bbi\s+(?:developer|analyst|engineer|consultant|specialist)"
                            r"|power\s*bi\s+(?:developer|analyst|consultant)"),
+    # Last analytics-flavoured rule, so it only sees titles the engineer and
+    # scientist rules above passed over: leads, managers and consultants whose
+    # work is analysis rather than building the platform.
     ("Data Analyst",       r"data\s+analy"
-                           r"|(?:reporting|insights?|quantitative|analytics)\s+analyst"),
+                           r"|(?:reporting|insights?|quantitative|analytics)\s+analyst"
+                           r"|analytics"),
     ("Business Analyst",   r"business\s+analyst|(?:marketing|product|research)\s+analyst"),
 ]
 _ROLES = [(role, re.compile(pat, re.IGNORECASE)) for role, pat in ROLE_PATTERNS]

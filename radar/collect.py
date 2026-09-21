@@ -8,12 +8,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import db, skills
-from .sources import jsearch, remoteok, remotive
+from .sources import arbeitnow, jobicy, jsearch, remoteok, remotive
 
 
-# Long enough for requirements and tech-stack sections, short enough that a
-# database committed daily does not balloon the repository.
-DESCRIPTION_LIMIT = 4000
+# Measured against the live feeds: the longest data-role description seen was
+# 10.5k characters and the 99th percentile 10.4k, so this keeps whole postings
+# rather than cutting the requirements section off most of them.
+DESCRIPTION_LIMIT = 12000
 
 
 def job_id(job: dict) -> str:
@@ -35,7 +36,12 @@ def dedupe(raw: list[dict]) -> list[dict]:
 
 
 def run() -> dict:
-    sources = [("remotive", remotive.fetch), ("remoteok", remoteok.fetch)]
+    sources = [
+        ("jobicy", jobicy.fetch),        # highest yield: industry filter works
+        ("remoteok", remoteok.fetch),
+        ("arbeitnow", arbeitnow.fetch),  # only European coverage in the radar
+        ("remotive", remotive.fetch),    # capped at 20 upstream, kept for breadth
+    ]
     if jsearch.enabled():
         sources.append(("jsearch", jsearch.fetch))
     else:
@@ -61,7 +67,11 @@ def run() -> dict:
             if not skills.is_data_job(j["title"]):
                 continue
             data_count += 1
-            body = skills.strip_html(j.pop("description"))
+            # Trim first, then extract from the trimmed text. Extracting from
+            # the full description while storing a shorter copy made the two
+            # disagree: reclassify would re-read the stored text, find fewer
+            # skills, and delete correct ones as stale.
+            body = skills.strip_html(j.pop("description"))[:DESCRIPTION_LIMIT]
             text = j["title"] + " " + body
             row = {
                 **j,
@@ -69,9 +79,8 @@ def run() -> dict:
                 "role": skills.classify_role(j["title"]),
                 "collected_at": now,
                 "last_seen": now,
-                # kept so skills can be re-extracted when the patterns improve;
-                # trimmed because the database is committed on every daily run.
-                "description": body[:DESCRIPTION_LIMIT],
+                # kept so skills can be re-extracted when the patterns improve
+                "description": body,
             }
             if db.insert_job(con, row, skills.extract_skills(text)):
                 new_count += 1

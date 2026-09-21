@@ -1,4 +1,5 @@
 data/last_run.json
+data/radar.db
 __pycache__/
 *.pyc
 graphify-out/
