@@ -20,6 +20,7 @@ ROLE_VARS = {
     "Data Engineer": "--c-engineer",
     "BI Developer": "--c-bi",
     "Data Scientist": "--c-scientist",
+    "Business Analyst": "--c-business",
     "ML Engineer": "--c-ml",
     "Analytics Engineer": "--c-analytics",
     "Other (Data)": "--c-other",
@@ -30,6 +31,7 @@ ROLE_LABELS_AR = {
     "Data Engineer": "مهندس بيانات",
     "BI Developer": "مطوّر BI",
     "Data Scientist": "عالم بيانات",
+    "Business Analyst": "محلل أعمال",
     "ML Engineer": "مهندس تعلم آلي",
     "Analytics Engineer": "مهندس تحليلات",
     "Other (Data)": "أخرى (بيانات)",
@@ -132,6 +134,7 @@ def build() -> None:
     --c-scientist: #4a3aa7;
     --c-ml:        #e34948;
     --c-analytics: #eb6834;
+    --c-business:  #4f6272;
     --c-other:     #898781;
   }}
   @media (prefers-color-scheme: dark) {{
@@ -151,6 +154,7 @@ def build() -> None:
       --c-scientist: #9085e9;
       --c-ml:        #e66767;
       --c-analytics: #d95926;
+      --c-business:  #8ba0b2;
     }}
   }}
   * {{ margin:0; padding:0; box-sizing:border-box; }}
