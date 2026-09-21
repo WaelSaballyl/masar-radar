@@ -68,13 +68,16 @@ def insert_job(con: sqlite3.Connection, job: dict, skills: list[str]) -> bool:
         job,
     )
     if cur.rowcount == 0:
-        # Seen again: refresh the timestamp, and fill in a description if this
-        # row predates description storage. COALESCE keeps the stored one when
-        # there is one, so a truncated re-fetch never overwrites a fuller copy.
+        # Seen again: refresh the timestamp and keep whichever description is
+        # longer. That backfills rows stored before descriptions were saved,
+        # upgrades ones stored under a shorter trim limit, and guarantees a
+        # truncated re-fetch can never shorten a fuller copy already held.
         con.execute(
             """UPDATE jobs
                   SET last_seen = :last_seen,
-                      description = COALESCE(NULLIF(description, ''), :description)
+                      description = CASE
+                          WHEN LENGTH(:description) > LENGTH(COALESCE(description, ''))
+                          THEN :description ELSE description END
                 WHERE id = :id""",
             {"last_seen": job["last_seen"], "description": job["description"],
              "id": job["id"]},
