@@ -7,29 +7,58 @@ An automated data pipeline that collects data-job postings daily from open APIs,
 ## Architecture
 
 ```
-sources (open APIs)          pipeline                     output
-┌─────────────┐
-│  Remotive    │──┐   ┌──────────────────────┐   ┌──────────────────────┐
-├─────────────┤  ├──▶│ collect.py            │──▶│ SQLite (data/radar.db)│
-│  Remote OK   │──┘   │ filter → normalize    │   └──────────┬───────────┘
-├─────────────┤       │ dedupe → skill extract│              │
-│  JSearch*    │──────▶└──────────────────────┘              ▼
-└─────────────┘                                  ┌──────────────────────┐
-  * needs RAPIDAPI_KEY                           │ build_dashboard.py    │
-                                                 │ → docs/dashboard.html │
-GitHub Actions (daily cron) orchestrates the run └──────────────────────┘
+sources (open APIs)            pipeline                      output
+┌──────────────┐
+│  Jobicy      │──┐   ┌───────────────────────┐   ┌────────────────────────┐
+├──────────────┤  │   │ collect.py            │   │ data/*.jsonl (tracked) │
+│  Remote OK   │──┤   │  filter → normalize   │──▶│ data/radar.db (built)  │
+├──────────────┤  ├──▶│  dedupe → extract     │   └───────────┬────────────┘
+│  Arbeitnow   │──┤   ├───────────────────────┤               │
+├──────────────┤  │   │ ai.py  (optional)     │               ▼
+│  Remotive    │──┤   │  one LLM read per job │   ┌────────────────────────┐
+├──────────────┤  │   └───────────────────────┘   │ build_dashboard.py     │
+│  JSearch *   │──┘                               │  → docs/dashboard.html │
+└──────────────┘                                  └────────────────────────┘
+  * needs RAPIDAPI_KEY          GitHub Actions (daily cron) orchestrates the run
 ```
 
 - **Zero dependencies** — Python standard library only (`urllib`, `sqlite3`, `re`, `json`).
-- **Idempotent** — jobs are deduped by a stable hash; re-runs never duplicate.
+  The optional AI layer calls the Gemini REST API over `urllib` too, so this holds
+  with it switched on.
+- **Idempotent** — jobs are deduped by a stable hash; re-runs never duplicate, and
+  `reclassify` / `ai` make no change on a second pass.
+- **Git-friendly storage** — the SQLite file is a build artifact, not a tracked file.
+  It is exported to line-delimited JSON, which git deltas; a binary database would
+  cost a full copy on every daily run.
 - **Respectful collection** — only official/public APIs are used. Bayt.com was evaluated and excluded because its `robots.txt` disallows job-page crawling; LinkedIn is excluded per its ToS.
 
 ## Run locally
 
 ```bash
+python -m radar.store restore    # rebuild data/radar.db from data/*.jsonl
 python -m radar.collect          # fetch + store new jobs
+python -m radar.ai --apply       # optional: read postings with an LLM
+python -m radar.store export     # write the database back to data/*.jsonl
 python -m radar.build_dashboard  # regenerate docs/dashboard.html
 ```
+
+Maintenance:
+
+```bash
+python -m radar.reclassify       # re-apply current rules to stored rows (dry run)
+python -m radar.ai --check       # verify the Gemini key and model name
+```
+
+### AI extraction (optional)
+
+Regex extraction finds a skill only when it is spelled the way the pattern
+expects, cannot tell a requirement from a nice-to-have, and reads an Arabic
+posting as noise. `radar/ai.py` sends each posting to Gemini once - ever - and
+stores the skills it actually asks for, plus the role and seniority.
+
+Set `GEMINI_API_KEY` ([free key](https://aistudio.google.com/apikey)) locally, or
+add it as a repository secret of the same name. Without it the layer is skipped
+and the regex results stand.
 
 ## Automation
 

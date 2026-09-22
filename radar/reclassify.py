@@ -22,9 +22,10 @@ def review(con) -> tuple[list, list, list, list]:
     """Return (rows to drop, stale roles, garbled text, stale skills)."""
     drop, rerole, garbled, reskill = [], [], [], []
     rows = con.execute(
-        "SELECT id, title, company, location, role, description FROM jobs"
+        "SELECT id, title, company, location, role, description, ai_extracted_at "
+        "FROM jobs"
     ).fetchall()
-    for job_id, title, company, location, role, description in rows:
+    for job_id, title, company, location, role, description, ai_extracted_at in rows:
         fixed = (repair(title), repair(company or ""), repair(location or ""))
         if fixed != (title, company or "", location or ""):
             garbled.append((job_id, location, fixed[2]))
@@ -34,14 +35,22 @@ def review(con) -> tuple[list, list, list, list]:
             drop.append((job_id, clean_title, role))
             continue
 
-        current = skills.classify_role(clean_title)
-        if current != role:
-            rerole.append((job_id, clean_title, role, current))
+        # The model read the whole posting; the pattern only sees the title.
+        # Leave its verdict alone.
+        if not ai_extracted_at:
+            current = skills.classify_role(clean_title)
+            if current != role:
+                rerole.append((job_id, clean_title, role, current))
 
-        if description:
+        # Regex results are only refreshed for postings the model has not read.
+        # Re-running the patterns over an AI-extracted posting would replace a
+        # careful reading with a keyword sweep and silently lose the required
+        # flag, the seniority and everything phrased in a way no pattern covers.
+        if description and not ai_extracted_at:
             found = set(skills.extract_skills(clean_title + " " + description))
             stored = {r[0] for r in con.execute(
-                "SELECT skill FROM job_skills WHERE job_id = ?", (job_id,))}
+                "SELECT skill FROM job_skills WHERE job_id = ? AND source = 'regex'",
+                (job_id,))}
             if found != stored:
                 reskill.append((job_id, clean_title, stored, found))
     return drop, rerole, garbled, reskill
@@ -89,7 +98,8 @@ def main(apply: bool) -> None:
     for job_id, _, _, found in reskill:
         con.execute("DELETE FROM job_skills WHERE job_id = ?", (job_id,))
         con.executemany(
-            "INSERT OR IGNORE INTO job_skills (job_id, skill) VALUES (?, ?)",
+            "INSERT OR IGNORE INTO job_skills (job_id, skill, required, source) "
+            "VALUES (?, ?, 1, 'regex')",
             [(job_id, skill) for skill in sorted(found)])
 
     con.commit()

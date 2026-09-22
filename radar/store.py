@@ -31,7 +31,8 @@ DESCRIPTIONS = DATA / "descriptions.jsonl"
 
 # description is stored separately; skills travel with the job line
 FIELDS = ["id", "source", "title", "company", "location", "role", "url",
-          "salary", "posted_at", "collected_at", "last_seen"]
+          "salary", "posted_at", "collected_at", "last_seen",
+          "seniority", "years_experience", "ai_extracted_at"]
 
 
 def _write_lines(path: Path, rows: list[dict]) -> None:
@@ -43,11 +44,14 @@ def _write_lines(path: Path, rows: list[dict]) -> None:
 
 def export() -> tuple[int, int]:
     con = db.connect()
-    skills_by_job: dict[str, list[str]] = {}
-    for job_id, skill in con.execute(
-        "SELECT job_id, skill FROM job_skills ORDER BY job_id, skill"
+    # [name, required, source] rather than a bare name: dropping the flag here
+    # would quietly downgrade every AI extraction to a regex hit on restore.
+    skills_by_job: dict[str, list[list]] = {}
+    for job_id, skill, required, source in con.execute(
+        "SELECT job_id, skill, required, source FROM job_skills "
+        "ORDER BY job_id, skill"
     ):
-        skills_by_job.setdefault(job_id, []).append(skill)
+        skills_by_job.setdefault(job_id, []).append([skill, required, source])
 
     jobs, descriptions = [], []
     cols = ", ".join(FIELDS)
@@ -92,8 +96,11 @@ def restore() -> int:
         )
         con.execute("DELETE FROM job_skills WHERE job_id = ?", (record["id"],))
         con.executemany(
-            "INSERT OR IGNORE INTO job_skills (job_id, skill) VALUES (?, ?)",
-            [(record["id"], s) for s in skills],
+            "INSERT OR IGNORE INTO job_skills (job_id, skill, required, source) "
+            "VALUES (?, ?, ?, ?)",
+            # a plain string is a line written before the flags existed
+            [(record["id"], *( [s, 1, "regex"] if isinstance(s, str) else s ))
+             for s in skills],
         )
         count += 1
     con.commit()
