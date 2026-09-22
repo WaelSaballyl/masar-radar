@@ -17,12 +17,19 @@ CREATE TABLE IF NOT EXISTS jobs (
     posted_at    TEXT,
     collected_at TEXT NOT NULL,
     last_seen    TEXT,
-    description  TEXT
+    description  TEXT,
+    seniority    TEXT,
+    years_experience INTEGER,
+    ai_extracted_at  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS job_skills (
-    job_id TEXT NOT NULL REFERENCES jobs(id),
-    skill  TEXT NOT NULL,
+    job_id   TEXT NOT NULL REFERENCES jobs(id),
+    skill    TEXT NOT NULL,
+    -- 0 when the posting lists the skill as nice-to-have. The regex extractor
+    -- cannot tell the difference and records everything it finds as required.
+    required INTEGER NOT NULL DEFAULT 1,
+    source   TEXT NOT NULL DEFAULT 'regex',
     PRIMARY KEY (job_id, skill)
 );
 
@@ -47,6 +54,17 @@ def _migrate(con: sqlite3.Connection) -> None:
         con.execute("UPDATE jobs SET last_seen = collected_at WHERE last_seen IS NULL")
     if "description" not in cols:
         con.execute("ALTER TABLE jobs ADD COLUMN description TEXT")
+    for column, decl in (("seniority", "TEXT"),
+                         ("years_experience", "INTEGER"),
+                         ("ai_extracted_at", "TEXT")):
+        if column not in cols:
+            con.execute(f"ALTER TABLE jobs ADD COLUMN {column} {decl}")
+
+    skill_cols = {row[1] for row in con.execute("PRAGMA table_info(job_skills)")}
+    if "required" not in skill_cols:
+        con.execute("ALTER TABLE job_skills ADD COLUMN required INTEGER NOT NULL DEFAULT 1")
+    if "source" not in skill_cols:
+        con.execute("ALTER TABLE job_skills ADD COLUMN source TEXT NOT NULL DEFAULT 'regex'")
     # created here, not in SCHEMA: the column must exist before the index can.
     con.execute("CREATE INDEX IF NOT EXISTS idx_jobs_last_seen ON jobs(last_seen)")
     con.commit()
