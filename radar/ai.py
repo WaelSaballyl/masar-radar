@@ -102,8 +102,26 @@ def _key() -> str:
     return os.environ.get("GEMINI_API_KEY") or os.environ["GOOGLE_API_KEY"]
 
 
-def call(batch: list[dict], timeout: int = 90) -> list[dict]:
-    """Send one batch and return the parsed postings array."""
+# Worth waiting out: 503 is the model reporting it is overloaded, 429 the free
+# tier's per-minute limit. Both clear on their own, usually within a minute.
+TRANSIENT = {429, 500, 503, 504}
+RETRIES = 3          # attempts per model before falling back to the next one
+BACKOFF = 8.0        # seconds, doubled per attempt unless the API names a delay
+MAX_WAIT = 60.0      # never stall a CI run longer than this on one hint
+# Stop after this many batches fail in a row. On a bad day at the API, pressing
+# on only spends the daily quota on requests that will fail the same way.
+MAX_CONSECUTIVE_FAILURES = 3
+
+
+class BatchFailed(Exception):
+    """Every model and retry was tried; the batch stays queued for next run."""
+
+
+class KeyRejected(Exception):
+    """401/403 - no point sending anything else this run."""
+
+
+def _request_body(batch: list[dict]) -> dict:
     postings = "\n\n".join(
         f"--- id: {j['id']}\ntitle: {j['title']}\ncompany: {j['company']}\n"
         f"location: {j['location']}\ndescription: {(j['description'] or '')[:DESCRIPTION_CHARS]}"
@@ -114,7 +132,7 @@ def call(batch: list[dict], timeout: int = 90) -> list[dict]:
         roles=", ".join(ROLES),
         seniority=", ".join(SENIORITY),
     )
-    body = {
+    return {
         "contents": [{"parts": [{"text": instruction + "\n\n" + postings}]}],
         "generationConfig": {
             "temperature": 0,
@@ -122,19 +140,105 @@ def call(batch: list[dict], timeout: int = 90) -> list[dict]:
             "responseSchema": SCHEMA,
         },
     }
+
+
+def _post(model: str, body: dict, timeout: int) -> dict:
     req = urllib.request.Request(
-        ENDPOINT.format(model=MODEL),
+        ENDPOINT.format(model=model),
         data=json.dumps(body).encode("utf-8"),
         headers={"Content-Type": "application/json", "x-goog-api-key": _key()},
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.load(resp)
+
+
+def _explain(e: urllib.error.HTTPError) -> tuple[str, float | None]:
+    """(message, seconds to wait) from an error response.
+
+    The status line alone says "Service Unavailable"; the body says why, and on
+    a 429 it names how long to back off for.
+    """
+    wait = None
+    try:
+        wait = float(e.headers.get("Retry-After"))
+    except (TypeError, ValueError):
+        pass
+    try:
+        err = json.loads(e.read().decode("utf-8"))["error"]
+        message = err.get("message", "")
+        for detail in err.get("details", []):
+            delay = detail.get("retryDelay", "")
+            if wait is None and delay.endswith("s"):
+                wait = float(delay[:-1])
+    except Exception:
+        message = e.reason or ""
+    return message[:160], wait
+
+
+def call(batch: list[dict], models: list[str], timeout: int = 90) -> tuple[list[dict], str]:
+    """Send one batch. Retries transient errors, then falls back to the next model.
+
+    Returns (postings, model that answered).
+    """
+    body = _request_body(batch)
+    last = "no model attempted"
+    for model in models:
+        for attempt in range(RETRIES):
+            try:
+                payload = _post(model, body, timeout)
+                text = payload["candidates"][0]["content"]["parts"][0]["text"]
+                return json.loads(text)["postings"], model
+            except urllib.error.HTTPError as e:
+                message, hint = _explain(e)
+                last = f"{model}: HTTP {e.code} {message}"
+                if e.code in (401, 403):
+                    raise KeyRejected(last) from e
+                if e.code not in TRANSIENT:
+                    break  # 400/404 will not change on retry; try the next model
+                if attempt < RETRIES - 1:
+                    time.sleep(min(hint or BACKOFF * 2 ** attempt, MAX_WAIT))
+            except (urllib.error.URLError, TimeoutError) as e:
+                last = f"{model}: {type(e).__name__} {e}"
+                if attempt < RETRIES - 1:
+                    time.sleep(BACKOFF * 2 ** attempt)
+            except (KeyError, IndexError, ValueError) as e:
+                # A reply we cannot read. Asking the same model again tends to
+                # return the same shape, so move on.
+                last = f"{model}: unreadable reply ({type(e).__name__})"
+                break
+    raise BatchFailed(last)
+
+
+def available_models() -> list[str]:
+    """Models this key can call generateContent on."""
+    req = urllib.request.Request(
+        "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200",
+        headers={"x-goog-api-key": _key()},
+    )
+    with urllib.request.urlopen(req, timeout=30) as resp:
         payload = json.load(resp)
-    text = payload["candidates"][0]["content"]["parts"][0]["text"]
-    return json.loads(text)["postings"]
+    return sorted(
+        m["name"].removeprefix("models/") for m in payload.get("models", [])
+        if "generateContent" in m.get("supportedGenerationMethods", [])
+    )
+
+
+def models_to_try(available: list[str]) -> list[str]:
+    """The configured model first, then other rolling flash aliases as fallback.
+
+    Only "-latest" aliases are considered: a dated preview may be withdrawn with
+    little notice, while the aliases are kept pointing at something current.
+    A lighter model under less load beats no answer on a day the main one is
+    saturated.
+    """
+    fallbacks = sorted(m for m in available
+                       if "flash" in m and m.endswith("-latest") and m != MODEL)
+    order = [m for m in [MODEL, *fallbacks] if m in available]
+    return order[:3] or [MODEL]
 
 
 def check() -> int:
-    """List the models this key can reach, and say whether MODEL is one of them.
+    """Verify the key, and say whether MODEL and its fallbacks can be reached.
 
     Model names move: an alias that worked when this was written can be retired.
     Without this, a stale name surfaces as an opaque 404 in the middle of a run.
@@ -143,20 +247,15 @@ def check() -> int:
         print("[skip] ai: GEMINI_API_KEY not set")
         print("       get a free key at https://aistudio.google.com/apikey")
         return 1
-    url = "https://generativelanguage.googleapis.com/v1beta/models"
-    req = urllib.request.Request(url, headers={"x-goog-api-key": _key()})
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            payload = json.load(resp)
+        usable = available_models()
     except urllib.error.HTTPError as e:
-        print(f"[error] ai: key rejected ({e.code}) - {e.reason}")
+        message, _ = _explain(e)
+        print(f"[error] ai: key rejected ({e.code}) - {message}")
         return 1
 
-    usable = sorted(
-        m["name"].removeprefix("models/") for m in payload.get("models", [])
-        if "generateContent" in m.get("supportedGenerationMethods", [])
-    )
     print(f"[ok] ai: key works, {len(usable)} models support generateContent")
+    print(f"[ok] ai: will try {', '.join(models_to_try(usable))}")
     if MODEL in usable:
         print(f"[ok] ai: configured model {MODEL!r} is available")
         return 0
@@ -202,7 +301,8 @@ def store(con, result: dict, now: str) -> None:
 def run(apply: bool, limit: int | None = None) -> dict:
     con = db.connect()
     queue = pending(con, limit)
-    stats = {"pending": len(queue), "batches": 0, "extracted": 0, "failed": 0}
+    stats = {"pending": len(queue), "batches": 0, "extracted": 0, "failed": 0,
+             "deferred": 0}
 
     if not enabled():
         print("[skip] ai: GEMINI_API_KEY not set - regex extraction stands")
@@ -220,32 +320,54 @@ def run(apply: bool, limit: int | None = None) -> dict:
         con.close()
         return stats
 
-    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    for start in range(0, len(queue), BATCH):
-        batch = queue[start:start + BATCH]
-        try:
-            results = call(batch)
-        except (urllib.error.URLError, KeyError, ValueError, TimeoutError) as e:
-            # A failed batch is left unstamped, so the next run retries it.
-            print(f"[error] ai batch {stats['batches'] + 1}: {type(e).__name__}: {e}")
-            stats["failed"] += len(batch)
-            continue
-        finally:
-            stats["batches"] += 1
+    try:
+        models = models_to_try(available_models())
+    except urllib.error.URLError as e:
+        print(f"[error] ai: cannot list models ({e}) - trying {MODEL} alone")
+        models = [MODEL]
+    print(f"[ok] ai: {len(queue)} pending, models {', '.join(models)}")
 
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    consecutive = 0
+    for start in range(0, len(queue), BATCH):
+        # Pause before every request after the first, success or not. It used to
+        # sit after the success path only, so a failing batch skipped it and the
+        # next request went out at once - which is how 503s turned into 429s.
+        if start:
+            time.sleep(PAUSE)
+        batch = queue[start:start + BATCH]
+        stats["batches"] += 1
+        try:
+            results, model = call(batch, models)
+        except KeyRejected as e:
+            print(f"[error] ai: {e} - stopping")
+            stats["failed"] += len(batch)
+            stats["deferred"] = len(queue) - start - len(batch)
+            break
+        except BatchFailed as e:
+            # Left unstamped, so the next run picks it up again.
+            print(f"[error] ai batch {stats['batches']}: {e}")
+            stats["failed"] += len(batch)
+            consecutive += 1
+            if consecutive >= MAX_CONSECUTIVE_FAILURES:
+                stats["deferred"] = len(queue) - start - len(batch)
+                print(f"[stop] ai: {consecutive} batches failed in a row - "
+                      f"{stats['deferred']} postings left for the next run")
+                break
+            continue
+
+        consecutive = 0
         known = {j["id"] for j in batch}
         for result in results:
             if result.get("id") in known:
                 store(con, result, now)
                 stats["extracted"] += 1
         con.commit()
-        print(f"[ok] ai batch {stats['batches']}: {len(results)} postings")
-        if start + BATCH < len(queue):
-            time.sleep(PAUSE)
+        print(f"[ok] ai batch {stats['batches']}: {len(results)} postings via {model}")
 
     con.close()
     print(f"[done] ai: {stats['extracted']} extracted, {stats['failed']} failed, "
-          f"{stats['batches']} requests")
+          f"{stats['deferred']} deferred, {stats['batches']} batches")
     return stats
 
 
