@@ -12,9 +12,9 @@ noise. A model reads the posting instead, so this layer exists to answer three
 things the patterns get wrong or cannot reach: which skills the job actually
 requires, what the role really is, and how senior it is.
 
-Cost control is the whole design. Every posting is sent at most once, ever:
-ai_extracted_at is stamped on success and the posting is never queued again. A
-run with nothing new to do makes no request at all.
+Cost control is the whole design. A posting is sent once per PROMPT_VERSION:
+ai_version is stamped on success and the posting is not queued again until the
+prompt improves. A run with nothing new to do makes no request at all.
 
 Without GEMINI_API_KEY (or GOOGLE_API_KEY) this layer does nothing and the regex
 results stand. The radar is fully functional without it.
@@ -38,7 +38,18 @@ ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:gene
 # large enough that a day of new postings costs a handful of calls.
 BATCH = 5
 PAUSE = 4.0  # seconds between requests; the free tier allows ~15 per minute
-DESCRIPTION_CHARS = 6000  # enough for the requirements section of any posting
+# Everything collect.py stores (DESCRIPTION_LIMIT). At 6000, 43 of 99 postings
+# were cut, and preferred-qualifications sections sit at the end: 12% of the
+# skills the model missed were in text it was never sent.
+DESCRIPTION_CHARS = 12000
+
+# Bump when PROMPT changes in a way that would change answers. Postings read
+# under an older version go back in the queue on the next run, the same way
+# reclassify re-applies improved regex patterns to stored rows.
+#   1  initial
+#   2  counts practices and responsibilities, not only named tools; excludes
+#      company, product and culture mentions; sees the full description
+PROMPT_VERSION = 2
 
 ROLES = ["Data Analyst", "Data Engineer", "Data Scientist", "ML Engineer",
          "Analytics Engineer", "BI Developer", "Business Analyst", "Other (Data)"]
@@ -46,19 +57,21 @@ SENIORITY = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager", "Unknown"]
 
 PROMPT = """You are reading job postings for a data-jobs market tracker.
 
-For each posting, report only what the posting itself supports. Do not infer a \
-skill because the role usually needs it - if the text does not mention it, leave \
-it out. A skill listed as "nice to have" still counts as required=false.
+For each posting, report only what the posting itself supports. Do not add a skill because the role usually needs it - if the text does not mention it, leave it out.
 
-skills: the technologies, tools and named methods the posting asks for. Use the \
-canonical name from this list where one fits, and the posting's own wording \
-otherwise. Canonical names: {canonical}
+skills: what the job asks of the person who takes it. Count a skill when the posting lists it as a requirement or qualification, OR when the job's responsibilities involve doing it: "you will own data quality across our pipelines" is Data Governance even though no tool is named. This covers practices and methods - data modeling, governance, experimentation, forecasting, statistics - as well as named tools and languages.
+
+Do not count a mention that only describes the company, its product, its customers, other open roles, or the team's culture and learning opportunities. "Our AI-powered platform" says nothing about what this hire will do.
+
+required: true when the posting requires it or it is a core responsibility; false when it is listed as a plus, preferred, bonus or nice to have.
+
+Use the canonical name from this list where one fits, and the posting's own wording otherwise. Canonical names: {canonical}
 
 role: one of {roles}
 seniority: one of {seniority}
 years_experience: the minimum years stated, or null if the posting does not say.
 
-Postings are sometimes in Arabic. Read them and reply in English regardless.
+Postings are sometimes in Arabic, German or French. Read them in their own language and reply in English regardless.
 
 Return one object per posting, in the same order, keyed by the given id."""
 
@@ -267,16 +280,16 @@ def check() -> int:
 
 
 def pending(con, limit: int | None = None) -> list[dict]:
-    """Postings with a description that have never been through the model."""
+    """Postings with a description the current prompt has not read yet."""
     sql = """SELECT id, title, company, location, description
                FROM jobs
-              WHERE ai_extracted_at IS NULL
+              WHERE (ai_version IS NULL OR ai_version < ?)
                 AND description IS NOT NULL AND description != ''
               ORDER BY collected_at DESC, id"""
     if limit:
         sql += f" LIMIT {int(limit)}"
     cols = ("id", "title", "company", "location", "description")
-    return [dict(zip(cols, row)) for row in con.execute(sql)]
+    return [dict(zip(cols, row)) for row in con.execute(sql, (PROMPT_VERSION,))]
 
 
 def store(con, result: dict, now: str) -> None:
@@ -291,10 +304,10 @@ def store(con, result: dict, now: str) -> None:
     )
     con.execute(
         """UPDATE jobs SET role = ?, seniority = ?, years_experience = ?,
-                           ai_extracted_at = ?
+                           ai_extracted_at = ?, ai_version = ?
              WHERE id = ?""",
         (result["role"], result.get("seniority"), result.get("years_experience"),
-         now, job_id),
+         now, PROMPT_VERSION, job_id),
     )
 
 
@@ -357,6 +370,12 @@ def run(apply: bool, limit: int | None = None) -> dict:
             continue
 
         consecutive = 0
+        if model != models[0]:
+            # The first choice just failed every retry. Lead with the model
+            # that answered for the rest of the run: retrying a saturated model
+            # first cost ~25s of backoff per batch, ten minutes over a full run.
+            models = [model] + [m for m in models if m != model]
+            print(f"[ok] ai: {model} answered - using it first for the rest of the run")
         known = {j["id"] for j in batch}
         for result in results:
             if result.get("id") in known:

@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     description  TEXT,
     seniority    TEXT,
     years_experience INTEGER,
-    ai_extracted_at  TEXT
+    ai_extracted_at  TEXT,
+    ai_version       INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS job_skills (
@@ -56,9 +57,14 @@ def _migrate(con: sqlite3.Connection) -> None:
         con.execute("ALTER TABLE jobs ADD COLUMN description TEXT")
     for column, decl in (("seniority", "TEXT"),
                          ("years_experience", "INTEGER"),
-                         ("ai_extracted_at", "TEXT")):
+                         ("ai_extracted_at", "TEXT"),
+                         ("ai_version", "INTEGER")):
         if column not in cols:
             con.execute(f"ALTER TABLE jobs ADD COLUMN {column} {decl}")
+            if column == "ai_version":
+                # rows the model read before versioning existed used prompt v1
+                con.execute("UPDATE jobs SET ai_version = 1 "
+                            "WHERE ai_extracted_at IS NOT NULL")
 
     skill_cols = {row[1] for row in con.execute("PRAGMA table_info(job_skills)")}
     if "required" not in skill_cols:

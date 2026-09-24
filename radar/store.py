@@ -32,7 +32,7 @@ DESCRIPTIONS = DATA / "descriptions.jsonl"
 # description is stored separately; skills travel with the job line
 FIELDS = ["id", "source", "title", "company", "location", "role", "url",
           "salary", "posted_at", "collected_at", "last_seen",
-          "seniority", "years_experience", "ai_extracted_at"]
+          "seniority", "years_experience", "ai_extracted_at", "ai_version"]
 
 
 def _write_lines(path: Path, rows: list[dict]) -> None:
@@ -87,6 +87,11 @@ def restore() -> int:
             continue
         record = json.loads(line)
         skills = record.pop("skills", [])
+        # Lines written by an older version lack the newer fields.
+        for field in FIELDS:
+            record.setdefault(field, None)
+        if record["ai_extracted_at"] and record["ai_version"] is None:
+            record["ai_version"] = 1  # read before prompts were versioned
         record["description"] = texts.get(record["id"])
         placeholders = ", ".join(f":{f}" for f in FIELDS)
         con.execute(
