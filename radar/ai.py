@@ -49,7 +49,22 @@ DESCRIPTION_CHARS = 12000
 #   1  initial
 #   2  counts practices and responsibilities, not only named tools; excludes
 #      company, product and culture mentions; sees the full description
-PROMPT_VERSION = 2
+#   3  tells the model what the broad canonical names cover (SKILL_SCOPE)
+PROMPT_VERSION = 3
+
+# Canonical names whose regex in skills.py covers more than the label says in
+# plain English. The model only sees the name, so without this it reads "Data
+# Governance" narrowly and files "own data quality" under nothing - v2 missed
+# three of four such responsibilities in postings it had read in full. Keep in
+# step with the matching patterns in SKILL_PATTERNS.
+SKILL_SCOPE = {
+    "Data Governance": "data quality, lineage, metadata, cataloguing, stewardship",
+    "A/B Testing": "experimentation, experiment design, incrementality testing",
+    "Data Modeling": "dimensional modeling, star schemas, schema design",
+    "Data Warehousing": "data warehouses, data lakes, lakehouses",
+    "Time Series": "forecasting",
+    "ETL": "ELT, building and maintaining data pipelines",
+}
 
 ROLES = ["Data Analyst", "Data Engineer", "Data Scientist", "ML Engineer",
          "Analytics Engineer", "BI Developer", "Business Analyst", "Other (Data)"]
@@ -66,6 +81,8 @@ Do not count a mention that only describes the company, its product, its custome
 required: true when the posting requires it or it is a core responsibility; false when it is listed as a plus, preferred, bonus or nice to have.
 
 Use the canonical name from this list where one fits, and the posting's own wording otherwise. Canonical names: {canonical}
+
+Some canonical names are broader than their label: {scope}
 
 role: one of {roles}
 seniority: one of {seniority}
@@ -142,6 +159,8 @@ def _request_body(batch: list[dict]) -> dict:
     )
     instruction = PROMPT.format(
         canonical=", ".join(sorted(skills.SKILL_PATTERNS)),
+        scope="; ".join(f"{name} also covers {covers}"
+                        for name, covers in SKILL_SCOPE.items()),
         roles=", ".join(ROLES),
         seniority=", ".join(SENIORITY),
     )
