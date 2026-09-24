@@ -35,11 +35,25 @@ FIELDS = ["id", "source", "title", "company", "location", "role", "url",
           "seniority", "years_experience", "ai_extracted_at", "ai_version"]
 
 
+def _dump(record: dict) -> str:
+    # ensure_ascii=False keeps Arabic readable in diffs, but it also writes
+    # U+2028/U+2029 raw, and scraped job text contains them. Python's
+    # splitlines() and plenty of other line-oriented tools treat those as line
+    # breaks, which cuts a record in half. Escaping them keeps one record per
+    # line for any reader; the decoded value is unchanged.
+    line = json.dumps(record, ensure_ascii=False, sort_keys=True)
+    return line.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+
+
+def _read_lines(path: Path) -> list[dict]:
+    # Split on "\n" only. splitlines() also breaks on U+2028, U+0085 and
+    # friends, so a file written before _dump escaped them would not parse.
+    text = path.read_text(encoding="utf-8")
+    return [json.loads(line) for line in text.split("\n") if line.strip()]
+
+
 def _write_lines(path: Path, rows: list[dict]) -> None:
-    path.write_text(
-        "".join(json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n" for r in rows),
-        encoding="utf-8",
-    )
+    path.write_text("".join(_dump(r) + "\n" for r in rows), encoding="utf-8")
 
 
 def export() -> tuple[int, int]:
@@ -75,17 +89,12 @@ def restore() -> int:
 
     texts = {}
     if DESCRIPTIONS.exists():
-        for line in DESCRIPTIONS.read_text(encoding="utf-8").splitlines():
-            if line.strip():
-                record = json.loads(line)
-                texts[record["id"]] = record["description"]
+        for record in _read_lines(DESCRIPTIONS):
+            texts[record["id"]] = record["description"]
 
     con = db.connect()
     count = 0
-    for line in JOBS.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        record = json.loads(line)
+    for record in _read_lines(JOBS):
         skills = record.pop("skills", [])
         # Lines written by an older version lack the newer fields.
         for field in FIELDS:
