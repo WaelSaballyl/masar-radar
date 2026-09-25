@@ -63,8 +63,13 @@
   const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
   // with or without https: "coursera.org/verify/X" is a link too
   const LINK = /\b(?:https?:\/\/|www\.)\S+|\b(?:[a-z0-9-]+\.)+(?:com|org|net|io|dev|app|me|co|sa|ai|edu)\/\S+/gi;
-  const PHONE = /(?:\+|00)?\d[\d\s()\-]{7,}\d/g;
-  const isPhone = (s) => s.replace(/\D/g, "").length >= 9; // a year range has 8 digits
+  // A phone starts with +, 00 or 0 ("+966 54 ...", "0551234567"). Dates never
+  // count: "2026 (2021-2026)" has twelve digits but is only years.
+  const PHONE = /(?:\+|\b00|\b0)\d[\d\s\-]{7,14}\d/g;
+  const isPhone = (s) => {
+    const digits = s.replace(/\D/g, "");
+    return digits.length >= 9 && digits.length <= 15 && !/^(?:(?:19|20)\d\d\D*)+$/.test(s.trim());
+  };
 
   function stripContact(text, p) {
     let t = text.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m));
@@ -185,7 +190,9 @@
 
   $("read-cv").addEventListener("click", async () => {
     const button = $("read-cv");
-    button.disabled = true;
+    // making a CV mid-read would send a half-filled profile
+    button.disabled = $("make").disabled = true;
+    say("make-status", "");
     try {
       const file = $("cv-file").files[0];
       say("import-status", "نقرأ سيرتك…");
@@ -201,7 +208,7 @@
     } catch (e) {
       say("import-status", ERR[e.code] || ERR.other, true);
     } finally {
-      button.disabled = false;
+      button.disabled = $("make").disabled = false;
     }
   });
   $("cv-file").addEventListener("change", (e) => {
