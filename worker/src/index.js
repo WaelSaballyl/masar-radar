@@ -133,11 +133,13 @@ async function tailor(input, env) {
 Hard rules:
 - Use only facts found in PROFILE. Never add a skill, tool, employer, title, date, number or achievement that PROFILE does not state. If the posting wants something PROFILE lacks, leave it out.
 - You may rephrase, reorder, merge or drop the student's own points, and use the posting's wording for things the student really did.
+- Tie a skill to a job or project only where PROFILE says it was used there. Keep qualifiers such as "basic" or "in progress".
+- No stock phrases ("eager to leverage", "passionate", "results-driven"); say what the student did.
 - Bullets start with an action verb, one line each, at most 4 per item, most relevant first.
 - Write in ${lang}. Keep tool and skill names in their usual Latin spelling.
 - summary: 2-3 sentences aimed at this posting, only from PROFILE.
 - skills: the student's skills from PROFILE, most relevant to the posting first.
-- job_required, job_preferred: short skill names the POSTING itself lists as required / nice to have.
+- job_required, job_preferred: short names of the tools and technical skills the POSTING itself lists as required / nice to have. Not degrees, enrolment, languages or years of experience.
 
 Shape:
 {"summary":"","skills":[""],"experience":[{"title":"","org":"","dates":"","bullets":[""]}],"projects":[{"name":"","tools":"","bullets":[""]}],"education":[{"degree":"","major":"","school":"","dates":"","gpa":""}],"certificates":[""],"languages":[""],"job_required":[""],"job_preferred":[""]}
