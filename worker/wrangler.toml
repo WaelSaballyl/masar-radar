@@ -1,5 +1,8 @@
 # Deploy:  npx wrangler login && npx wrangler secret put GEMINI_API_KEY && npx wrangler deploy
 name = "masar-cv"
+# waelsaballyl@gmail.com's account; pinned because a wrangler cache from another
+# project on the same machine pointed deploys at a different account
+account_id = "bcbacc6cc21ac4b7fc20b9141f41f7ae"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
 
