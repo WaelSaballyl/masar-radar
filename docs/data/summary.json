@@ -1,53 +1,53 @@
 {
- "updated_at": "2026-09-25T08:10:13+00:00",
- "active_postings": 167,
- "total_postings": 185,
- "companies": 124,
+ "updated_at": "2026-09-25T08:27:49+00:00",
+ "active_postings": 170,
+ "total_postings": 188,
+ "companies": 125,
  "sources": [
   "arbeitnow",
   "jobicy",
   "remoteok",
   "remotive"
  ],
- "entry_postings": 20,
+ "entry_postings": 21,
  "route": {
   "basis": "entry",
-  "postings": 20,
+  "postings": 21,
   "stops": [
    {
     "name": "Excel",
-    "postings": 7,
-    "share": 0.35
+    "postings": 8,
+    "share": 0.381
    },
    {
     "name": "Python",
     "postings": 7,
-    "share": 0.35
+    "share": 0.333
    },
    {
     "name": "Data Modeling",
     "postings": 5,
-    "share": 0.25
+    "share": 0.238
+   },
+   {
+    "name": "Google Sheets",
+    "postings": 5,
+    "share": 0.238
    },
    {
     "name": "SQL",
     "postings": 5,
-    "share": 0.25
+    "share": 0.238
    },
    {
     "name": "ETL",
     "postings": 4,
-    "share": 0.2
-   },
-   {
-    "name": "Google Sheets",
-    "postings": 4,
-    "share": 0.2
+    "share": 0.19
    },
    {
     "name": "AWS",
     "postings": 3,
-    "share": 0.15
+    "share": 0.143
    }
   ]
  },
@@ -55,52 +55,52 @@
   {
    "name": "Python",
    "postings": 92,
-   "share": 0.551
+   "share": 0.541
   },
   {
    "name": "SQL",
-   "postings": 72,
-   "share": 0.431
+   "postings": 73,
+   "share": 0.429
   },
   {
    "name": "Data Modeling",
-   "postings": 37,
-   "share": 0.222
+   "postings": 38,
+   "share": 0.224
   },
   {
    "name": "Data Governance",
-   "postings": 35,
-   "share": 0.21
+   "postings": 36,
+   "share": 0.212
   },
   {
    "name": "ETL",
-   "postings": 34,
-   "share": 0.204
+   "postings": 35,
+   "share": 0.206
   },
   {
    "name": "A/B Testing",
-   "postings": 31,
-   "share": 0.186
+   "postings": 32,
+   "share": 0.188
   },
   {
    "name": "Machine Learning",
-   "postings": 28,
-   "share": 0.168
+   "postings": 29,
+   "share": 0.171
   },
   {
    "name": "Statistics",
    "postings": 24,
-   "share": 0.144
+   "share": 0.141
   },
   {
    "name": "PyTorch",
    "postings": 20,
-   "share": 0.12
+   "share": 0.118
   },
   {
    "name": "dbt",
    "postings": 20,
-   "share": 0.12
+   "share": 0.118
   }
  ],
  "entry_jobs": [
@@ -118,6 +118,14 @@
    "location": "Paris",
    "url": "https://www.arbeitnow.fr/jobs/companies/ekimetrics/stage-2027-business-data-scientist-marketing-effectivness-paris-229554",
    "level": "Intern",
+   "posted_at": "2026-09-25"
+  },
+  {
+   "title": "Junior Google Performance & Analytics Manager (m/w/d)",
+   "company": "eFLY Marketplace Services GmbH",
+   "location": "Stuttgart",
+   "url": "https://www.arbeitnow.com/jobs/companies/efly-marketplace-services-gmbh/junior-google-performance-analytics-manager-stuttgart-127810",
+   "level": "Junior",
    "posted_at": "2026-09-25"
   },
   {
@@ -191,25 +199,18 @@
    "url": "https://www.arbeitnow.fr/jobs/companies/illuin-technology/junior-applied-ai-engineer-paris-445144",
    "level": "Junior",
    "posted_at": "2026-09-23"
-  },
-  {
-   "title": "Internship - Data Engineer Core Data Product - Lille (f/m/d)",
-   "company": "Decathlontechnology",
-   "location": "Villeneuve-d'Ascq, Nord",
-   "url": "https://www.arbeitnow.fr/jobs/companies/decathlontechnology/internship-data-engineer-core-data-product-lille-villeneuve-dascq-nord-171725",
-   "level": "Intern",
-   "posted_at": "2026-09-23"
   }
  ],
  "company_names": [
   "Karrieretutor De",
+  "Deliveroo ",
   "Decathlontechnology",
   "Aircall",
   "Carrot",
   "Ruby Labs",
   "Affirm",
-  "Luxury Presence",
   "Tripadvisor",
+  "Luxury Presence",
   "Liftoff",
   "GESIS – Leibniz-Institut für Sozialwissenschaften",
   "rebuy",
@@ -221,7 +222,6 @@
   "Wayve",
   "oliver",
   "Checkout.com",
-  "Deliveroo ",
   "ILLUIN Technology",
   "Coreweaveu",
   "Jobgether",
@@ -232,9 +232,9 @@
   "Quora",
   "Ekimetrics",
   "Anaplan",
+  "Gopuff",
   "Oddball",
   "Mactores",
-  "Gopuff",
   "Astronomer",
   "ExtraHop",
   "Climate",
