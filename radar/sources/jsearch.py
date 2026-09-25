@@ -27,10 +27,16 @@ def fetch() -> list[dict]:
     jobs = []
     for term in SEARCHES:
         data = get_json(
-            f"https://jsearch.p.rapidapi.com/search?query={quote(term)}&num_pages=1",
+            # /search was retired upstream; /search-v2 takes the same query
+            f"https://jsearch.p.rapidapi.com/search-v2?query={quote(term)}&country=sa&num_pages=1",
             headers=headers,
         )
-        for j in data.get("data", []):
+        found = data.get("data", [])
+        if isinstance(found, dict):  # v2 may nest the list, e.g. {"jobs": [...]}
+            found = found.get("jobs") or found.get("data") or []
+        if not found:
+            print(f"[warn] jsearch: no postings for {term!r}; response keys {sorted(data)}")
+        for j in found:
             city = j.get("job_city") or ""
             country = j.get("job_country") or ""
             jobs.append({
