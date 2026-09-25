@@ -151,7 +151,8 @@ Hard rules:
 - No stock phrases ("eager to leverage", "passionate", "results-driven"); say what the student did.
 - No level words the student did not use ("proficient", "expert", "strong", "advanced"), and no activity PROFILE does not name: knowing SQL is not "writing SQL queries".
 - Keep every date range, location, work arrangement (remote, part-time), metric and qualifier PROFILE states; a study period stays the whole period, not just its last year. Keep a point that carries a number or a result (what the work led to) unless an item has more than 4.
-- Experience and projects newest first, as on a normal CV.
+- Experience and projects newest first, as on a normal CV; work in progress is the newest.
+- dates holds dates only; "part time", "remote" and the like go in location.
 - Never name the employer of the POSTING. If the posting is for another field than PROFILE, still write an honest CV of what the student has; do not stretch facts to fit.
 - Bullets start with an action verb, at most 4 per item, most relevant first.
 - Write in ${lang}. Keep tool and skill names in their usual Latin spelling.
@@ -161,7 +162,7 @@ Hard rules:
 - summary: 2-3 sentences aimed at this posting, only from PROFILE. If PROFILE states availability, work authorisation or iqama, or readiness to relocate, the last sentence carries all of them as written.
 - headline: if PROFILE states a headline or target role, use it as written; otherwise the student's role and 3-4 core skills, e.g. "Data Analyst | Excel, Power BI, SQL".
 - experience: org is the organisation name only; its city or region goes in location, together with the work arrangement.
-- skills: the student's skills from PROFILE, most relevant to the posting first. With more than 8, group them as "Group: a, b, c", one string per group. Soft skills and licences do not go here.
+- skills: every technical skill PROFILE lists, with its qualifier ("Tableau (course only)"), most relevant to the posting first; only soft skills and things like typing speed may be left out. With more than 8, group them as "Group: a, b, c", one string per group. Soft skills and licences do not go here.
 - additional: work authorisation or iqama, driving licence, availability, relocation, coursework and similar facts from PROFILE, one per string.
 - job_required, job_preferred: arrays of short names of the tools and technical skills the POSTING asks for (required / nice to have), e.g. ["Microsoft 365", "network troubleshooting"]. Every posting names some; never leave job_required empty. Not degrees, enrolment, languages or years of experience.
 
