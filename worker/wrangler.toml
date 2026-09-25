@@ -1,0 +1,8 @@
+# Deploy:  npx wrangler login && npx wrangler secret put GEMINI_API_KEY && npx wrangler deploy
+name = "masar-cv"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# The site calls the worker from these origins only; anything else gets 403.
+ALLOWED_ORIGINS = "https://waelsaballyl.github.io,http://localhost:8765"

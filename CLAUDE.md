@@ -29,6 +29,11 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
 - `radar/db.py` - schema plus `_migrate` (additive `ALTER TABLE` only)
 - `radar/store.py` - jsonl <-> sqlite
 - `.github/workflows/radar.yml` - daily: restore, collect, ai, export, build, commit
+- `worker/` - Cloudflare Worker for the CV builder (`docs/cv.html`): holds the Gemini
+  key; `/parse` and `/tailor`. `src/audit.js` removes any skill or number the student's
+  profile lacks. Tests: `node worker/test.mjs`; local stub: `node worker/dev.mjs` (:8787,
+  set the `masar-api` meta in cv.html to it, then back to the deployed URL).
+  Contact fields never leave the browser: cv.js strips them before any request.
 
 ## Invariants - each of these was a real bug
 

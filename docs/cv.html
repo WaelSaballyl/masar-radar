@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>سيرة لكل فرصة — مسار</title>
+<meta name="description" content="جهّز سيرة ذاتية معدّلة حسب متطلبات كل إعلان، دون إضافة ما ليس عندك.">
+<meta name="theme-color" content="#0E2624">
+<!-- the CV worker (worker/); empty until it is deployed -->
+<meta name="masar-api" content="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/masar.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <a class="wordmark" href="./">مسار</a>
+    <nav class="nav" aria-label="الأقسام">
+      <a href="./#coop">فرص التدريب</a>
+      <a href="dashboard.html">مؤشر السوق</a>
+      <a href="cv.html" aria-current="page">سيرتك</a>
+    </nav>
+    <div class="tools">
+      <button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <h1>سيرة لكل فرصة</h1>
+      <p class="section-lede">أدخل معلوماتك مرة واحدة، واختر الإعلان، ونعيد ترتيب سيرتك وصياغتها حسب ما يطلبه. لا نضيف مهارة أو رقماً ليس عندك، ونوضّح لك ما ينقصك.</p>
+      <p class="privacy">اسمك وبريدك وجوالك تبقى في متصفحك ولا تُرسل. نرسل باقي المعلومات إلى نموذج Gemini من Google لصياغة السيرة، ولا نحفظها عندنا.</p>
+    </div>
+
+    <section class="step" aria-labelledby="s1">
+      <h2 id="s1"><span class="step-n" aria-hidden="true">١</span>معلوماتك</h2>
+
+      <div class="import">
+        <p class="field-label">عندك سيرة جاهزة؟ ارفعها أو الصق نصها، ونعبّئ الحقول منها لتراجعها.</p>
+        <div class="import-row">
+          <label class="file"><input type="file" id="cv-file" accept=".pdf,.docx,.txt"><span>اختر ملف PDF أو Word</span></label>
+          <button class="btn btn-quiet" type="button" id="read-cv">اقرأ سيرتي</button>
+        </div>
+        <textarea id="cv-text" rows="4" placeholder="أو الصق نص سيرتك هنا"></textarea>
+        <p class="status" id="import-status" aria-live="polite"></p>
+      </div>
+
+      <form id="profile" autocomplete="on" onsubmit="return false">
+        <fieldset>
+          <legend>التواصل (يبقى في جهازك)</legend>
+          <div class="grid">
+            <label class="field">الاسم<input name="name" autocomplete="name"></label>
+            <label class="field">البريد<input name="email" type="email" autocomplete="email" dir="ltr"></label>
+            <label class="field">الجوال<input name="phone" type="tel" autocomplete="tel" dir="ltr"></label>
+            <label class="field">المدينة<input name="city" autocomplete="address-level2"></label>
+            <label class="field">رابط LinkedIn أو GitHub<input name="link" type="url" dir="ltr"></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>التعليم</legend>
+          <div class="grid">
+            <label class="field">الجامعة<input name="university"></label>
+            <label class="field">الدرجة<input name="degree" placeholder="بكالوريوس"></label>
+            <label class="field">التخصص<input name="major"></label>
+            <label class="field">سنة التخرج المتوقعة<input name="graduation" inputmode="numeric"></label>
+            <label class="field">المعدل<input name="gpa" placeholder="4.2 / 5" dir="ltr"></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>ما تعرفه وما عملته</legend>
+          <label class="field">المهارات والأدوات، مفصولة بفواصل<textarea name="skills" rows="2" dir="auto" placeholder="Excel, SQL, Power BI, Python"></textarea></label>
+          <label class="field">الخبرات والتدريب والعمل التطوعي. كل خبرة في فقرة: المسمى والجهة والمدة، ثم ما أنجزته<textarea name="experience" rows="6" dir="auto"></textarea></label>
+          <label class="field">المشاريع، الجامعية والشخصية. كل مشروع في فقرة: اسمه والأدوات، ثم ما عملته ونتيجته<textarea name="projects" rows="6" dir="auto"></textarea></label>
+          <div class="grid">
+            <label class="field">الشهادات والدورات<textarea name="certificates" rows="3" dir="auto"></textarea></label>
+            <label class="field">اللغات<textarea name="languages" rows="3" dir="auto" placeholder="العربية (الأم)، الإنجليزية (متقدم)"></textarea></label>
+          </div>
+        </fieldset>
+        <button class="reset" type="button" id="clear">امسح معلوماتي من هذا المتصفح</button>
+      </form>
+    </section>
+
+    <section class="step" aria-labelledby="s2">
+      <h2 id="s2"><span class="step-n" aria-hidden="true">٢</span>الفرصة</h2>
+      <div class="segmented" role="radiogroup" aria-label="مصدر الإعلان">
+        <label><input type="radio" name="source" value="listed" checked><span>من إعلانات مسار</span></label>
+        <label><input type="radio" name="source" value="pasted"><span>ألصق وصف وظيفة</span></label>
+      </div>
+      <div id="listed-box" class="pick">
+        <input type="search" id="job-search" placeholder="ابحث بالمسمى أو الشركة" aria-label="ابحث في الإعلانات">
+        <select id="job-pick" size="8" aria-label="الإعلانات"></select>
+        <p class="job-needs" id="job-needs"></p>
+      </div>
+      <div id="pasted-box" class="pick" hidden>
+        <textarea id="job-text" rows="8" dir="auto" placeholder="الصق نص الإعلان كاملاً: المسمى والمهام والمتطلبات" aria-label="نص الإعلان"></textarea>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="s3">
+      <h2 id="s3"><span class="step-n" aria-hidden="true">٣</span>سيرتك لهذه الفرصة</h2>
+      <div class="make-row">
+        <div class="segmented" role="radiogroup" aria-label="لغة السيرة">
+          <label><input type="radio" name="lang" value="en" checked><span>بالإنجليزية</span></label>
+          <label><input type="radio" name="lang" value="ar"><span>بالعربية</span></label>
+        </div>
+        <button class="btn btn-primary" type="button" id="make">جهّز السيرة</button>
+      </div>
+      <p class="status" id="make-status" aria-live="polite"></p>
+    </section>
+
+    <div id="result" hidden>
+      <div class="coverage" id="coverage"></div>
+      <details class="removed" id="removed" hidden><summary></summary><ul></ul></details>
+      <div class="actions">
+        <button class="btn btn-primary" type="button" id="print">احفظها PDF</button>
+        <button class="btn btn-quiet" type="button" id="copy">انسخ النص</button>
+      </div>
+      <article class="paper" id="cv-paper"></article>
+    </div>
+  </main>
+
+  <footer>
+    <span>مسار مشروع مفتوح المصدر:</span>
+    <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener">الشيفرة على GitHub</a>
+  </footer>
+</div>
+<script src="assets/core.js"></script>
+<script src="assets/cv.js"></script>
+</body>
+</html>
