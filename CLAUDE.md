@@ -34,6 +34,9 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   profile lacks. Tests: `node worker/test.mjs`; local stub: `node worker/dev.mjs` (:8787,
   set the `masar-api` meta in cv.html to it, then back to the deployed URL).
   Contact fields never leave the browser: cv.js strips them before any request.
+  Deployed to waelsaballyl@gmail.com's Cloudflare account. Run every wrangler command
+  with `XDG_CONFIG_HOME=C:/Users/risk_/.masar-wrangler`: the machine's default wrangler
+  login belongs to the user's other project (Dagesh, account wael78041) - never touch it.
 
 ## Invariants - each of these was a real bug
 
