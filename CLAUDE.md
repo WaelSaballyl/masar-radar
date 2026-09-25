@@ -49,8 +49,8 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
 ## Sources
 
 Jobicy (highest yield), Remote OK, Arbeitnow (only European coverage), Remotive
-(capped at 20 upstream, one request), JSearch (Saudi/Gulf, disabled until
-`RAPIDAPI_KEY` is set). Excluded: Bayt (robots.txt), LinkedIn (ToS), Himalayas
+(capped at 20 upstream, one request), JSearch (Saudi Arabia via
+`/search-v2?country=sa`; `/search` was retired upstream; can take >45s). Excluded: Bayt (robots.txt), LinkedIn (ToS), Himalayas
 (capped at 20, no data roles). Keep attribution links on public pages.
 
 ## Secrets
