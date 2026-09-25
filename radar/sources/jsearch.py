@@ -21,7 +21,8 @@ def enabled() -> bool:
 
 
 def fetch() -> list[dict]:
-    key = os.environ["RAPIDAPI_KEY"]
+    # a pasted secret can carry a trailing newline or spaces, which RapidAPI rejects
+    key = os.environ["RAPIDAPI_KEY"].strip()
     headers = {"X-RapidAPI-Key": key, "X-RapidAPI-Host": "jsearch.p.rapidapi.com"}
     jobs = []
     for term in SEARCHES:
