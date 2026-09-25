@@ -84,4 +84,13 @@ const intact = { skills: ["Microsoft Excel: pivot tables, lookups"] };
 audit(intact, "Microsoft Excel: pivot tables, lookups", []);
 assert.deepEqual(intact.skills, ["Microsoft Excel: pivot tables, lookups"]);
 
+// coverage forgives "Advanced", the audit does not
+reply = { summary: "Uses advanced Excel daily.", skills: ["Excel"] };
+r = await call("/tailor", { profile: { skills: "Excel, SQL", experience: "Built weekly Excel reports for a retail shop in Riyadh." },
+  job: { title: "Analyst", company: "X", required: ["Advanced Excel", "Data modeling"] } });
+out = await r.json();
+assert.deepEqual(out.coverage.matched, ["Advanced Excel"]);
+assert.deepEqual(out.coverage.missing, ["Data modeling"]);
+assert.equal(out.cv.summary, "", "the CV may not claim 'advanced'");
+
 console.log("worker tests passed");
