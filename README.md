@@ -62,7 +62,7 @@ and the regex results stand.
 
 ## Automation
 
-`.github/workflows/radar.yml` runs the pipeline daily at 06:17 KSA and commits the
+`.github/workflows/radar.yml` runs the tests, then the pipeline, once a day (usually around 11:30 KSA) and commits the
 updated database and dashboard. Enable GitHub Pages on `/docs` to get a public
 live dashboard URL.
 
