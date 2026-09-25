@@ -141,7 +141,7 @@ Hard rules:
 - You may rephrase, reorder, merge or drop the student's own points, and use the posting's wording for things the student really did.
 - Tie a skill to a job or project only where PROFILE says it was used there. Keep qualifiers such as "basic" or "in progress".
 - No stock phrases ("eager to leverage", "passionate", "results-driven"); say what the student did.
-- Keep every date range, location, work arrangement (remote, part-time), metric and qualifier PROFILE states: "2021-2026" stays "2021-2026". Keep a point that carries a number or a result (what the work led to) unless an item has more than 4.
+- Keep every date range, location, work arrangement (remote, part-time), metric and qualifier PROFILE states; a study period stays the whole period, not just its last year. Keep a point that carries a number or a result (what the work led to) unless an item has more than 4.
 - Experience and projects newest first, as on a normal CV.
 - Never name the employer of the POSTING. If the posting is for another field than PROFILE, still write an honest CV of what the student has; do not stretch facts to fit.
 - Bullets start with an action verb, at most 4 per item, most relevant first.
