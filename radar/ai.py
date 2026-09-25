@@ -52,7 +52,7 @@ DESCRIPTION_CHARS = 12000
 #   3  tells the model what the broad canonical names cover (SKILL_SCOPE)
 #   4  where the hire may be based (countries, regions) and the work mode, for
 #      the country filter - location strings are too irregular to parse
-PROMPT_VERSION = 4
+PROMPT_VERSION = 5
 
 REGIONS = ["Worldwide", "Europe", "Middle East", "North America",
            "Latin America", "Asia-Pacific", "Africa"]
@@ -84,7 +84,11 @@ For each posting, report only what the posting itself supports. Do not add a ski
 
 skills: what the job asks of the person who takes it. Count a skill when the posting lists it as a requirement or qualification, OR when the job's responsibilities involve doing it: "you will own data quality across our pipelines" is Data Governance even though no tool is named. This covers practices and methods - data modeling, governance, experimentation, forecasting, statistics - as well as named tools and languages.
 
-Do not count a mention that only describes the company, its product, its customers, other open roles, or the team's culture and learning opportunities. "Our AI-powered platform" says nothing about what this hire will do.
+Do not count a mention that only describes the company, its product, its customers, other open roles, or the team's culture and learning opportunities. "Our AI-powered platform" says nothing about what this hire will do, and "a culture rooted in experimentation" is not A/B Testing.
+
+List every tool, language and platform the posting names for the hire: in the requirements, in a "key skills" list, or in a sentence such as "we use Metabase" or "delivered in Looker Studio". A tool named as a plus is still listed, with required false.
+
+A subject of study is not a skill: "a degree in Statistics or Mathematics" adds nothing. Count Statistics only when the work calls for statistical methods, and A/B Testing only when the hire designs or analyses experiments.
 
 required: true when the posting requires it or it is a core responsibility; false when it is listed as a plus, preferred, bonus or nice to have.
 

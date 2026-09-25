@@ -91,7 +91,7 @@ Market index (`docs/dashboard.html` + `assets/market.js`) recomputes every chart
 in the browser from jobs.json; filters persist in localStorage. Shared helpers
 (language, theme, Arabic counts, country names) live in `assets/core.js`.
 Chart colours `--req`/`--pref` were checked with the dataviz validator per
-surface; re-run it if they change. Countries come from AI prompt v4.
+surface; re-run it if they change. Countries come from AI prompt v4+. `python -m radar.evaluate` compares the model with the regex (no API calls): prompt v4 agreed 92%, ~99% precise, ~89% recall.
 Scope is Saudi Arabia first, then the Gulf (`GULF` in market.js): only those
 six are selectable, everything else is shown as "outside the Gulf". Other Arab
 countries (Jordan etc.) come later, by the user's decision.
