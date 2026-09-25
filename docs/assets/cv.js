@@ -21,7 +21,8 @@
     size: "النص طويل جداً. اختصره وجرّب مرة ثانية.",
     type: "نقرأ ملفات PDF وWord (docx) والنص فقط.",
     empty: "لم نجد نصاً في الملف. إذا كانت سيرتك صورة، الصق نصها بدلاً منها.",
-    no_job: "اختر إعلاناً أو الصق وصف وظيفة في الخطوة الثانية.",
+    no_job: "اختر إعلاناً من القائمة أو الصق وصف وظيفة في الخطوة الثانية.",
+    job_short: "وصف الوظيفة قصير. الصق نص الإعلان كاملاً مع المتطلبات.",
     other: "تعذّر إكمال الطلب. جرّب مرة ثانية.",
   };
   const fail = (code) => Object.assign(new Error(code), { code });
@@ -160,7 +161,12 @@
         .forEach((p) => { const o = el("option", null, `${p.title}، ${p.company}`); o.value = p.i; g.append(o); });
       return g;
     });
-    $("job-pick").replaceChildren(...groups.filter((g) => g.children.length));
+    const pick = $("job-pick");
+    const before = pick.value;
+    pick.replaceChildren(...groups.filter((g) => g.children.length));
+    // a list with nothing selected looks selected; keep the choice, else take the first
+    pick.value = before;
+    if (pick.selectedIndex < 0 && pick.options.length) pick.selectedIndex = 0;
     showNeeds();
   }
 
@@ -169,7 +175,9 @@
   function showNeeds() {
     const p = picked();
     const req = p ? p.skills.filter((s) => s[1]).map((s) => s[0]) : [];
-    $("job-needs").textContent = !p ? "" : req.length ? `يطلب: ${req.join("، ")}` : "لم نستخرج مهارات مطلوبة من هذا الإعلان.";
+    const needs = req.length ? `يطلب: ${req.join("، ")}.` : "لم نستخرج مهارات مطلوبة من هذا الإعلان.";
+    $("job-needs").textContent = p ? `اخترت: ${p.title}، ${p.company}. ${needs}`
+      : postings.length ? "لا توجد إعلانات تطابق البحث." : "";
   }
 
   fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()).then((d) => {
@@ -283,7 +291,11 @@
   $("make").addEventListener("click", async () => {
     const button = $("make");
     const job = currentJob();
-    if (!job) { say("make-status", ERR.no_job, true); return; }
+    if (!job) {
+      const short = source() === "pasted" && $("job-text").value.trim();
+      say("make-status", short ? ERR.job_short : ERR.no_job, true);
+      return;
+    }
     const p = readProfile();
     const lang = document.querySelector('input[name="lang"]:checked').value;
     button.disabled = true;

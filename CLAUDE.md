@@ -37,6 +37,7 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   Deployed to waelsaballyl@gmail.com's Cloudflare account. Run every wrangler command
   with `XDG_CONFIG_HOME=C:/Users/risk_/.masar-wrangler`: the machine's default wrangler
   login belongs to the user's other project (Dagesh, account wael78041) - never touch it.
+  cv.html loads `cv.js?v=N` / `masar.css?v=N`: bump N when either changes, or visitors keep a cached copy.
 
 ## Invariants - each of these was a real bug
 
