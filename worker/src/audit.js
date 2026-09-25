@@ -68,3 +68,41 @@ export function audit(cv, source, jobSkills) {
   cv.additional = strings(cv.additional, 10).filter(keep("additional"));
   return removed;
 }
+
+// The model sometimes drops the second sentence of a point, or a whole point
+// ("They flagged slow-moving products..."). Put the student's own words back:
+// each sentence of an experience or project entry that no bullet covers is
+// appended to the bullet it came closest to, or added as its own bullet.
+// Only sentences in the CV's language are restored.
+const wordsOf = (s) => new Set(String(s).toLowerCase().match(/[a-z0-9؀-ۿ]{4,}/g) || []);
+function overlap(a, b) {
+  const A = wordsOf(a), B = wordsOf(b);
+  let n = 0;
+  A.forEach((w) => { if (B.has(w)) n++; });
+  return A.size ? n / A.size : 0;
+}
+
+export function restore(items, block, arabic) {
+  const entries = String(block || "").split(/\n\s*\n/)
+    .map((e) => e.split("\n").map((l) => l.replace(/^[\s•\-*·]+/, "").trim()).filter(Boolean))
+    .filter((e) => e.length > 1);
+  const restored = [];
+  for (const item of items) {
+    const head = `${item.title || item.name || ""} ${item.org || ""}`;
+    let entry = null, fit = 0;
+    entries.forEach((e) => { const o = overlap(head, e[0]); if (o > fit) { entry = e; fit = o; } });
+    if (!entry || fit < 0.5) continue;
+    for (const point of entry.slice(1)) {
+      for (const sentence of point.split(/(?<=[.!?؟])\s+/)) {
+        if (sentence.length < 25 || /[؀-ۿ]/.test(sentence) !== arabic) continue;
+        if (item.bullets.some((b) => overlap(sentence, b) >= 0.6)) continue;
+        let host = -1, best = 0;
+        item.bullets.forEach((b, i) => { const o = overlap(point, b); if (o > best) { host = i; best = o; } });
+        if (host >= 0 && best >= 0.4) item.bullets[host] = `${item.bullets[host].replace(/[.\s]*$/, ".")} ${sentence}`;
+        else item.bullets.push(sentence);
+        restored.push(sentence);
+      }
+    }
+  }
+  return restored;
+}

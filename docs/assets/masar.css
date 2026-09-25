@@ -397,13 +397,17 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
 @media (max-width: 560px) { .paper { padding: 24px 18px; } }
 
 @media print {
-  @page { margin: 14mm; }
+  /* no page margin: the browser has nowhere to print its URL, date and title;
+     the paper's own padding is the margin. Sized for one A4 page. */
+  @page { size: A4; margin: 0; }
   body { background: #fff; }
   .wrap { max-width: none; padding: 0; }
   .wrap > :not(main), main > :not(#result), #result > :not(#cv-paper) { display: none !important; }
-  .paper { padding: 0; margin: 0; max-width: none; border-radius: 0; }
+  .paper { padding: 10mm 13mm; margin: 0; max-width: none; border-radius: 0; font-size: 9.5pt; line-height: 1.3; }
+  .paper h1 { font-size: 16pt; margin: 0 0 2px; }
+  .paper h2 { font-size: 10.5pt; margin: 7px 0 3px; break-after: avoid; }
+  .paper p { margin: 0 0 3px; }
+  .paper ul { margin: 1px 0 4px; }
+  .paper li { margin-bottom: 1px; }
+  .cv-item { margin-bottom: 4px; break-inside: avoid; }
 }
-.coverage-for { color: var(--muted); font-size: 0.92rem; unicode-bidi: plaintext; }
-.coverage .far { color: var(--sand); }
-.cv-headline { font-weight: 600; margin: 0 0 2px; }
-.cv-skill { margin-bottom: 2px; }

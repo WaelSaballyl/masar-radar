@@ -279,7 +279,9 @@
     section(h.summary, cv.summary && [el("p", null, cv.summary)]);
     // a date the audit removed falls back to what the student typed
     section(h.education, education.filter((x) => x.school || x.degree).map((x) =>
-      item([[x.degree, x.major].filter(Boolean).join(h.sep), x.school].filter(Boolean).join(lang === "ar" ? "، " : ", "),
+      // "B.Sc. Software Engineering" already names the major
+      item([(x.major && x.degree.toLowerCase().includes(x.major.toLowerCase()) ? x.degree
+              : [x.degree, x.major].filter(Boolean).join(h.sep)), x.school].filter(Boolean).join(h.sep),
            x.dates || p.graduation, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
     section(h.experience, cv.experience.filter((x) => x.title || x.bullets.length)
       .map((x) => item([x.title, x.org, x.location].filter(Boolean).join(h.sep), x.dates, x.bullets)));
@@ -303,7 +305,10 @@
     section(h.certificates, cv.certificates.length && [list]);
     section(h.languages, cv.languages.length && [el("p", null, cv.languages.join(h.sep))]);
     const extra = el("ul");
-    [...(cv.additional || []), ...unplaced].forEach((a) => extra.append(el("li", null, a)));
+    // what the summary already says ("transferable iqama") is not said twice
+    const said = new Set(cv.summary.toLowerCase().match(/[a-z0-9؀-ۿ]{3,}/g) || []);
+    const repeats = (a) => (a.toLowerCase().match(/[a-z0-9؀-ۿ]{3,}/g) || []).every((w) => said.has(w));
+    [...(cv.additional || []).filter((a) => !repeats(a)), ...unplaced].forEach((a) => extra.append(el("li", null, a)));
     section(h.additional, extra.children.length && [extra]);
   }
 
@@ -372,7 +377,14 @@
     }
   });
 
-  $("print").addEventListener("click", () => window.print());
+  // the saved PDF takes the page title as its file name
+  $("print").addEventListener("click", () => {
+    const title = document.title;
+    const name = $("cv-paper").querySelector("h1")?.textContent || "CV";
+    document.title = `${name} - CV`;
+    window.addEventListener("afterprint", () => { document.title = title; }, { once: true });
+    window.print();
+  });
   $("copy").addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText($("cv-paper").innerText);
