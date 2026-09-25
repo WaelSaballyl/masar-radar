@@ -17,6 +17,8 @@ python -m radar.ai --check | --apply   # optional Gemini pass (GEMINI_API_KEY)
 python -m radar.store export           # data/radar.db -> data/*.jsonl  (tracked)
 python -m radar.export_site            # -> docs/data/summary.json + jobs.json (read by the site)
 python -m radar.reclassify [--apply]   # re-apply current regex rules to stored rows
+python -m unittest discover -s tests   # pipeline tests (CI runs them before collecting)
+node worker/test.mjs                   # CV worker tests
 ```
 
 On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 console.

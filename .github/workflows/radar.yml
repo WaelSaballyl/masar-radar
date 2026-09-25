@@ -2,7 +2,8 @@ name: Daily radar collection
 
 on:
   schedule:
-    - cron: "17 3 * * *" # daily 03:17 UTC (06:17 KSA)
+    # asks for 03:17 UTC; GitHub's queue usually starts it around 08:30 UTC (11:30 KSA)
+    - cron: "17 3 * * *"
   workflow_dispatch: # manual run button
 
 permissions:
@@ -23,6 +24,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # A broken rule must not reach the data: the run stops here instead of
+      # committing a day collected with it.
+      - name: Test
+        run: |
+          python -m unittest discover -s tests
+          node worker/test.mjs
 
       # data/radar.db is not committed: SQLite is binary, so git would store a
       # full copy of a growing file on every daily run. The database is rebuilt
