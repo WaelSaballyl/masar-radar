@@ -15,8 +15,7 @@ python -m radar.store restore          # data/*.jsonl -> data/radar.db  (run fir
 python -m radar.collect                # fetch, filter, dedupe, store
 python -m radar.ai --check | --apply   # optional Gemini pass (GEMINI_API_KEY)
 python -m radar.store export           # data/radar.db -> data/*.jsonl  (tracked)
-python -m radar.build_dashboard        # -> docs/dashboard.html
-python -m radar.export_site            # -> docs/data/summary.json (read by docs/index.html)
+python -m radar.export_site            # -> docs/data/summary.json + jobs.json (read by the site)
 python -m radar.reclassify [--apply]   # re-apply current regex rules to stored rows
 ```
 
@@ -77,9 +76,16 @@ for text. The hero draws top skills as stations on a metro line ("masar" =
 path). Arabic counted nouns go through `count()` in masar.js - never hand-write
 "N إعلان". Local preview: `.claude/launch.json` serves docs/ on :8765.
 
-Next: dashboard rebuild in the same identity (required vs preferred, seniority, `last_seen`,
+Market index (`docs/dashboard.html` + `assets/market.js`) recomputes every chart
+in the browser from jobs.json; filters persist in localStorage. Shared helpers
+(language, theme, Arabic counts, country names) live in `assets/core.js`.
+Chart colours `--req`/`--pref` were checked with the dataviz validator per
+surface; re-run it if they change. Countries come from AI prompt v4.
+
+Next: the dashboard's co-op section and country filter need JSearch data to be
+useful for Saudi users (required vs preferred, seniority, `last_seen`,
 country filter, co-op section), CV builder (needs a backend to hold the key -
 Cloudflare Workers favoured), then review, tests and a manual AI accuracy sample.
 
 Repo https://github.com/WaelSaballyl/masar-radar ·
-site https://waelsaballyl.github.io/masar-radar/dashboard.html
+site https://waelsaballyl.github.io/masar-radar/

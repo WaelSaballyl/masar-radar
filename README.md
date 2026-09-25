@@ -16,8 +16,8 @@ sources (open APIs)            pipeline                      output
 │  Arbeitnow   │──┤   ├───────────────────────┤               │
 ├──────────────┤  │   │ ai.py  (optional)     │               ▼
 │  Remotive    │──┤   │  one LLM read per job │   ┌────────────────────────┐
-├──────────────┤  │   └───────────────────────┘   │ build_dashboard.py     │
-│  JSearch *   │──┘                               │  → docs/dashboard.html │
+├──────────────┤  │   └───────────────────────┘   │ export_site.py         │
+│  JSearch *   │──┘                               │  → docs/data/*.json    │
 └──────────────┘                                  └────────────────────────┘
   * needs RAPIDAPI_KEY          GitHub Actions (daily cron) orchestrates the run
 ```
@@ -39,7 +39,7 @@ python -m radar.store restore    # rebuild data/radar.db from data/*.jsonl
 python -m radar.collect          # fetch + store new jobs
 python -m radar.ai --apply       # optional: read postings with an LLM
 python -m radar.store export     # write the database back to data/*.jsonl
-python -m radar.build_dashboard  # regenerate docs/dashboard.html
+python -m radar.export_site      # write docs/data/*.json for the static site
 ```
 
 Maintenance:

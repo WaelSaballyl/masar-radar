@@ -1,4 +1,4 @@
-"""Write docs/data/summary.json for the static site.
+"""Write docs/data/summary.json and docs/data/jobs.json for the static site.
 
 Run:  python -m radar.export_site
 
@@ -15,6 +15,7 @@ from pathlib import Path
 from . import db
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "data" / "summary.json"
+JOBS_OUT = OUT.parent / "jobs.json"
 
 # A posting missing from this many days of runs is treated as closed. Runs are
 # daily; three days absorbs a source having a bad day without keeping postings
@@ -93,10 +94,53 @@ def build() -> dict:
     return summary
 
 
+def build_jobs() -> dict:
+    """Active postings with what the market index filters and counts on.
+
+    The index recomputes every chart in the browser as filters change, so it
+    needs postings rather than totals. Descriptions stay out: they are the bulk
+    of the data and the page never shows them.
+    """
+    con = db.connect()
+    latest = con.execute("SELECT MAX(last_seen) FROM jobs").fetchone()[0]
+    if not latest:
+        con.close()
+        return {"updated_at": None, "postings": []}
+    cutoff = (datetime.fromisoformat(latest) - timedelta(days=ACTIVE_DAYS)).isoformat()
+
+    skills: dict[str, list] = {}
+    for job_id, skill, required in con.execute(
+        "SELECT job_id, skill, required FROM job_skills ORDER BY job_id, required DESC, skill"
+    ):
+        skills.setdefault(job_id, []).append([skill, required])
+
+    split = lambda v: [x for x in (v or "").split(",") if x]
+    postings = []
+    for (jid, title, company, location, url, posted, level, role,
+         countries, regions, mode) in con.execute(
+        """SELECT id, title, company, location, url, posted_at, seniority, role,
+                  countries, regions, work_mode
+             FROM jobs WHERE last_seen >= ? ORDER BY posted_at DESC, id""",
+        (cutoff,),
+    ):
+        postings.append({
+            "title": title, "company": company, "location": location, "url": url,
+            "posted_at": posted, "level": level, "role": role,
+            "countries": split(countries), "regions": split(regions),
+            "mode": mode or "unknown", "skills": skills.get(jid, []),
+        })
+    con.close()
+    return {"updated_at": latest, "postings": postings}
+
+
 def main() -> None:
     summary = build()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+    jobs = build_jobs()
+    JOBS_OUT.write_text(json.dumps(jobs, ensure_ascii=False, separators=(",", ":")),
+                        encoding="utf-8")
+    print(f"[done] market index data -> {JOBS_OUT} ({len(jobs['postings'])} postings)")
     route = summary.get("route", {})
     print(f"[done] site summary -> {OUT} ({summary.get('active_postings', 0)} active, "
           f"route from {route.get('postings', 0)} {route.get('basis', '')} postings)")

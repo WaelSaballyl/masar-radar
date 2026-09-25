@@ -2,363 +2,125 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الرادار — مؤشر سوق وظائف البيانات | مسار</title>
-<style>
-  :root {
-    --page:      #f9f9f7;
-    --surface:   #fcfcfb;
-    --ink:       #0b0b0b;
-    --ink-2:     #52514e;
-    --muted:     #898781;
-    --hairline:  rgba(11,11,11,0.10);
-    --grid:      #e1e0d9;
-    --track:     #f0efec;
-    --good:      #006300;
-    --c-analyst:   #2a78d6;
-    --c-engineer:  #1baf7a;
-    --c-bi:        #eda100;
-    --c-scientist: #4a3aa7;
-    --c-ml:        #e34948;
-    --c-analytics: #eb6834;
-    --c-business:  #4f6272;
-    --c-other:     #898781;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --page:      #0d0d0d;
-      --surface:   #1a1a19;
-      --ink:       #ffffff;
-      --ink-2:     #c3c2b7;
-      --muted:     #898781;
-      --hairline:  rgba(255,255,255,0.10);
-      --grid:      #2c2c2a;
-      --track:     #262624;
-      --good:      #0ca30c;
-      --c-analyst:   #3987e5;
-      --c-engineer:  #199e70;
-      --c-bi:        #c98500;
-      --c-scientist: #9085e9;
-      --c-ml:        #e66767;
-      --c-analytics: #d95926;
-      --c-business:  #8ba0b2;
-    }
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    background: var(--page); color: var(--ink);
-    padding: 0 20px 64px; line-height: 1.5;
-  }
-  .container { max-width: 1080px; margin: 0 auto; }
-
-  .topbar {
-    display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px;
-    padding: 28px 0 8px;
-  }
-  .brand { display:flex; align-items:baseline; gap:10px; }
-  .brand .mark { font-size:1.35rem; font-weight:700; letter-spacing:-0.01em; }
-  .brand .sep { color:var(--muted); }
-  .brand .prod { font-size:1.05rem; color:var(--ink-2); font-weight:600; }
-  .updated { font-size:0.8rem; color:var(--muted); font-variant-numeric: tabular-nums; }
-
-  .lede { color:var(--ink-2); font-size:0.92rem; max-width:60ch; margin-bottom:28px; }
-
-  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:28px; }
-  .tile {
-    background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
-    padding:16px 18px;
-  }
-  .tile .label { font-size:0.78rem; color:var(--muted); margin-bottom:4px; }
-  .tile .value { font-size:1.85rem; font-weight:650; letter-spacing:-0.02em; }
-  .tile .delta { font-size:0.78rem; color:var(--good); font-weight:600; margin-top:2px; }
-  .tile .note  { font-size:0.78rem; color:var(--muted); margin-top:2px; }
-
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px; }
-  @media (max-width:720px) { .grid2 { grid-template-columns:1fr; } }
-  .panel {
-    background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
-    padding:18px 20px;
-  }
-  .panel h2 { font-size:0.88rem; font-weight:650; margin-bottom:4px; }
-  .panel .hint { font-size:0.76rem; color:var(--muted); margin-bottom:16px; }
-
-  .bar-row { display:flex; align-items:center; gap:12px; padding:4px 0; }
-  .bar-row:hover .bar-fill { filter:brightness(0.9); }
-  .bar-label {
-    width:128px; flex-shrink:0; font-size:0.8rem; color:var(--ink-2);
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-  .bar-track { flex:1; display:block; background:var(--track); border-radius:4px; height:12px; overflow:hidden; }
-  .bar-fill { display:block; height:100%; border-radius:0 4px 4px 0; min-width:2px; }
-  [dir="rtl"] .bar-fill { border-radius:4px 0 0 4px; }
-  .bar-count {
-    width:32px; flex-shrink:0; text-align:left; font-size:0.8rem; font-weight:600;
-    font-variant-numeric: tabular-nums;
-  }
-  .empty { color:var(--muted); font-size:0.84rem; padding:20px 0; }
-
-  .section-title { font-size:0.88rem; font-weight:650; margin-bottom:12px; }
-  .table-wrap {
-    background:var(--surface); border:1px solid var(--hairline); border-radius:10px;
-    overflow-x:auto;
-  }
-  table { width:100%; border-collapse:collapse; min-width:740px; }
-  th {
-    text-align:right; padding:11px 16px; font-size:0.74rem; font-weight:600;
-    color:var(--muted); border-bottom:1px solid var(--grid); white-space:nowrap;
-  }
-  td { padding:11px 16px; border-bottom:1px solid var(--grid); font-size:0.85rem; vertical-align:top; }
-  tr:last-child td { border-bottom:none; }
-  .jt { display:block; font-weight:600; }
-  .jc { display:block; color:var(--muted); font-size:0.78rem; margin-top:1px; }
-  .dim { color:var(--ink-2); }
-  .num { font-variant-numeric: tabular-nums; white-space:nowrap; }
-  .chip {
-    display:inline-block; font-size:0.74rem; font-weight:600; color:var(--c);
-    padding:2px 0; white-space:nowrap;
-  }
-  .chip::before {
-    content:""; display:inline-block; width:8px; height:8px; border-radius:50%;
-    background:var(--c); margin-inline-end:6px;
-  }
-  a { color:var(--c-analyst); text-decoration:none; font-size:0.8rem; font-weight:600; }
-  a:hover { text-decoration:underline; }
-
-  footer {
-    color:var(--muted); font-size:0.76rem; margin-top:32px;
-    padding-top:16px; border-top:1px solid var(--grid); line-height:1.9;
-  }
-  footer a { color:var(--ink-2); font-size:inherit; font-weight:500; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مؤشر سوق وظائف البيانات — مسار</title>
+<meta name="description" content="المهارات والأدوار والدول في إعلانات وظائف البيانات النشطة، مع فلترة حسب دولتك والدول التي تفضّلها.">
+<meta name="theme-color" content="#0E2624">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/masar.css">
 </head>
 <body>
-<div class="container">
-  <div class="topbar">
-    <div class="brand">
-      <span class="mark">مسار</span><span class="sep">/</span><span class="prod">الرادار</span>
-    </div>
-    <span class="updated">آخر تحديث: 2026-09-24 08:34 UTC</span>
-  </div>
-  <p class="lede">مؤشر يومي لسوق وظائف البيانات: يجمع الإعلانات آلياً من مصادر مفتوحة، ويستخرج المهارات المطلوبة واتجاهات الأدوار.</p>
+<div class="wrap">
 
-  <section class="tiles">
-    <div class="tile"><div class="label">الوظائف المرصودة</div><div class="value">153</div><div class="delta">+19 في آخر تحديث</div></div>
-    <div class="tile"><div class="label">شركات</div><div class="value">111</div></div>
-    <div class="tile"><div class="label">مصادر البيانات</div><div class="value">4</div></div>
-    <div class="tile"><div class="label">يُجمع منذ</div><div class="value" style="font-size:1.2rem;padding-top:8px">2026-07-14</div><div class="note">تشغيلة يومية مجدولة</div></div>
-  </section>
+  <header class="topbar">
+    <a class="wordmark" href="./" data-i18n="brand">مسار</a>
+    <nav class="nav" data-i18n-aria="nav_label" aria-label="الأقسام">
+      <a href="./#coop" data-i18n="nav_coop">فرص التدريب</a>
+      <a href="./#how" data-i18n="nav_how">كيف نبني المؤشر</a>
+      <a href="dashboard.html" aria-current="page" data-i18n="nav_market">مؤشر السوق</a>
+    </nav>
+    <div class="tools">
+      <button class="tool" id="lang-toggle" type="button" lang="en">EN</button>
+      <button class="tool" id="theme-toggle" type="button" data-i18n-aria="theme_label" aria-label="تبديل المظهر">◐</button>
+    </div>
+  </header>
 
-  <section class="grid2">
-    <div class="panel">
-      <h2>أكثر المهارات طلباً</h2>
-      <p class="hint">عدد الإعلانات التي وردت فيها كل مهارة</p>
-      <div class="bar-row" title="Python — 91 وظيفة (20٪)"><span class="bar-label">Python</span><span class="bar-track"><span class="bar-fill" style="width:100.0%;background:var(--c-analyst)"></span></span><span class="bar-count">91</span></div><div class="bar-row" title="SQL — 64 وظيفة (14٪)"><span class="bar-label">SQL</span><span class="bar-track"><span class="bar-fill" style="width:70.3%;background:var(--c-analyst)"></span></span><span class="bar-count">64</span></div><div class="bar-row" title="Data Governance — 42 وظيفة (9٪)"><span class="bar-label">Data Governance</span><span class="bar-track"><span class="bar-fill" style="width:46.2%;background:var(--c-analyst)"></span></span><span class="bar-count">42</span></div><div class="bar-row" title="Machine Learning — 35 وظيفة (8٪)"><span class="bar-label">Machine Learning</span><span class="bar-track"><span class="bar-fill" style="width:38.5%;background:var(--c-analyst)"></span></span><span class="bar-count">35</span></div><div class="bar-row" title="ETL — 33 وظيفة (7٪)"><span class="bar-label">ETL</span><span class="bar-track"><span class="bar-fill" style="width:36.3%;background:var(--c-analyst)"></span></span><span class="bar-count">33</span></div><div class="bar-row" title="A/B Testing — 30 وظيفة (7٪)"><span class="bar-label">A/B Testing</span><span class="bar-track"><span class="bar-fill" style="width:33.0%;background:var(--c-analyst)"></span></span><span class="bar-count">30</span></div><div class="bar-row" title="AWS — 29 وظيفة (6٪)"><span class="bar-label">AWS</span><span class="bar-track"><span class="bar-fill" style="width:31.9%;background:var(--c-analyst)"></span></span><span class="bar-count">29</span></div><div class="bar-row" title="Data Modeling — 29 وظيفة (6٪)"><span class="bar-label">Data Modeling</span><span class="bar-track"><span class="bar-fill" style="width:31.9%;background:var(--c-analyst)"></span></span><span class="bar-count">29</span></div><div class="bar-row" title="Statistics — 28 وظيفة (6٪)"><span class="bar-label">Statistics</span><span class="bar-track"><span class="bar-fill" style="width:30.8%;background:var(--c-analyst)"></span></span><span class="bar-count">28</span></div><div class="bar-row" title="Airflow — 25 وظيفة (6٪)"><span class="bar-label">Airflow</span><span class="bar-track"><span class="bar-fill" style="width:27.5%;background:var(--c-analyst)"></span></span><span class="bar-count">25</span></div><div class="bar-row" title="CI/CD — 24 وظيفة (5٪)"><span class="bar-label">CI/CD</span><span class="bar-track"><span class="bar-fill" style="width:26.4%;background:var(--c-analyst)"></span></span><span class="bar-count">24</span></div><div class="bar-row" title="Git — 23 وظيفة (5٪)"><span class="bar-label">Git</span><span class="bar-track"><span class="bar-fill" style="width:25.3%;background:var(--c-analyst)"></span></span><span class="bar-count">23</span></div>
+  <main>
+    <div class="page-head">
+      <h1 data-i18n="title">مؤشر سوق وظائف البيانات</h1>
+      <p class="section-lede" data-i18n="lede">المهارات والأدوار والدول في الإعلانات المفتوحة الآن. اختر دولتك والدول التي تفضّلها لترى السوق الذي يخصّك.</p>
     </div>
-    <div class="panel">
-      <h2>توزيع الأدوار</h2>
-      <p class="hint">تصنيف آلي من المسمى الوظيفي</p>
-      <div class="bar-row" title="مهندس بيانات — 38 وظيفة (25٪)"><span class="bar-label">مهندس بيانات</span><span class="bar-track"><span class="bar-fill" style="width:100.0%;background:var(--c-engineer)"></span></span><span class="bar-count">38</span></div><div class="bar-row" title="مهندس تعلم آلي — 35 وظيفة (23٪)"><span class="bar-label">مهندس تعلم آلي</span><span class="bar-track"><span class="bar-fill" style="width:92.1%;background:var(--c-ml)"></span></span><span class="bar-count">35</span></div><div class="bar-row" title="محلل بيانات — 34 وظيفة (22٪)"><span class="bar-label">محلل بيانات</span><span class="bar-track"><span class="bar-fill" style="width:89.5%;background:var(--c-analyst)"></span></span><span class="bar-count">34</span></div><div class="bar-row" title="عالم بيانات — 25 وظيفة (16٪)"><span class="bar-label">عالم بيانات</span><span class="bar-track"><span class="bar-fill" style="width:65.8%;background:var(--c-scientist)"></span></span><span class="bar-count">25</span></div><div class="bar-row" title="مهندس تحليلات — 9 وظيفة (6٪)"><span class="bar-label">مهندس تحليلات</span><span class="bar-track"><span class="bar-fill" style="width:23.7%;background:var(--c-analytics)"></span></span><span class="bar-count">9</span></div><div class="bar-row" title="أخرى (بيانات) — 8 وظيفة (5٪)"><span class="bar-label">أخرى (بيانات)</span><span class="bar-track"><span class="bar-fill" style="width:21.1%;background:var(--c-other)"></span></span><span class="bar-count">8</span></div><div class="bar-row" title="محلل أعمال — 3 وظيفة (2٪)"><span class="bar-label">محلل أعمال</span><span class="bar-track"><span class="bar-fill" style="width:7.9%;background:var(--c-business)"></span></span><span class="bar-count">3</span></div><div class="bar-row" title="مطوّر BI — 1 وظيفة (1٪)"><span class="bar-label">مطوّر BI</span><span class="bar-track"><span class="bar-fill" style="width:2.6%;background:var(--c-bi)"></span></span><span class="bar-count">1</span></div>
-    </div>
-    <div class="panel">
-      <h2>مهارات محلل البيانات وBI</h2>
-      <p class="hint">الأكثر وروداً في إعلانات التحليل</p>
-      <div class="bar-row" title="SQL — 22 وظيفة (23٪)"><span class="bar-label">SQL</span><span class="bar-track"><span class="bar-fill" style="width:100.0%;background:var(--c-analyst)"></span></span><span class="bar-count">22</span></div><div class="bar-row" title="Excel — 13 وظيفة (14٪)"><span class="bar-label">Excel</span><span class="bar-track"><span class="bar-fill" style="width:59.1%;background:var(--c-analyst)"></span></span><span class="bar-count">13</span></div><div class="bar-row" title="Data Governance — 11 وظيفة (12٪)"><span class="bar-label">Data Governance</span><span class="bar-track"><span class="bar-fill" style="width:50.0%;background:var(--c-analyst)"></span></span><span class="bar-count">11</span></div><div class="bar-row" title="Tableau — 11 وظيفة (12٪)"><span class="bar-label">Tableau</span><span class="bar-track"><span class="bar-fill" style="width:50.0%;background:var(--c-analyst)"></span></span><span class="bar-count">11</span></div><div class="bar-row" title="A/B Testing — 10 وظيفة (11٪)"><span class="bar-label">A/B Testing</span><span class="bar-track"><span class="bar-fill" style="width:45.5%;background:var(--c-analyst)"></span></span><span class="bar-count">10</span></div><div class="bar-row" title="Looker — 10 وظيفة (11٪)"><span class="bar-label">Looker</span><span class="bar-track"><span class="bar-fill" style="width:45.5%;background:var(--c-analyst)"></span></span><span class="bar-count">10</span></div><div class="bar-row" title="Power BI — 9 وظيفة (9٪)"><span class="bar-label">Power BI</span><span class="bar-track"><span class="bar-fill" style="width:40.9%;background:var(--c-analyst)"></span></span><span class="bar-count">9</span></div><div class="bar-row" title="Python — 9 وظيفة (9٪)"><span class="bar-label">Python</span><span class="bar-track"><span class="bar-fill" style="width:40.9%;background:var(--c-analyst)"></span></span><span class="bar-count">9</span></div>
-    </div>
-    <div class="panel">
-      <h2>مهارات مهندس البيانات</h2>
-      <p class="hint">الأكثر وروداً في إعلانات الهندسة</p>
-      <div class="bar-row" title="Python — 35 وظيفة (18٪)"><span class="bar-label">Python</span><span class="bar-track"><span class="bar-fill" style="width:100.0%;background:var(--c-engineer)"></span></span><span class="bar-count">35</span></div><div class="bar-row" title="SQL — 27 وظيفة (14٪)"><span class="bar-label">SQL</span><span class="bar-track"><span class="bar-fill" style="width:77.1%;background:var(--c-engineer)"></span></span><span class="bar-count">27</span></div><div class="bar-row" title="Data Governance — 25 وظيفة (13٪)"><span class="bar-label">Data Governance</span><span class="bar-track"><span class="bar-fill" style="width:71.4%;background:var(--c-engineer)"></span></span><span class="bar-count">25</span></div><div class="bar-row" title="ETL — 25 وظيفة (13٪)"><span class="bar-label">ETL</span><span class="bar-track"><span class="bar-fill" style="width:71.4%;background:var(--c-engineer)"></span></span><span class="bar-count">25</span></div><div class="bar-row" title="AWS — 23 وظيفة (12٪)"><span class="bar-label">AWS</span><span class="bar-track"><span class="bar-fill" style="width:65.7%;background:var(--c-engineer)"></span></span><span class="bar-count">23</span></div><div class="bar-row" title="Airflow — 22 وظيفة (11٪)"><span class="bar-label">Airflow</span><span class="bar-track"><span class="bar-fill" style="width:62.9%;background:var(--c-engineer)"></span></span><span class="bar-count">22</span></div><div class="bar-row" title="Data Modeling — 21 وظيفة (11٪)"><span class="bar-label">Data Modeling</span><span class="bar-track"><span class="bar-fill" style="width:60.0%;background:var(--c-engineer)"></span></span><span class="bar-count">21</span></div><div class="bar-row" title="CI/CD — 18 وظيفة (9٪)"><span class="bar-label">CI/CD</span><span class="bar-track"><span class="bar-fill" style="width:51.4%;background:var(--c-engineer)"></span></span><span class="bar-count">18</span></div>
-    </div>
-  </section>
 
-  <h2 class="section-title">أحدث الوظائف المرصودة</h2>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>الوظيفة</th><th>الموقع</th><th>الدور</th><th>الراتب</th><th>نُشرت</th><th></th></tr></thead>
-      <tbody><tr>
-          <td><span class="jt">Applied AI Engineer, Codex</span><span class="jc">OpenAI</span></td>
-          <td class="dim">Paris, France</td>
-          <td><span class="chip" style="--c:var(--c-ml)">مهندس تعلم آلي</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.fr/jobs/companies/openai/applied-ai-engineer-codex-paris-438757" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Big Data Engineer</span><span class="jc">Odaseva</span></td>
-          <td class="dim">Paris</td>
-          <td><span class="chip" style="--c:var(--c-engineer)">مهندس بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.fr/jobs/companies/odaseva/big-data-engineer-paris-396890" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Applied ML Engineer</span><span class="jc">Jobgether</span></td>
-          <td class="dim">France</td>
-          <td><span class="chip" style="--c:var(--c-ml)">مهندس تعلم آلي</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.fr/jobs/companies/jobgether/applied-ml-engineer-france-147401" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Principal Data Engineer</span><span class="jc">Blackduck</span></td>
-          <td class="dim">Belfast</td>
-          <td><span class="chip" style="--c:var(--c-engineer)">مهندس بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/blackduck/principal-data-engineer-belfast-230425" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Software Engineer, Machine Learning</span><span class="jc">Roku</span></td>
-          <td class="dim">Cambridge</td>
-          <td><span class="chip" style="--c:var(--c-ml)">مهندس تعلم آلي</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/roku/senior-software-engineer-machine-learning-cambridge-192546" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Data Scientist</span><span class="jc">Coreweaveu</span></td>
-          <td class="dim">London</td>
-          <td><span class="chip" style="--c:var(--c-scientist)">عالم بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/coreweaveu/data-scientist-london-394736" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Data &amp; MLOps Engineer</span><span class="jc">Coreweaveu</span></td>
-          <td class="dim">London</td>
-          <td><span class="chip" style="--c:var(--c-engineer)">مهندس بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/coreweaveu/senior-data-mlops-engineer-london-277558" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Data Engineer - Real time analytics</span><span class="jc">Aircall</span></td>
-          <td class="dim">London Office</td>
-          <td><span class="chip" style="--c:var(--c-engineer)">مهندس بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/aircall/senior-data-engineer-real-time-analytics-london-office-444994" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Data Scientist</span><span class="jc">loveholidays</span></td>
-          <td class="dim">London</td>
-          <td><span class="chip" style="--c:var(--c-scientist)">عالم بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/loveholidays/data-scientist-london-229927" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior/Staff Applied Machine Learning Scientist</span><span class="jc">Stackadapt</span></td>
-          <td class="dim"></td>
-          <td><span class="chip" style="--c:var(--c-ml)">مهندس تعلم آلي</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/stackadapt/senior-staff-applied-machine-learning-scientist-144165" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Data Scientist - Defence</span><span class="jc">C3Iot</span></td>
-          <td class="dim">London, Greater London</td>
-          <td><span class="chip" style="--c:var(--c-scientist)">عالم بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/c3iot/data-scientist-defence-london-greater-london-45759" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Machine Learning Scientist</span><span class="jc">Flagshippioneeringinc</span></td>
-          <td class="dim">Cambridge</td>
-          <td><span class="chip" style="--c:var(--c-ml)">مهندس تعلم آلي</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/flagshippioneeringinc/senior-machine-learning-scientist-cambridge-429937" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Data Scientist (m/w/d) mit Führungsverantwortung in Teilzeit - remote oder Karlsruhe</span><span class="jc">Knuddels GmbH &amp; Co. KG</span></td>
-          <td class="dim">Homeoffice</td>
-          <td><span class="chip" style="--c:var(--c-scientist)">عالم بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.com/jobs/companies/knuddels-gmbh-co-kg/senior-data-scientist-mit-fuhrungsverantwortung-in-teilzeit-remote-oder-karlsruhe-236374" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Data Scientist (m/w/d) mit Führungsverantwortung - remote oder Karlsruhe</span><span class="jc">Knuddels GmbH &amp; Co. KG</span></td>
-          <td class="dim">Homeoffice</td>
-          <td><span class="chip" style="--c:var(--c-scientist)">عالم بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.com/jobs/companies/knuddels-gmbh-co-kg/senior-data-scientist-mit-fuhrungsverantwortung-remote-oder-karlsruhe-120481" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Working Student – Content and Data Management (all genders)</span><span class="jc">Ctrl Qs</span></td>
-          <td class="dim">Berlin</td>
-          <td><span class="chip" style="--c:var(--c-other)">أخرى (بيانات)</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.com/jobs/companies/ctrl-qs/working-student-content-and-data-management-all-genders-berlin-247566" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Werkstudent (m/w/d) MarTech, Data &amp; Analytics</span><span class="jc">Es Group</span></td>
-          <td class="dim">Berlin</td>
-          <td><span class="chip" style="--c:var(--c-analyst)">محلل بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.com/jobs/companies/es-group/werkstudent-martech-data-analytics-berlin-205095" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Applied ML Engineer</span><span class="jc">Jobgether</span></td>
-          <td class="dim">Germany</td>
-          <td><span class="chip" style="--c:var(--c-ml)">مهندس تعلم آلي</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.com/jobs/companies/jobgether/applied-ml-engineer-germany-9103" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Data Engineer / Scientist – Multimodal Clinical Data Integration &amp; AI (m/f/d)</span><span class="jc">AIPTO TechBio</span></td>
-          <td class="dim">Heidelberg</td>
-          <td><span class="chip" style="--c:var(--c-engineer)">مهندس بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.com/jobs/companies/aipto-techbio/data-engineer-scientist-multimodal-clinical-data-integration-ai-heidelberg-305399" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">BI Consultant Data &amp; Cloud (w/m/d), Deutschland, hybrid</span><span class="jc">HighCoordination GmbH</span></td>
-          <td class="dim">Singen</td>
-          <td><span class="chip" style="--c:var(--c-engineer)">مهندس بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.com/jobs/companies/highcoordination-gmbh/bi-consultant-data-cloud-deutschland-hybrid-singen-270962" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior BigQuery Data Engineer</span><span class="jc">Checkout.com</span></td>
-          <td class="dim">London</td>
-          <td><span class="chip" style="--c:var(--c-engineer)">مهندس بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/checkoutcom/senior-bigquery-data-engineer-london-212506" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Analytics Manager, Financial Experiences</span><span class="jc">Checkout.com</span></td>
-          <td class="dim">London</td>
-          <td><span class="chip" style="--c:var(--c-analytics)">مهندس تحليلات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/checkoutcom/analytics-manager-financial-experiences-london-35657" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Marketing Data Analyst</span><span class="jc">oliver</span></td>
-          <td class="dim">London</td>
-          <td><span class="chip" style="--c:var(--c-analyst)">محلل بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/oliver/marketing-data-analyst-london-332195" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Data Analyst</span><span class="jc">oliver</span></td>
-          <td class="dim">London</td>
-          <td><span class="chip" style="--c:var(--c-analyst)">محلل بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/oliver/data-analyst-london-312756" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Human Data Operations Partner, Research</span><span class="jc">prolific</span></td>
-          <td class="dim"></td>
-          <td><span class="chip" style="--c:var(--c-other)">أخرى (بيانات)</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-24</td>
-          <td><a href="https://www.arbeitnow.co.uk/jobs/companies/prolific/senior-human-data-operations-partner-research-76702" target="_blank" rel="noopener">عرض</a></td>
-        </tr><tr>
-          <td><span class="jt">Senior Data Analyst - Application Mobile E-commerce (f/m/d)</span><span class="jc">Decathlontechnology</span></td>
-          <td class="dim">Paris, Paris</td>
-          <td><span class="chip" style="--c:var(--c-analyst)">محلل بيانات</span></td>
-          <td class="num">—</td>
-          <td class="num dim">2026-09-23</td>
-          <td><a href="https://www.arbeitnow.fr/jobs/companies/decathlontechnology/senior-data-analyst-application-mobile-e-commerce-paris-paris-374511" target="_blank" rel="noopener">عرض</a></td>
-        </tr></tbody>
-    </table>
-  </div>
+    <form class="filters" id="filters" aria-labelledby="filters-title" onsubmit="return false">
+      <h2 id="filters-title" class="field-label" data-i18n="filters_title" hidden>الفلاتر</h2>
+
+      <div class="field">
+        <span class="field-label" id="scope-label" data-i18n="scope">ما الذي أعرضه</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="scope-label">
+          <label><input type="radio" name="scope" value="all" checked><span data-i18n="scope_all">كل الإعلانات</span></label>
+          <label><input type="radio" name="scope" value="mine"><span data-i18n="scope_mine">دولتي والمفضّلة</span></label>
+        </div>
+      </div>
+
+      <label class="field"><span class="field-label" data-i18n="home">دولتي</span>
+        <select id="home"></select>
+      </label>
+
+      <div class="field">
+        <span class="field-label" data-i18n="prefs">الدول المفضّلة</span>
+        <div class="chips" id="pref-chips">
+          <select id="add-pref" data-i18n-aria="add_pref" aria-label="أضف دولة"></select>
+        </div>
+      </div>
+
+      <label class="check"><input type="checkbox" id="remote"><span data-i18n="remote">مع العمل عن بُعد من أي مكان</span></label>
+
+      <label class="field"><span class="field-label" data-i18n="level">المستوى</span>
+        <select id="level">
+          <option value="" data-i18n="level_any">كل المستويات</option>
+          <option value="entry" data-i18n="level_entry">تدريب ومبتدئ</option>
+          <option value="mid" data-i18n="level_mid">متوسط فأعلى</option>
+        </select>
+      </label>
+
+      <label class="field"><span class="field-label" data-i18n="role">الدور</span>
+        <select id="role"><option value="" data-i18n="role_any">كل الأدوار</option></select>
+      </label>
+
+      <button class="reset" type="button" id="reset" data-i18n="reset">إعادة الضبط</button>
+    </form>
+
+    <p class="match-meta" id="match-meta" aria-live="polite"></p>
+
+    <div class="charts">
+      <section class="panel wide" aria-labelledby="skills-title">
+        <h2 id="skills-title" data-i18n="skills_title">المهارات الأكثر طلباً</h2>
+        <p class="panel-note" data-i18n="skills_note">نسبة الإعلانات التي تطلب كل مهارة. الرقم بجانب الشريط للمطلوبة فقط.</p>
+        <ul class="legend">
+          <li><span class="swatch seg req" aria-hidden="true"></span><span data-i18n="required">مطلوبة</span></li>
+          <li><span class="swatch seg pref" aria-hidden="true"></span><span data-i18n="preferred">مفضّلة</span></li>
+        </ul>
+        <ol class="bars" id="chart-skills"></ol>
+      </section>
+      <section class="panel" aria-labelledby="roles-title">
+        <h2 id="roles-title" data-i18n="roles_title">الأدوار</h2>
+        <p class="panel-note" data-i18n="roles_note">عدد الإعلانات لكل دور.</p>
+        <ol class="bars" id="chart-roles"></ol>
+      </section>
+      <section class="panel" aria-labelledby="levels-title">
+        <h2 id="levels-title" data-i18n="levels_title">المستوى المطلوب</h2>
+        <p class="panel-note" data-i18n="levels_note">من التدريب إلى الإدارة، بالترتيب.</p>
+        <ol class="bars" id="chart-levels"></ol>
+      </section>
+      <section class="panel wide" aria-labelledby="where-title">
+        <h2 id="where-title" data-i18n="where_title">أين الفرص</h2>
+        <p class="panel-note" data-i18n="where_note">الدول التي يمكن أن يكون فيها الموظَّف. الإعلان المفتوح لأكثر من دولة يُحسب لكل منها.</p>
+        <ol class="bars" id="chart-where"></ol>
+      </section>
+    </div>
+
+    <section class="section" aria-labelledby="list-title">
+      <h2 id="list-title" data-i18n="list_title">الإعلانات</h2>
+      <ul class="jobs" id="jobs"></ul>
+      <button class="more" type="button" id="more" hidden></button>
+    </section>
+  </main>
 
   <footer>
-    الرادار — أحد مكوّنات منصة مسار · خط أنابيب بيانات مفتوح المصدر (Python · SQLite · GitHub Actions)<br>
-    البيانات بواسطة الواجهات العامة لـ <a href="https://remotive.com" target="_blank" rel="noopener">Remotive</a> و<a href="https://remoteok.com" target="_blank" rel="noopener">Remote OK</a>.
+    <span data-i18n="footer_data">البيانات من الواجهات العامة لـ</span>
+    <a href="https://jobicy.com" rel="noopener">Jobicy</a>،
+    <a href="https://remoteok.com" rel="noopener">Remote OK</a>،
+    <a href="https://www.arbeitnow.com" rel="noopener">Arbeitnow</a>
+    <span data-i18n="and">و</span><a href="https://remotive.com" rel="noopener">Remotive</a>.
+    <br>
+    <span data-i18n="footer_code">مسار مشروع مفتوح المصدر:</span>
+    <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener" data-i18n="footer_repo">الشيفرة على GitHub</a>
   </footer>
 </div>
+<div class="tip" id="tip" role="tooltip"></div>
+<script src="assets/core.js"></script>
+<script src="assets/market.js"></script>
 </body>
 </html>

@@ -50,7 +50,15 @@ DESCRIPTION_CHARS = 12000
 #   2  counts practices and responsibilities, not only named tools; excludes
 #      company, product and culture mentions; sees the full description
 #   3  tells the model what the broad canonical names cover (SKILL_SCOPE)
-PROMPT_VERSION = 3
+#   4  where the hire may be based (countries, regions) and the work mode, for
+#      the country filter - location strings are too irregular to parse
+PROMPT_VERSION = 4
+
+REGIONS = ["Worldwide", "Europe", "Middle East", "North America",
+           "Latin America", "Asia-Pacific", "Africa"]
+WORK_MODES = ["remote", "hybrid", "onsite", "unknown"]
+# Codes models reach for that ISO 3166-1 spells differently.
+COUNTRY_ALIASES = {"UK": "GB", "EL": "GR"}
 
 # Canonical names whose regex in skills.py covers more than the label says in
 # plain English. The model only sees the name, so without this it reads "Data
@@ -87,6 +95,9 @@ Some canonical names are broader than their label: {scope}
 role: one of {roles}
 seniority: one of {seniority}
 years_experience: the minimum years stated, or null if the posting does not say.
+countries: ISO 3166-1 alpha-2 codes of the countries where the person hired may be based, read from the location and the text. A city counts: Berlin is DE. Leave it empty when the posting is open anywhere or does not say.
+regions: broader areas the posting names instead of, or as well as, countries - any of {regions}. Use Worldwide when the hire may be based anywhere.
+work_mode: one of {work_modes}.
 
 Postings are sometimes in Arabic, German or French. Read them in their own language and reply in English regardless.
 
@@ -104,6 +115,10 @@ SCHEMA = {
                     "role": {"type": "string", "enum": ROLES},
                     "seniority": {"type": "string", "enum": SENIORITY},
                     "years_experience": {"type": "integer", "nullable": True},
+                    "countries": {"type": "array", "items": {"type": "string"}},
+                    "regions": {"type": "array",
+                                "items": {"type": "string", "enum": REGIONS}},
+                    "work_mode": {"type": "string", "enum": WORK_MODES},
                     "skills": {
                         "type": "array",
                         "items": {
@@ -161,6 +176,8 @@ def _request_body(batch: list[dict]) -> dict:
         canonical=", ".join(sorted(skills.SKILL_PATTERNS)),
         scope="; ".join(f"{name} also covers {covers}"
                         for name, covers in SKILL_SCOPE.items()),
+        regions=", ".join(REGIONS),
+        work_modes=", ".join(WORK_MODES),
         roles=", ".join(ROLES),
         seniority=", ".join(SENIORITY),
     )
@@ -321,11 +338,21 @@ def store(con, result: dict, now: str) -> None:
         [(job_id, s["name"].strip(), 1 if s.get("required") else 0)
          for s in result.get("skills", []) if s.get("name", "").strip()],
     )
+    # Stored comma-separated so the jsonl line stays readable ("DE,FR").
+    countries = sorted({
+        COUNTRY_ALIASES.get(c.strip().upper(), c.strip().upper())
+        for c in result.get("countries") or []
+        if len(c.strip()) == 2 and c.strip().isalpha()
+    })
+    regions = [r for r in REGIONS if r in (result.get("regions") or [])]
+    work_mode = result.get("work_mode") if result.get("work_mode") in WORK_MODES else "unknown"
     con.execute(
         """UPDATE jobs SET role = ?, seniority = ?, years_experience = ?,
+                           countries = ?, regions = ?, work_mode = ?,
                            ai_extracted_at = ?, ai_version = ?
              WHERE id = ?""",
         (result["role"], result.get("seniority"), result.get("years_experience"),
+         ",".join(countries), ",".join(regions), work_mode,
          now, PROMPT_VERSION, job_id),
     )
 
