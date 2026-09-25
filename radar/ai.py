@@ -52,7 +52,11 @@ DESCRIPTION_CHARS = 12000
 #   3  tells the model what the broad canonical names cover (SKILL_SCOPE)
 #   4  where the hire may be based (countries, regions) and the work mode, for
 #      the country filter - location strings are too irregular to parse
-PROMPT_VERSION = 5
+#   5  every named tool (key-skills lists, "we use X"); no culture statements
+#      or degree subjects as skills - radar.evaluate found both on v4
+#   6  same prompt, re-read on the main model: v5's run fell back to the
+#      lighter one for every batch after the first
+PROMPT_VERSION = 6
 
 REGIONS = ["Worldwide", "Europe", "Middle East", "North America",
            "Latin America", "Asia-Pacific", "Africa"]
@@ -160,6 +164,7 @@ MAX_WAIT = 60.0      # never stall a CI run longer than this on one hint
 # Stop after this many batches fail in a row. On a bad day at the API, pressing
 # on only spends the daily quota on requests that will fail the same way.
 MAX_CONSECUTIVE_FAILURES = 3
+RETRY_FIRST_EVERY = 5  # batches on a fallback model before the first choice is tried again
 
 
 class BatchFailed(Exception):
@@ -392,6 +397,7 @@ def run(apply: bool, limit: int | None = None) -> dict:
 
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     consecutive = 0
+    first_choice, switched_at = list(models), None
     for start in range(0, len(queue), BATCH):
         # Pause before every request after the first, success or not. It used to
         # sit after the success path only, so a failing batch skipped it and the
@@ -400,6 +406,13 @@ def run(apply: bool, limit: int | None = None) -> dict:
             time.sleep(PAUSE)
         batch = queue[start:start + BATCH]
         stats["batches"] += 1
+        # A fallback used to stay first for the whole run, so one busy minute
+        # at the start left a full re-read (v5, 237 postings) on the lighter
+        # model, which missed more tools. The first choice gets another try
+        # every few batches.
+        if switched_at is not None and stats["batches"] - switched_at > RETRY_FIRST_EVERY:
+            models, switched_at = list(first_choice), None
+            print(f"[ok] ai: trying {models[0]} first again")
         try:
             results, model = call(batch, models)
         except KeyRejected as e:
@@ -425,7 +438,8 @@ def run(apply: bool, limit: int | None = None) -> dict:
             # that answered for the rest of the run: retrying a saturated model
             # first cost ~25s of backoff per batch, ten minutes over a full run.
             models = [model] + [m for m in models if m != model]
-            print(f"[ok] ai: {model} answered - using it first for the rest of the run")
+            switched_at = stats["batches"]
+            print(f"[ok] ai: {model} answered - using it first for the next {RETRY_FIRST_EVERY} batches")
         known = {j["id"] for j in batch}
         for result in results:
             if result.get("id") in known:
