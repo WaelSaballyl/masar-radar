@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-25T08:55:46+00:00",
- "active_postings": 197,
- "total_postings": 224,
- "companies": 28,
+ "updated_at": "2026-09-25T20:44:30+00:00",
+ "active_postings": 216,
+ "total_postings": 243,
+ "companies": 32,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,101 +10,101 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 31,
- "gulf_postings": 33,
+ "entry_postings": 32,
+ "gulf_postings": 39,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 31,
+  "postings": 32,
   "stops": [
    {
     "name": "Excel",
     "postings": 10,
-    "share": 0.323
-   },
-   {
-    "name": "Data Modeling",
-    "postings": 9,
-    "share": 0.29
+    "share": 0.312
    },
    {
     "name": "Python",
     "postings": 9,
-    "share": 0.29
+    "share": 0.281
+   },
+   {
+    "name": "Data Modeling",
+    "postings": 8,
+    "share": 0.25
    },
    {
     "name": "ETL",
     "postings": 8,
-    "share": 0.258
+    "share": 0.25
    },
    {
     "name": "SQL",
     "postings": 8,
-    "share": 0.258
+    "share": 0.25
    },
    {
     "name": "Data Governance",
     "postings": 6,
-    "share": 0.194
+    "share": 0.188
    },
    {
-    "name": "Google Sheets",
+    "name": "Statistics",
     "postings": 5,
-    "share": 0.161
+    "share": 0.156
    }
   ]
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 97,
-   "share": 0.492
+   "postings": 105,
+   "share": 0.486
   },
   {
    "name": "SQL",
-   "postings": 88,
-   "share": 0.447
-  },
-  {
-   "name": "Data Governance",
-   "postings": 56,
-   "share": 0.284
+   "postings": 98,
+   "share": 0.454
   },
   {
    "name": "Data Modeling",
-   "postings": 52,
-   "share": 0.264
+   "postings": 61,
+   "share": 0.282
+  },
+  {
+   "name": "Data Governance",
+   "postings": 60,
+   "share": 0.278
   },
   {
    "name": "ETL",
-   "postings": 47,
-   "share": 0.239
+   "postings": 48,
+   "share": 0.222
   },
   {
    "name": "A/B Testing",
-   "postings": 31,
-   "share": 0.157
+   "postings": 39,
+   "share": 0.181
   },
   {
-   "name": "Machine Learning",
-   "postings": 28,
-   "share": 0.142
+   "name": "GenAI/LLM",
+   "postings": 31,
+   "share": 0.144
   },
   {
    "name": "Statistics",
-   "postings": 25,
-   "share": 0.127
+   "postings": 31,
+   "share": 0.144
+  },
+  {
+   "name": "Machine Learning",
+   "postings": 30,
+   "share": 0.139
   },
   {
    "name": "dbt",
-   "postings": 25,
-   "share": 0.127
-  },
-  {
-   "name": "AWS",
-   "postings": 20,
-   "share": 0.102
+   "postings": 28,
+   "share": 0.13
   }
  ],
  "entry_jobs": [
@@ -127,8 +127,8 @@
   {
    "title": "Intern Data Engineer - Path to Junior Analytics Engineer",
    "company": "تابي",
-   "location": "الرياض, SA",
-   "url": "https://sa.jobrapido.com/jobpreview/4163882074480050176",
+   "location": "",
+   "url": "https://www.jobleads.com/sa/job/intern-data-engineer-path-to-junior-analytics-engineer--saudi-arabia--ef9f3d7acc41d141a26443fdd03b80f79",
    "level": "Intern",
    "posted_at": ""
   },
@@ -157,6 +157,14 @@
    "posted_at": ""
   },
   {
+   "title": "Data Analyst (No Experience Required)",
+   "company": "Peroptyx",
+   "location": "",
+   "url": "https://www.gulftalent.com/saudi-arabia/jobs/data-analyst-no-experience-required-611969",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
    "title": "Data Analyst",
    "company": "Confidential Jobs",
    "location": "",
@@ -182,33 +190,37 @@
   }
  ],
  "company_names": [
-  "تابي",
   "Jobgether",
-  "Propel Consult",
-  "Sautic",
-  "Basamh Group",
+  "تابي",
   "الصافي دانون",
   "Carrefour KSA",
   "Salla",
-  "Soar",
-  "AJEX",
-  "Karma Sugar Company For Food Industries",
-  "Brainlake Advertising LLC",
-  "Masterworks",
-  "ROBUSTA",
-  "Arabian Private Holdings",
-  "Müller's Solutions",
   "Meituan",
   "Refonte Technologies",
   "Assystem",
-  "HungerStation",
   "SoftwareOne",
-  "Nexttec Technology Outsourcing",
   "YO IT Consulting",
-  "Riyad Bank",
   "Alturki Holding",
-  "MRSOOL Inc",
   "Agoda",
-  "Confidential Jobs"
+  "Brainlake Advertising LLC",
+  "Propel Consult",
+  "Masterworks",
+  "ROBUSTA",
+  "Sautic",
+  "Basamh Group",
+  "Arabian Private Holdings",
+  "Müller's Solutions",
+  "HungerStation",
+  "Soar",
+  "Riyad Bank",
+  "AJEX",
+  "Karma Sugar Company For Food Industries",
+  "Confidential Jobs",
+  "Peroptyx",
+  "Nexttec Technology Outsourcing",
+  "Aramco",
+  "Team Saudi",
+  "Tata Consultancy Services",
+  "شركة علم"
  ]
 }
