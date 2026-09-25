@@ -6,6 +6,8 @@ import worker from "./src/index.js";
 
 // ---- mentions: short names must stand alone ----
 assert.ok(mentions("SQL, R and Python", "R"));
+assert.ok(mentions("excel , power bi,sql,, python", "SQL"), "a student's lowercase sql");
+assert.ok(!mentions("Riyadh branch", "R"));
 assert.ok(!mentions("Research and reporting", "R"));
 assert.ok(mentions("Built dashboards in PowerBI", "Power BI"));
 assert.ok(!mentions("Excel and SQL", "Tableau"));
@@ -97,6 +99,12 @@ assert.match(items[0].bullets[0], /by product\. They flagged slow-moving/);
 assert.equal(items[0].bullets.length, 2);
 // nothing restored into an Arabic CV from English notes, or when all is covered
 assert.deepEqual(restore(items, "Data Analyst | Kaner Group\n• They flagged slow-moving products for management and cut report preparation time.", true), []);
+
+// a sentence already used by another item is not copied into this one
+const pool = [{ name: "Graduation dashboard", bullets: ["Built an attendance dashboard in Power BI"] },
+              { name: "Titanic analysis", bullets: ["Analysed Titanic survival in Python with pandas"] }];
+assert.deepEqual(restore([pool[0]], "Graduation dashboard, Power BI\nBuilt an attendance dashboard in Power BI.\n"
+  + "Titanic survival analysis in Python with pandas and matplotlib.", false, pool), []);
 
 // coverage forgives "Advanced", the audit does not
 reply = { summary: "Uses advanced Excel daily.", skills: ["Excel"] };

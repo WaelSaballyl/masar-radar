@@ -12,8 +12,26 @@ const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // and match case, or "R" would be found in every word.
 export function mentions(text, skill) {
   if (!skill) return false;
-  if (skill.length <= 3) return new RegExp(`(^|[^A-Za-z0-9])${escape(skill)}([^A-Za-z0-9]|$)`).test(text);
+  // one letter (R, C) must match case, or "R" is found in "Riyadh"; "SQL" is
+  // "sql" in a student's own spelling
+  if (skill.length <= 3) {
+    return new RegExp(`(^|[^A-Za-z0-9])${escape(skill)}([^A-Za-z0-9]|$)`, skill.length === 1 ? "" : "i").test(text);
+  }
   return squash(text).includes(squash(skill));
+}
+
+// Does the source cover a skill phrase? Word by word, on stems, so "Data
+// cleaning" is covered by "cleaned the data". With forgive, qualifiers such as
+// "Advanced" are not required (coverage); without it they are (the audit,
+// so a CV cannot say "advanced" when the student did not).
+const QUALIFIERS = /\b(advanced|strong|basic|good|solid|excellent|proficiency|proficient|knowledge|experience|skills?|hands-on|of|in|with|and|the|for|to)\b/gi;
+const stem = (w) => w.toLowerCase().replace(/(ing|ed|es|s)$/, "");
+export function covers(source, skill, forgive = false) {
+  if (mentions(source, skill)) return true;
+  const words = (forgive ? skill.replace(QUALIFIERS, " ") : skill).split(/[\s/,()]+/).filter((w) => w.length > 1);
+  if (!words.length) return false;
+  const stems = new Set((String(source).match(/[A-Za-z0-9+#]+/g) || []).map(stem));
+  return words.every((w) => (w.length <= 3 ? mentions(source, w) : stems.has(stem(w))));
 }
 
 export const strings = (v, max = 40) => (Array.isArray(v) ? v : []).filter((x) => typeof x === "string" && x.trim()).map((x) => x.trim()).slice(0, max);
@@ -23,7 +41,7 @@ const sentences = (s) => str(s, 1200).split(/(?<=[.!؟?])\s+/).filter(Boolean);
 export function audit(cv, source, jobSkills) {
   const removed = [];
   const known = new Set(numbersIn(source));
-  const lacking = jobSkills.filter((s) => !mentions(source, s));
+  const lacking = jobSkills.filter((s) => !covers(source, s));
   const problem = (text) => {
     const n = numbersIn(text).find((x) => !known.has(x));
     if (n !== undefined) return `number:${n}`;
@@ -53,7 +71,8 @@ export function audit(cv, source, jobSkills) {
   cv.headline = field("headline", str(cv.headline, 160));
   cv.experience = (Array.isArray(cv.experience) ? cv.experience : []).slice(0, 8).map((x) => ({
     title: field("experience", str(x?.title, 120)), org: field("experience", str(x?.org, 120)),
-    location: field("experience", str(x?.location, 120)), dates: field("experience", str(x?.dates, 60)), bullets: strings(x?.bullets, 6).filter(keep("experience")),
+    // a model that puts "Summer 2022" in location as well as in dates
+    location: str(x?.location, 120) === str(x?.dates, 60) ? "" : field("experience", str(x?.location, 120)), dates: field("experience", str(x?.dates, 60)), bullets: strings(x?.bullets, 6).filter(keep("experience")),
   }));
   cv.projects = (Array.isArray(cv.projects) ? cv.projects : []).slice(0, 8).map((x) => ({
     name: field("projects", str(x?.name, 120)), tools: field("projects", str(x?.tools, 200)),
@@ -82,7 +101,9 @@ function overlap(a, b) {
   return A.size ? n / A.size : 0;
 }
 
-export function restore(items, block, arabic) {
+// pool: every item of the CV, so a sentence already used elsewhere (another
+// project on the next line) is not copied in again
+export function restore(items, block, arabic, pool = items) {
   const entries = String(block || "").split(/\n\s*\n/)
     .map((e) => e.split("\n").map((l) => l.replace(/^[\s•\-*·]+/, "").trim()).filter(Boolean))
     .filter((e) => e.length > 1);
@@ -95,7 +116,9 @@ export function restore(items, block, arabic) {
     for (const point of entry.slice(1)) {
       for (const sentence of point.split(/(?<=[.!?؟])\s+/)) {
         if (sentence.length < 25 || /[؀-ۿ]/.test(sentence) !== arabic) continue;
-        if (item.bullets.some((b) => overlap(sentence, b) >= 0.6)) continue;
+        const covered = (x) => [x.title, x.name, ...x.bullets].some((b) => b && overlap(sentence, b) >= 0.6)
+          || overlap(sentence, [x.title, x.name, x.org, x.tools, ...x.bullets].filter(Boolean).join(" ")) >= 0.75;
+        if (pool.some(covered)) continue;
         let host = -1, best = 0;
         item.bullets.forEach((b, i) => { const o = overlap(point, b); if (o > best) { host = i; best = o; } });
         if (host >= 0 && best >= 0.4) item.bullets[host] = `${item.bullets[host].replace(/[.\s]*$/, ".")} ${sentence}`;

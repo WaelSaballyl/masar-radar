@@ -10,7 +10,7 @@
 // it afterwards: a skill the posting wants but the profile lacks, or a number
 // the profile never states, is removed and reported rather than trusted.
 
-import { audit, mentions, numbersIn, restore, strings, str } from "./audit.js";
+import { audit, covers, mentions, numbersIn, restore, strings, str } from "./audit.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -46,6 +46,7 @@ export default {
     try {
       return reply(200, path === "/parse" ? await parse(input, env) : await tailor(input, env));
     } catch (e) {
+      if (!e.code) console.error(e.stack || e); // a bug here, not an upstream answer
       return reply(e.status || 502, { error: e.code || "upstream" });
     }
   },
@@ -64,7 +65,10 @@ const fail = (status, code) => Object.assign(new Error(code), { status, code });
 
 async function gemini(env, prompt) {
   let last = fail(502, "upstream");
-  for (const model of MODELS) {
+  // a busy moment at Google passes in a second or two: the first model gets
+  // a second try after the fallback, with a short pause between tries
+  for (const [i, model] of [...MODELS, MODELS[0]].entries()) {
+    if (i) await new Promise((ok) => setTimeout(ok, 1200));
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
@@ -74,7 +78,11 @@ async function gemini(env, prompt) {
       }),
     });
     if (r.status === 401 || r.status === 403) throw fail(502, "key");
-    if (!r.ok) { last = fail(r.status === 429 ? 429 : 502, r.status === 429 ? "busy" : "upstream"); continue; }
+    if (!r.ok) {
+      console.error(`gemini ${model}: HTTP ${r.status}`);
+      last = fail(r.status === 429 || r.status >= 500 ? 429 : 502, r.status === 429 || r.status >= 500 ? "busy" : "upstream");
+      continue;
+    }
     const data = await r.json();
     const text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
     try { return JSON.parse(text); } catch { last = fail(502, "bad_json"); }
@@ -141,11 +149,15 @@ Hard rules:
 - You may rephrase, reorder, merge or drop the student's own points, and use the posting's wording for things the student really did.
 - Tie a skill to a job or project only where PROFILE says it was used there. Keep qualifiers such as "basic" or "in progress".
 - No stock phrases ("eager to leverage", "passionate", "results-driven"); say what the student did.
+- No level words the student did not use ("proficient", "expert", "strong", "advanced"), and no activity PROFILE does not name: knowing SQL is not "writing SQL queries".
 - Keep every date range, location, work arrangement (remote, part-time), metric and qualifier PROFILE states; a study period stays the whole period, not just its last year. Keep a point that carries a number or a result (what the work led to) unless an item has more than 4.
 - Experience and projects newest first, as on a normal CV.
 - Never name the employer of the POSTING. If the posting is for another field than PROFILE, still write an honest CV of what the student has; do not stretch facts to fit.
 - Bullets start with an action verb, at most 4 per item, most relevant first.
 - Write in ${lang}. Keep tool and skill names in their usual Latin spelling.
+- Fix spelling, grammar, capitalisation and spacing ("power bi" -> "Power BI", "excel" -> "Excel"); that changes no fact.
+- Drop pointers such as "see GitHub" or "link below"; the page adds the links itself.
+- languages: each with the level PROFILE gives it, e.g. "English (good, IELTS 6)".
 - summary: 2-3 sentences aimed at this posting, only from PROFILE. If PROFILE states availability, work authorisation or iqama, or readiness to relocate, the last sentence carries all of them as written.
 - headline: if PROFILE states a headline or target role, use it as written; otherwise the student's role and 3-4 core skills, e.g. "Data Analyst | Excel, Power BI, SQL".
 - experience: org is the organisation name only; its city or region goes in location, together with the work arrangement.
@@ -164,7 +176,9 @@ ${JSON.stringify(profile, null, 1)}`);
 
   // a listed posting's skills come from our own extraction; a pasted one's from the model
   // models sometimes answer these lists with one comma-separated string
-  const list = (v) => strings(typeof v === "string" ? v.split(/[,،]/) : v, 30);
+  // languages are not skills to cover, whatever the model says
+  const LANGUAGE = /^(arabic|english|french|urdu|العربية|الإنجليزية|الانجليزية)$/i;
+  const list = (v) => strings(typeof v === "string" ? v.split(/[,،]/) : v, 30).filter((s) => !LANGUAGE.test(s));
   const required = pasted ? list(cv.job_required) : listed.required;
   const preferred = pasted ? list(cv.job_preferred) : listed.preferred;
   delete cv.job_required; delete cv.job_preferred;
@@ -174,16 +188,12 @@ ${JSON.stringify(profile, null, 1)}`);
   const watch = [...required, ...preferred, ...strings(input?.vocabulary, 300), ...strings(cv.skills)]
     .filter((s) => s.length <= 40);
   const removed = audit(cv, source, watch);
-  restore(cv.experience, profile.experience, lang === "Arabic");
-  restore(cv.projects, profile.projects, lang === "Arabic");
+  const all = [...cv.experience, ...cv.projects];
+  restore(cv.experience, profile.experience, lang === "Arabic", all);
+  restore(cv.projects, profile.projects, lang === "Arabic", all);
   // Coverage forgives qualifiers: "Advanced Excel" is covered by "Excel". The
   // audit above stays literal, so the CV still cannot claim "advanced".
-  const QUALIFIERS = /\b(advanced|strong|basic|good|solid|excellent|proficiency|proficient|knowledge|experience|skills?|hands-on|of|in|with|and|the)\b/gi;
-  const has = (s) => {
-    if (mentions(source, s)) return true;
-    const core = s.replace(QUALIFIERS, " ").split(/[\s/,]+/).filter((w) => w.length > 1);
-    return core.length > 0 && core.every((w) => mentions(source, w));
-  };
+  const has = (s) => covers(source, s, true);
   return {
     cv, removed,
     coverage: {
