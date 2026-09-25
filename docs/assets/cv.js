@@ -252,6 +252,13 @@
     postings = d.postings.map((p, i) => ({ ...p, i, gulf: p.countries.some((c) => GULF.includes(c)) }))
       .sort((a, b) => (ENTRY.includes(b.level) - ENTRY.includes(a.level)));
     renderPicker();
+    // arriving from "prepare my CV for this posting" on the postings page
+    const wanted = postings.find((p) => p.id === new URLSearchParams(location.search).get("job"));
+    if (wanted) {
+      $("job-pick").value = String(wanted.i);
+      showNeeds();
+      $("s2").scrollIntoView();
+    }
   }).catch(() => { $("job-needs").textContent = "تعذّر تحميل الإعلانات. الصق وصف الوظيفة بدلاً منها."; });
 
   $("job-search").addEventListener("input", renderPicker);

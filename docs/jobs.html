@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الإعلانات — مسار</title>
+<meta name="description" content="كل إعلانات وظائف البيانات المفتوحة الآن، السعودية والخليج أولاً، مع المهارات المطلوبة في كل إعلان.">
+<meta name="theme-color" content="#0E2624">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/masar.css?v=12">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <a class="wordmark" href="./">مسار</a>
+    <nav class="nav" aria-label="الأقسام">
+      <a href="jobs.html" aria-current="page">الإعلانات</a>
+      <a href="dashboard.html">مؤشر السوق</a>
+      <a href="cv.html">سيرتك</a>
+    </nav>
+    <div class="tools">
+      <button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <h1>إعلانات وظائف البيانات</h1>
+      <p class="section-lede">كل الإعلانات المفتوحة الآن، السعودية والخليج أولاً ثم ما يمكن العمل فيه عن بُعد، والأحدث أولاً في كل قسم. تحت كل إعلان المهارات التي يطلبها.</p>
+    </div>
+
+    <form class="filters" id="filters" onsubmit="return false" aria-label="تصفية الإعلانات">
+      <label class="field grow">بحث<input type="search" id="q" placeholder="المسمى أو الشركة أو مهارة"></label>
+      <label class="field">المكان
+        <select id="where">
+          <option value="">كل الأماكن</option>
+          <option value="gulf">السعودية والخليج</option>
+          <option value="near">الخليج وعن بُعد</option>
+        </select>
+      </label>
+      <label class="field">المستوى
+        <select id="level">
+          <option value="">كل المستويات</option>
+          <option value="entry">تدريب ومبتدئ</option>
+          <option value="mid">متوسط فأعلى</option>
+        </select>
+      </label>
+      <label class="field">الدور<select id="role"><option value="">كل الأدوار</option></select></label>
+    </form>
+
+    <p class="match-meta" id="meta" aria-live="polite"></p>
+    <div id="groups"></div>
+    <button class="more" type="button" id="more" hidden></button>
+  </main>
+
+  <footer>
+    <span>البيانات من الواجهات العامة لـ</span>
+    <a href="https://jobicy.com" rel="noopener">Jobicy</a>،
+    <a href="https://remoteok.com" rel="noopener">Remote OK</a>،
+    <a href="https://www.arbeitnow.com" rel="noopener">Arbeitnow</a>،
+    <a href="https://remotive.com" rel="noopener">Remotive</a>
+    <span>و</span><a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" rel="noopener">JSearch</a>.
+  </footer>
+</div>
+<script src="assets/core.js?v=12"></script>
+<script src="assets/jobs.js?v=12"></script>
+</body>
+</html>

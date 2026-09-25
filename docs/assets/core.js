@@ -95,5 +95,30 @@ window.Masar = (() => {
     });
   }
 
-  return { store, count, pct, date, countryName, el, safeUrl, i18n, initTheme };
+  // Where a posting can be done from, for a visitor in the Gulf:
+  // "gulf" names a Gulf country; "anywhere" is remote worldwide; "region" names
+  // the Middle East but no country ("Remote, EMEA"); "other" is elsewhere.
+  // "Americas, Europe, Israel" is tagged Middle East for Israel alone, so a
+  // posting that names Israel never counts as open to the Gulf.
+  const GULF = ["SA", "AE", "QA", "KW", "BH", "OM"];
+  function place(p) {
+    if (p.countries.some((c) => GULF.includes(c))) return "gulf";
+    if (p.regions.includes("Worldwide") || (p.mode === "remote" && !p.countries.length && !p.regions.length)) return "anywhere";
+    if (!p.countries.length && p.regions.includes("Middle East") && !/israel/i.test(p.location)) return "region";
+    return p.countries.length || p.regions.length ? "other" : "unknown";
+  }
+
+  // "اليوم", "أمس", "قبل يومين", "قبل 3 أيام", "قبل 11 يوماً"; a date after a month
+  function ago(iso, lang) {
+    if (!iso) return "";
+    const days = Math.round((Date.now() - new Date(`${iso}T12:00:00`)) / 86_400_000);
+    if (days > 30 || days < 0) return date(iso, lang);
+    if (lang === "en") return days === 0 ? "today" : days === 1 ? "yesterday" : `${days} days ago`;
+    if (days === 0) return "اليوم";
+    if (days === 1) return "أمس";
+    if (days === 2) return "قبل يومين";
+    return days <= 10 ? `قبل ${days} أيام` : `قبل ${days} يوماً`;
+  }
+
+  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme };
 })();

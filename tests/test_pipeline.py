@@ -140,7 +140,7 @@ class SiteData(unittest.TestCase):
             self.assertIn(key, summary)
         postings = json.loads((docs / "jobs.json").read_text(encoding="utf-8"))["postings"]
         self.assertTrue(postings)
-        for key in ("title", "company", "countries", "regions", "mode", "skills", "level", "role"):
+        for key in ("id", "title", "company", "countries", "regions", "mode", "skills", "level", "role"):
             self.assertIn(key, postings[0])
 
 

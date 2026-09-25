@@ -145,16 +145,18 @@ def build_jobs() -> dict:
 
     split = lambda v: [x for x in (v or "").split(",") if x]
     postings = []
-    for (jid, title, company, location, url, posted, level, role,
+    for (jid, title, company, location, url, posted, collected, level, role,
          countries, regions, mode) in con.execute(
-        """SELECT id, title, company, location, url, posted_at, seniority, role,
+        """SELECT id, title, company, location, url, posted_at, collected_at, seniority, role,
                   countries, regions, work_mode
              FROM jobs WHERE last_seen >= ? ORDER BY posted_at DESC, id""",
         (cutoff,),
     ):
         postings.append({
-            "title": title, "company": company, "location": location, "url": url,
-            "posted_at": posted, "level": level, "role": role,
+            # id lets a page link straight to one posting (the CV builder's ?job=)
+            "id": jid, "title": title, "company": company, "location": location, "url": url,
+            # some sources give no date; the day we first saw it is the honest stand-in
+            "posted_at": posted or (collected or "")[:10], "level": level, "role": role,
             "countries": split(countries), "regions": split(regions),
             "mode": mode or "unknown", "skills": skills.get(jid, []),
         })
