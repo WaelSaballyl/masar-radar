@@ -16,6 +16,7 @@ python -m radar.collect                # fetch, filter, dedupe, store
 python -m radar.ai --check | --apply   # optional Gemini pass (GEMINI_API_KEY)
 python -m radar.store export           # data/radar.db -> data/*.jsonl  (tracked)
 python -m radar.build_dashboard        # -> docs/dashboard.html
+python -m radar.export_site            # -> docs/data/summary.json (read by docs/index.html)
 python -m radar.reclassify [--apply]   # re-apply current regex rules to stored rows
 ```
 
@@ -67,9 +68,16 @@ user to paste a key into chat; they run `gh secret set NAME -R WaelSaballyl/masa
 
 ## Status
 
-Done: data fixes, four sources, jsonl storage, AI extraction (prompt v3).
-Next: landing page and visual identity (dark teal, Seeraty-like structure, own
-code), dashboard rebuild (required vs preferred, seniority, `last_seen`,
+Done: data fixes, four sources, jsonl storage, AI extraction (prompt v3),
+landing page for co-op students (`docs/index.html`, `docs/assets/masar.css|js`).
+
+Identity: dark teal (`#0E2624`), mint route line (`#3DD6B5`), sand (`#E3B566`)
+reserved for internships; Noto Kufi Arabic for headings, IBM Plex Sans Arabic
+for text. The hero draws top skills as stations on a metro line ("masar" =
+path). Arabic counted nouns go through `count()` in masar.js - never hand-write
+"N إعلان". Local preview: `.claude/launch.json` serves docs/ on :8765.
+
+Next: dashboard rebuild in the same identity (required vs preferred, seniority, `last_seen`,
 country filter, co-op section), CV builder (needs a backend to hold the key -
 Cloudflare Workers favoured), then review, tests and a manual AI accuracy sample.
 
