@@ -1,0 +1,246 @@
+{
+ "updated_at": "2026-09-24T08:33:59+00:00",
+ "active_postings": 147,
+ "total_postings": 153,
+ "companies": 105,
+ "sources": [
+  "arbeitnow",
+  "jobicy",
+  "remoteok",
+  "remotive"
+ ],
+ "entry_postings": 18,
+ "route": {
+  "basis": "entry",
+  "postings": 18,
+  "stops": [
+   {
+    "name": "Excel",
+    "postings": 8,
+    "share": 0.444
+   },
+   {
+    "name": "Google Sheets",
+    "postings": 4,
+    "share": 0.222
+   },
+   {
+    "name": "Python",
+    "postings": 4,
+    "share": 0.222
+   },
+   {
+    "name": "SQL",
+    "postings": 4,
+    "share": 0.222
+   },
+   {
+    "name": "AWS",
+    "postings": 3,
+    "share": 0.167
+   },
+   {
+    "name": "Data Governance",
+    "postings": 3,
+    "share": 0.167
+   },
+   {
+    "name": "Machine Learning",
+    "postings": 3,
+    "share": 0.167
+   }
+  ]
+ },
+ "top_skills": [
+  {
+   "name": "Python",
+   "postings": 79,
+   "share": 0.537
+  },
+  {
+   "name": "SQL",
+   "postings": 60,
+   "share": 0.408
+  },
+  {
+   "name": "Data Governance",
+   "postings": 39,
+   "share": 0.265
+  },
+  {
+   "name": "Machine Learning",
+   "postings": 31,
+   "share": 0.211
+  },
+  {
+   "name": "ETL",
+   "postings": 30,
+   "share": 0.204
+  },
+  {
+   "name": "A/B Testing",
+   "postings": 28,
+   "share": 0.19
+  },
+  {
+   "name": "Data Modeling",
+   "postings": 27,
+   "share": 0.184
+  },
+  {
+   "name": "Statistics",
+   "postings": 26,
+   "share": 0.177
+  },
+  {
+   "name": "AWS",
+   "postings": 20,
+   "share": 0.136
+  },
+  {
+   "name": "CI/CD",
+   "postings": 18,
+   "share": 0.122
+  }
+ ],
+ "entry_jobs": [
+  {
+   "title": "Working Student – Content and Data Management (all genders)",
+   "company": "Ctrl Qs",
+   "location": "Berlin",
+   "url": "https://www.arbeitnow.com/jobs/companies/ctrl-qs/working-student-content-and-data-management-all-genders-berlin-247566",
+   "level": "Intern",
+   "posted_at": "2026-09-24"
+  },
+  {
+   "title": "Werkstudent (m/w/d) MarTech, Data & Analytics",
+   "company": "Es Group",
+   "location": "Berlin",
+   "url": "https://www.arbeitnow.com/jobs/companies/es-group/werkstudent-martech-data-analytics-berlin-205095",
+   "level": "Intern",
+   "posted_at": "2026-09-24"
+  },
+  {
+   "title": "Werkstudentin im Bereich Performance Marketing Analytics (m/w/d)",
+   "company": "Gusti Leder GmbH",
+   "location": "Rostock",
+   "url": "https://www.arbeitnow.com/jobs/companies/gusti-leder-gmbh/werkstudentin-im-bereich-performance-marketing-analytics-rostock-360733",
+   "level": "Intern",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Werkstudentin im Bereich Performance Marketing Analytics (m/w/d)",
+   "company": "Gusti Leder GmbH",
+   "location": "Rostock, Mecklenburg-Vorpommern, Deutschland",
+   "url": "https://www.arbeitnow.com/jobs/companies/gusti-leder-gmbh/werkstudentin-im-bereich-performance-marketing-analytics-rostock-47022",
+   "level": "Intern",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Praktikum Digital Analytics (m/w/d)| Ab September, München",
+   "company": "TOWA - the digital growth company",
+   "location": "Munich",
+   "url": "https://www.arbeitnow.com/jobs/companies/towa-the-digital-growth-company/praktikum-digital-analytics-ab-september-munchen-munich-301282",
+   "level": "Intern",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Junior Product Data Manager (m/w/d)",
+   "company": "DocCheck AG",
+   "location": "Köln, Nordrhein-Westfalen, Deutschland",
+   "url": "https://www.arbeitnow.com/jobs/companies/doccheck-ag/junior-product-data-manager-koln-25742",
+   "level": "Junior",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Junior Applied AI Engineer",
+   "company": "ILLUIN Technology",
+   "location": "Paris La Défense",
+   "url": "https://www.arbeitnow.fr/jobs/companies/illuin-technology/junior-applied-ai-engineer-paris-445144",
+   "level": "Junior",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Internship - Data Engineer Core Data Product - Lille (f/m/d)",
+   "company": "Decathlontechnology",
+   "location": "Villeneuve-d'Ascq, Nord",
+   "url": "https://www.arbeitnow.fr/jobs/companies/decathlontechnology/internship-data-engineer-core-data-product-lille-villeneuve-dascq-nord-171725",
+   "level": "Intern",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Internship - Data Engineer Core Data Product (f/m/d)- Paris",
+   "company": "Decathlontechnology",
+   "location": "Paris, Paris",
+   "url": "https://www.arbeitnow.fr/jobs/companies/decathlontechnology/internship-data-engineer-core-data-product-paris-paris-paris-421816",
+   "level": "Intern",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Graduate Student Research Assistant, Team Assessing Survey Data Quality (DE/EN) (SHK_SDM_2026_024)",
+   "company": "GESIS – Leibniz-Institut für Sozialwissenschaften",
+   "location": "Mannheim",
+   "url": "https://www.arbeitnow.com/jobs/companies/gesis-leibniz-institut-fur-sozialwissenschaften/graduate-student-research-assistant-team-assessing-survey-data-quality-de-en-shk-sdm-2026-024-mannheim-157773",
+   "level": "Intern",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "EU-Expansion & Business Analytics (m/w/d) Werkstudent:in (Berlin/Bonn/Frankfurt)",
+   "company": "ELMI Power GmbH",
+   "location": "Berlin",
+   "url": "https://www.arbeitnow.com/jobs/companies/elmi-power-gmbh/eu-expansion-business-analytics-werkstudentin-berlin-bonn-frankfurt-139211",
+   "level": "Intern",
+   "posted_at": "2026-09-23"
+  },
+  {
+   "title": "Doctoral Researcher in spatial data management (SDC-36)",
+   "company": "GESIS – Leibniz-Institut für Sozialwissenschaften",
+   "location": "Köln",
+   "url": "https://www.arbeitnow.com/jobs/companies/gesis-leibniz-institut-fur-sozialwissenschaften/doctoral-researcher-in-spatial-data-management-sdc-36-koln-464742",
+   "level": "Junior",
+   "posted_at": "2026-09-23"
+  }
+ ],
+ "company_names": [
+  "Karrieretutor De",
+  "Decathlontechnology",
+  "Relay",
+  "Towa",
+  "Aircall",
+  "Luxury Presence",
+  "Ruby Labs",
+  "Affirm",
+  "tripadvisor",
+  "Fivetran",
+  "Liftoff",
+  "GESIS – Leibniz-Institut für Sozialwissenschaften",
+  "rebuy",
+  "Gusti Leder GmbH",
+  "sonyinteractiveentertainmentglobal",
+  "Carrot",
+  "Kayak",
+  "OpenAI",
+  "Nebius",
+  "Wayve",
+  "oliver",
+  "Checkout.com",
+  "Deliveroo ",
+  "Meta",
+  "ILLUIN Technology",
+  "Coreweaveu",
+  "Lemon.io",
+  "Quora",
+  "Jobgether",
+  "Oddball",
+  "Mactores",
+  "Knuddels GmbH & Co. KG",
+  "Flagstone",
+  "Reddit",
+  "G&N Gruppe",
+  "Kaiser X Labs",
+  "Lrz",
+  "Astronomer",
+  "ExtraHop",
+  "Climate"
+ ]
+}
