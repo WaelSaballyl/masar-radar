@@ -146,7 +146,7 @@ Hard rules:
 - Never name the employer of the POSTING. If the posting is for another field than PROFILE, still write an honest CV of what the student has; do not stretch facts to fit.
 - Bullets start with an action verb, at most 4 per item, most relevant first.
 - Write in ${lang}. Keep tool and skill names in their usual Latin spelling.
-- summary: 2-3 sentences aimed at this posting, only from PROFILE.
+- summary: 2-3 sentences aimed at this posting, only from PROFILE. If PROFILE states availability, work authorisation or iqama, or readiness to relocate, the last sentence carries all of them as written.
 - headline: if PROFILE states a headline or target role, use it as written; otherwise the student's role and 3-4 core skills, e.g. "Data Analyst | Excel, Power BI, SQL".
 - experience: org is the organisation name only; its city or region goes in location, together with the work arrangement.
 - skills: the student's skills from PROFILE, most relevant to the posting first. With more than 8, group them as "Group: a, b, c", one string per group. Soft skills and licences do not go here.
@@ -174,7 +174,14 @@ ${JSON.stringify(profile, null, 1)}`);
   const watch = [...required, ...preferred, ...strings(input?.vocabulary, 300), ...strings(cv.skills)]
     .filter((s) => s.length <= 40);
   const removed = audit(cv, source, watch);
-  const has = (s) => mentions(source, s);
+  // Coverage forgives qualifiers: "Advanced Excel" is covered by "Excel". The
+  // audit above stays literal, so the CV still cannot claim "advanced".
+  const QUALIFIERS = /\b(advanced|strong|basic|good|solid|excellent|proficiency|proficient|knowledge|experience|skills?|hands-on|of|in|with|and|the)\b/gi;
+  const has = (s) => {
+    if (mentions(source, s)) return true;
+    const core = s.replace(QUALIFIERS, " ").split(/[\s/,]+/).filter((w) => w.length > 1);
+    return core.length > 0 && core.every((w) => mentions(source, w));
+  };
   return {
     cv, removed,
     coverage: {

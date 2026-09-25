@@ -34,8 +34,8 @@
 
   const form = $("profile");
   const FIELDS = ["name", "email", "phone", "city", "link", "university", "degree", "major",
-                  "graduation", "gpa", "skills", "experience", "projects", "certificates", "languages", "other"];
-  const CONTACT = ["name", "email", "phone", "city", "link"];
+                  "graduation", "gpa", "skills", "experience", "projects", "certificates", "languages", "other", "worklinks"];
+  const CONTACT = ["name", "email", "phone", "city", "link", "worklinks"];
 
   const readProfile = () => Object.fromEntries(FIELDS.map((f) => [f, form.elements[f].value.trim()]));
   const save = () => store.set(KEY, JSON.stringify(readProfile()));
@@ -75,8 +75,32 @@
     const phone = (text.match(PHONE) || []).find(isPhone);
     const first = text.split("\n").map((l) => l.trim()).find(Boolean) || "";
     const name = first.split(/\s+/).length <= 5 && !/[\d@:|]/.test(first) ? first : "";
+    // an account (linkedin.com/in/x, github.com/x) belongs in the contact line;
+    // anything deeper (a repository, a report) belongs under its project
+    const links = [...new Set((text.match(LINK) || []).map((l) => l.replace(/[.,;)]+$/, "")))];
+    const isAccount = (l) => /^(?:https?:\/\/)?(?:www\.)?(?:linkedin\.com\/in|github\.com)\/[^/\s]+\/?$/i.test(l);
     return { name, email: (text.match(EMAIL) || [])[0], phone: phone && phone.trim(),
-             link: [...new Set(text.match(LINK) || [])].join("  |  ") };
+             link: links.filter(isAccount).join("  |  "), worklinks: links.filter((l) => !isAccount(l)).join("\n") };
+  }
+
+  // Puts each work link under the project whose name shares the most words
+  // with the link's last part ("madinah-inspection-dashboard" -> "... Inspection
+  // ... Dashboard"); a link that matches nothing goes to additional information.
+  function placeLinks(cv, worklinks) {
+    const words = (s) => s.toLowerCase().split(/[^a-z0-9؀-ۿ]+/).filter((w) => w.length > 2);
+    const byProject = new Map();
+    const unplaced = [];
+    worklinks.split("\n").map((l) => l.trim()).filter(Boolean).forEach((link) => {
+      const slug = words(link.split(/[/?#]/).filter(Boolean).pop() || "");
+      let best = -1, score = 0;
+      cv.projects.forEach((p, i) => {
+        const hits = words(`${p.name} ${p.tools}`).filter((w) => slug.includes(w)).length;
+        if (hits > score) { best = i; score = hits; }
+      });
+      if (best >= 0) byProject.set(best, [...(byProject.get(best) || []), link]);
+      else unplaced.push(link);
+    });
+    return { byProject, unplaced };
   }
 
   // pdf.js hands "two", "-", "day" over as separate pieces; profiles read
@@ -137,7 +161,10 @@
       say("import-status", "نقرأ سيرتك…");
       const text = (file ? await fileText(file) : $("cv-text").value).trim();
       if (!text) throw fail(file ? "empty" : "too_short");
-      fill(contactFrom(text), true);
+      // a fresh read replaces the links, email and phone; a typed name stays
+      const found = contactFrom(text);
+      fill({ ...found, name: "" });
+      fill({ name: found.name }, true);
       const { profile } = await api("/parse", { text: stripContact(text, readProfile()) });
       fill(profile);
       say("import-status", "عبّأنا الحقول من سيرتك. راجعها وصحّح ما يلزم قبل المتابعة.");
@@ -213,10 +240,10 @@
   const HEAD = {
     en: { summary: "Summary", education: "Education", skills: "Skills", experience: "Experience",
           projects: "Projects", certificates: "Certificates", languages: "Languages", gpa: "GPA",
-          additional: "Additional information", sep: ", " },
+          additional: "Additional information", link: "Link", sep: ", " },
     ar: { summary: "نبذة", education: "التعليم", skills: "المهارات", experience: "الخبرات",
           projects: "المشاريع", certificates: "الشهادات", languages: "اللغات", gpa: "المعدل",
-          additional: "معلومات إضافية", sep: "، " },
+          additional: "معلومات إضافية", link: "الرابط", sep: "، " },
   };
 
   function renderCV(cv, p, lang) {
@@ -256,8 +283,10 @@
            x.dates || p.graduation, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
     section(h.experience, cv.experience.filter((x) => x.title || x.bullets.length)
       .map((x) => item([x.title, x.org, x.location].filter(Boolean).join(h.sep), x.dates, x.bullets)));
-    section(h.projects, cv.projects.filter((x) => x.name || x.bullets.length)
-      .map((x) => item([x.name, x.tools].filter(Boolean).join(h.sep), x.dates, x.bullets)));
+    const { byProject, unplaced } = placeLinks(cv, p.worklinks || "");
+    section(h.projects, cv.projects.map((x, i) => [x, i]).filter(([x]) => x.name || x.bullets.length)
+      .map(([x, i]) => item([x.name, x.tools].filter(Boolean).join(h.sep), x.dates,
+        [...x.bullets, ...(byProject.get(i) || []).map((l) => `${h.link}: ${l}`)])));
     // groups ("Excel: pivot tables, lookups") one a line; loose skills share
     // a single line after them instead of one line each
     const groups = cv.skills.filter((s) => s.includes(":")).map((s) => {
@@ -274,8 +303,8 @@
     section(h.certificates, cv.certificates.length && [list]);
     section(h.languages, cv.languages.length && [el("p", null, cv.languages.join(h.sep))]);
     const extra = el("ul");
-    (cv.additional || []).forEach((a) => extra.append(el("li", null, a)));
-    section(h.additional, cv.additional?.length && [extra]);
+    [...(cv.additional || []), ...unplaced].forEach((a) => extra.append(el("li", null, a)));
+    section(h.additional, extra.children.length && [extra]);
   }
 
   function renderCoverage({ required, matched, missing, preferred_missing: prefMissing }, job) {
@@ -294,7 +323,7 @@
       box.append(el("p", null, `ينقصك: ${missing.join("، ")}. لم نضفها إلى سيرتك. إذا كنت تعرفها فعلاً، أضفها إلى مهاراتك في الخطوة الأولى وجهّز السيرة من جديد.`));
     }
     if (prefMissing.length) box.append(el("p", "muted", `ومن المهارات المفضّلة: ${prefMissing.join("، ")}.`));
-    if (required.length >= 3 && matched.length / required.length < 0.34) {
+    if (required.length >= 4 && matched.length / required.length <= 0.25) {
       box.append(el("p", "far", "هذا الإعلان بعيد عن خبرتك الحالية، والسيرة لا تستطيع سدّ هذه الفجوة بصدق. قد يكون وقتك أنفع في إعلانات أقرب لمهاراتك."));
     }
   }
