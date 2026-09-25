@@ -61,7 +61,8 @@
 
   // Contact details are found here, kept here, and cut out of anything sent.
   const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
-  const LINK = /\b(?:https?:\/\/|www\.)\S+|\b(?:linkedin|github)\.com\/\S+/gi;
+  // with or without https: "coursera.org/verify/X" is a link too
+  const LINK = /\b(?:https?:\/\/|www\.)\S+|\b(?:[a-z0-9-]+\.)+(?:com|org|net|io|dev|app|me|co|sa|ai|edu)\/\S+/gi;
   const PHONE = /(?:\+|00)?\d[\d\s()\-]{7,}\d/g;
   const isPhone = (s) => s.replace(/\D/g, "").length >= 9; // a year range has 8 digits
 
@@ -77,7 +78,11 @@
     const name = first.split(/\s+/).length <= 5 && !/[\d@:|]/.test(first) ? first : "";
     // an account (linkedin.com/in/x, github.com/x) belongs in the contact line;
     // anything deeper (a repository, a report) belongs under its project
-    const links = [...new Set((text.match(LINK) || []).map((l) => l.replace(/[.,;)]+$/, "")))];
+    // the same link can come twice (shown, and hidden behind text with https);
+    // a shortened one ("coursera.org/.../certificate") is not a link at all
+    const links = [...new Set((text.match(LINK) || [])
+      .filter((l) => !/\.\.\.|…/.test(l))
+      .map((l) => l.replace(/[.,;)]+$/, "").replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/$/, "")))];
     const isAccount = (l) => /^(?:https?:\/\/)?(?:www\.)?(?:linkedin\.com\/in|github\.com)\/[^/\s]+\/?$/i.test(l);
     return { name, email: (text.match(EMAIL) || [])[0], phone: phone && phone.trim(),
              link: links.filter(isAccount).join("  |  "), worklinks: links.filter((l) => !isAccount(l)).join("\n") };
@@ -88,7 +93,7 @@
   // ... Dashboard"); a link that matches nothing goes to additional information.
   function placeLinks(cv, worklinks) {
     const words = (s) => s.toLowerCase().split(/[^a-z0-9؀-ۿ]+/).filter((w) => w.length > 2);
-    const byProject = new Map();
+    const byProject = new Map(), byCert = new Map();
     const unplaced = [];
     worklinks.split("\n").map((l) => l.trim()).filter(Boolean).forEach((link) => {
       const slug = words(link.split(/[/?#]/).filter(Boolean).pop() || "");
@@ -97,10 +102,15 @@
         const hits = words(`${p.name} ${p.tools}`).filter((w) => slug.includes(w)).length;
         if (hits > score) { best = i; score = hits; }
       });
-      if (best >= 0) byProject.set(best, [...(byProject.get(best) || []), link]);
+      if (best >= 0) { byProject.set(best, [...(byProject.get(best) || []), link]); return; }
+      // a certificate link is recognised by its site: coursera.org/verify/X
+      // goes to "Google Data Analytics ... | Google / Coursera"
+      const all = words(link);
+      const cert = cv.certificates.findIndex((c) => words(c).some((w) => all.includes(w)));
+      if (cert >= 0 && !byCert.has(cert)) byCert.set(cert, link);
       else unplaced.push(link);
     });
-    return { byProject, unplaced };
+    return { byProject, byCert, unplaced };
   }
 
   // pdf.js hands "two", "-", "day" over as separate pieces; profiles read
@@ -127,16 +137,36 @@
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER;
       // isEvalSupported:false closes the font-compilation hole in pdf.js 3.x
       const doc = await pdfjsLib.getDocument({ data: await file.arrayBuffer(), isEvalSupported: false }).promise;
-      const pages = [];
+      const pages = [], hidden = [];
       for (let i = 1; i <= Math.min(doc.numPages, 5); i++) {
-        const { items } = await (await doc.getPage(i)).getTextContent();
-        pages.push(joinHyphens(items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join("")));
+        const page = await doc.getPage(i);
+        const { items } = await page.getTextContent();
+        // pdf.js splits words at kerning ("pro", "cess"): a space goes in only
+        // where the next piece starts clearly after the previous one ends
+        let text = "", prev = null;
+        for (const it of items) {
+          if (prev && !text.endsWith("\n")) {
+            const size = Math.hypot(prev.transform[0], prev.transform[1]) || 10;
+            const gap = Math.abs(it.transform[4] - (prev.transform[4] + prev.width));
+            const sameLine = Math.abs(it.transform[5] - prev.transform[5]) < size * 0.5;
+            if (!sameLine || gap > size * 0.15) text += " ";
+          }
+          text += it.str + (it.hasEOL ? "\n" : "");
+          prev = it;
+        }
+        pages.push(joinHyphens(text.replace(/ {2,}/g, " ")));
+        // a link behind text ("Verify" -> the full certificate URL) is not in the text
+        (await page.getAnnotations()).forEach((a) => { if (a.url) hidden.push(a.url); });
       }
-      return pages.join("\n");
+      return pages.join("\n") + (hidden.length ? `\n${[...new Set(hidden)].join("\n")}` : "");
     }
     if (ext === "docx") {
       await load(MAMMOTH);
-      return (await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })).value;
+      const data = { arrayBuffer: await file.arrayBuffer() };
+      const text = (await mammoth.extractRawText(data)).value;
+      const html = (await mammoth.convertToHtml(data)).value;
+      const hrefs = [...html.matchAll(/href="(https?:[^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+      return text + (hrefs.length ? `\n${[...new Set(hrefs)].join("\n")}` : "");
     }
     throw fail("type");
   }
@@ -240,10 +270,10 @@
   const HEAD = {
     en: { summary: "Summary", education: "Education", skills: "Skills", experience: "Experience",
           projects: "Projects", certificates: "Certificates", languages: "Languages", gpa: "GPA",
-          additional: "Additional information", link: "Link", sep: ", " },
+          additional: "Additional information", link: "Link", verify: "Verify", sep: ", " },
     ar: { summary: "نبذة", education: "التعليم", skills: "المهارات", experience: "الخبرات",
           projects: "المشاريع", certificates: "الشهادات", languages: "اللغات", gpa: "المعدل",
-          additional: "معلومات إضافية", link: "الرابط", sep: "، " },
+          additional: "معلومات إضافية", link: "الرابط", verify: "للتحقق", sep: "، " },
   };
 
   function renderCV(cv, p, lang) {
@@ -285,7 +315,7 @@
            x.dates || p.graduation, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
     section(h.experience, cv.experience.filter((x) => x.title || x.bullets.length)
       .map((x) => item([x.title, x.org, x.location].filter(Boolean).join(h.sep), x.dates, x.bullets)));
-    const { byProject, unplaced } = placeLinks(cv, p.worklinks || "");
+    const { byProject, byCert, unplaced } = placeLinks(cv, p.worklinks || "");
     section(h.projects, cv.projects.map((x, i) => [x, i]).filter(([x]) => x.name || x.bullets.length)
       .map(([x, i]) => item([x.name, x.tools].filter(Boolean).join(h.sep), x.dates,
         [...x.bullets, ...(byProject.get(i) || []).map((l) => `${h.link}: ${l}`)])));
@@ -301,7 +331,8 @@
     if (loose.length) groups.push(el("p", "cv-skill", loose.join(h.sep)));
     section(h.skills, groups.length && groups);
     const list = el("ul");
-    cv.certificates.forEach((c) => list.append(el("li", null, c)));
+    cv.certificates.forEach((c, i) => list.append(el("li", null,
+      byCert.has(i) ? `${c}  |  ${h.verify}: ${byCert.get(i)}` : c)));
     section(h.certificates, cv.certificates.length && [list]);
     section(h.languages, cv.languages.length && [el("p", null, cv.languages.join(h.sep))]);
     const extra = el("ul");
