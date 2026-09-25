@@ -96,76 +96,23 @@
     },
   };
 
-  // Arabic counted nouns: 1, 2, 3-10, 11-99, and hundreds each take a
-  // different form. Wrong forms are the first thing a native reader notices.
-  const AR_NOUNS = {
-    posting: ["إعلان واحد", "إعلانان", "إعلانات", "إعلاناً", "إعلان"],
-    company: ["شركة واحدة", "شركتان", "شركات", "شركة", "شركة"],
-  };
-  const EN_NOUNS = { posting: ["posting", "postings"], company: ["company", "companies"] };
+  // Formatting and language plumbing live in core.js, shared with the market index.
+  const { el, safeUrl } = Masar;
+  const L = Masar.i18n(I18N, {
+    ar: "مسار — دليلك للتدريب التعاوني في البيانات",
+    en: "Masar — your guide to data internships",
+  });
+  const t = (key, vars) => L.t(key, vars);
+  const count = (n, noun) => Masar.count(n, noun, L.lang);
+  const pct = (share) => Masar.pct(share, L.lang);
+  const date = (iso) => Masar.date(iso, L.lang);
 
-  const html = document.documentElement;
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch { /* private mode */ } },
-  };
-
-  let lang = store.get("masar.lang") === "en" ? "en" : "ar";
   let data = null;
   let failed = false;
 
-  const t = (key, vars = {}) =>
-    (I18N[lang][key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
-
-  function count(n, noun) {
-    if (lang === "en") return `${n} ${EN_NOUNS[noun][n === 1 ? 0 : 1]}`;
-    const f = AR_NOUNS[noun];
-    const r = n % 100;
-    if (n === 1) return f[0];
-    if (n === 2) return f[1];
-    if (r >= 3 && r <= 10) return `${n} ${f[2]}`;
-    if (r >= 11 && r <= 99) return `${n} ${f[3]}`;
-    return `${n} ${f[4]}`;
-  }
-
-  const pct = (share) => `${Math.round(share * 100)}${lang === "ar" ? "٪" : "%"}`;
-
-  function date(iso) {
-    // ar-SA defaults to the Umm al-Qura calendar; the data is Gregorian.
-    const locale = lang === "ar" ? "ar-SA-u-ca-gregory-nu-latn" : "en-GB";
-    try {
-      return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" })
-        .format(new Date(iso));
-    } catch { return iso.slice(0, 10); }
-  }
-
-  const el = (tag, cls, text) => {
-    const node = document.createElement(tag);
-    if (cls) node.className = cls;
-    if (text != null) node.textContent = text;
-    return node;
-  };
-
-  function safeUrl(u) {
-    try { const url = new URL(u); return /^https?:$/.test(url.protocol) ? url.href : null; }
-    catch { return null; }
-  }
-
   // ---------- rendering ----------
 
-  function renderStatic() {
-    html.lang = lang;
-    html.dir = lang === "ar" ? "rtl" : "ltr";
-    document.querySelectorAll("[data-i18n]").forEach((n) => { n.textContent = t(n.dataset.i18n); });
-    document.querySelectorAll("[data-i18n-aria]").forEach((n) => { n.setAttribute("aria-label", t(n.dataset.i18nAria)); });
-    const toggle = document.getElementById("lang-toggle");
-    toggle.textContent = lang === "ar" ? "EN" : "ع";
-    toggle.lang = lang === "ar" ? "en" : "ar";
-    toggle.setAttribute("aria-label", lang === "ar" ? "English" : "العربية");
-    document.title = lang === "ar"
-      ? "مسار — دليلك للتدريب التعاوني في البيانات"
-      : "Masar — your guide to data internships";
-  }
+  function renderStatic() { L.apply(); }
 
   function renderRoute() {
     const route = document.getElementById("route");
@@ -229,21 +176,8 @@
 
   // ---------- controls ----------
 
-  document.getElementById("lang-toggle").addEventListener("click", () => {
-    lang = lang === "ar" ? "en" : "ar";
-    store.set("masar.lang", lang);
-    render();
-  });
-
-  const savedTheme = store.get("masar.theme");
-  if (savedTheme === "light" || savedTheme === "dark") html.dataset.theme = savedTheme;
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const current = html.dataset.theme
-      || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-    const next = current === "light" ? "dark" : "light";
-    html.dataset.theme = next;
-    store.set("masar.theme", next);
-  });
+  document.getElementById("lang-toggle").addEventListener("click", () => { L.toggle(); render(); });
+  Masar.initTheme();
 
   render();
   fetch("data/summary.json", { cache: "no-cache" })

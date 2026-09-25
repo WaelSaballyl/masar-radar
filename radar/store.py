@@ -32,7 +32,8 @@ DESCRIPTIONS = DATA / "descriptions.jsonl"
 # description is stored separately; skills travel with the job line
 FIELDS = ["id", "source", "title", "company", "location", "role", "url",
           "salary", "posted_at", "collected_at", "last_seen",
-          "seniority", "years_experience", "ai_extracted_at", "ai_version"]
+          "seniority", "years_experience", "ai_extracted_at", "ai_version",
+          "countries", "regions", "work_mode"]
 
 
 def _dump(record: dict) -> str:

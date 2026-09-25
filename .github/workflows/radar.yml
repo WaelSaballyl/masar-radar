@@ -51,11 +51,8 @@ jobs:
       - name: Export database back to committed data
         run: python -m radar.store export
 
-      - name: Build dashboard
-        run: python -m radar.build_dashboard
-
-      # docs/index.html is static; it reads this file for its numbers.
-      - name: Export landing page data
+      # The site is static HTML; both pages read the JSON this writes.
+      - name: Export site data
         run: python -m radar.export_site
 
       - name: Commit results

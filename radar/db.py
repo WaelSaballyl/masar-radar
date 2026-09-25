@@ -21,7 +21,10 @@ CREATE TABLE IF NOT EXISTS jobs (
     seniority    TEXT,
     years_experience INTEGER,
     ai_extracted_at  TEXT,
-    ai_version       INTEGER
+    ai_version       INTEGER,
+    countries        TEXT,  -- ISO 3166-1 alpha-2, comma-separated, from the AI pass
+    regions          TEXT,  -- comma-separated, e.g. "Europe,Worldwide"
+    work_mode        TEXT
 );
 
 CREATE TABLE IF NOT EXISTS job_skills (
@@ -58,7 +61,10 @@ def _migrate(con: sqlite3.Connection) -> None:
     for column, decl in (("seniority", "TEXT"),
                          ("years_experience", "INTEGER"),
                          ("ai_extracted_at", "TEXT"),
-                         ("ai_version", "INTEGER")):
+                         ("ai_version", "INTEGER"),
+                         ("countries", "TEXT"),
+                         ("regions", "TEXT"),
+                         ("work_mode", "TEXT")):
         if column not in cols:
             con.execute(f"ALTER TABLE jobs ADD COLUMN {column} {decl}")
             if column == "ai_version":
