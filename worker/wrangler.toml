@@ -9,3 +9,7 @@ compatibility_date = "2025-01-01"
 [vars]
 # The site calls the worker from these origins only; anything else gets 403.
 ALLOWED_ORIGINS = "https://waelsaballyl.github.io,http://localhost:8765"
+
+# errors from console.error show in the dashboard under the worker's Logs
+[observability]
+enabled = true
