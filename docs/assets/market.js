@@ -7,7 +7,7 @@
   const I18N = {
     ar: {
       brand: "مسار", nav_label: "الأقسام", nav_coop: "فرص التدريب", nav_how: "كيف نبني المؤشر",
-      nav_market: "مؤشر السوق", theme_label: "تبديل المظهر",
+      nav_market: "مؤشر السوق", nav_cv: "سيرتك", theme_label: "تبديل المظهر",
       title: "مؤشر سوق وظائف البيانات",
       lede: "المهارات والأدوار والدول في الإعلانات المفتوحة الآن. اختر دولتك والدول التي تفضّلها لترى السوق الذي يخصّك.",
       filters_title: "الفلاتر", scope: "ما الذي أعرضه", scope_all: "كل الإعلانات", scope_mine: "دولتي والمفضّلة",
@@ -46,7 +46,7 @@
     },
     en: {
       brand: "Masar", nav_label: "Sections", nav_coop: "Internships", nav_how: "How it works",
-      nav_market: "Market index", theme_label: "Switch theme",
+      nav_market: "Market index", nav_cv: "Your CV", theme_label: "Switch theme",
       title: "Data jobs market index",
       lede: "Skills, roles and countries in the postings open right now. Choose your country and the ones you prefer to see the market that is yours.",
       filters_title: "Filters", scope: "Show", scope_all: "All postings", scope_mine: "My countries",

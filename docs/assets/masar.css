@@ -329,3 +329,77 @@ footer a { color: var(--text); }
   .charts { grid-template-columns: 1fr; }
   .bar-row { grid-template-columns: 7.5rem 1fr 2.8rem; }
 }
+
+/* ---------- CV builder ---------- */
+.privacy { color: var(--muted); font-size: 0.92rem; margin: 0; max-width: 70ch; border-inline-start: 3px solid var(--mint); padding-inline-start: 12px; }
+.step { padding-block: 28px; border-top: 1px solid var(--hairline); }
+.step h2 { font-family: var(--kufi); font-weight: 700; font-size: 1.25rem; margin: 0 0 18px; display: flex; align-items: center; gap: 12px; }
+.step-n {
+  display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--mint); color: var(--on-mint); font-size: 1rem;
+}
+.import { background: var(--surface); border: 1px solid var(--hairline); border-radius: 16px; padding: 18px 20px; margin-bottom: 24px; display: grid; gap: 12px; }
+.import .field-label { margin: 0; }
+.import-row, .make-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.file { position: relative; display: inline-flex; align-items: center; min-height: 48px; padding: 0 18px; border: 1px dashed var(--mint); border-radius: 12px; cursor: pointer; color: var(--text); }
+.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.file:focus-within { outline: 3px solid var(--focus); outline-offset: 3px; }
+button.btn { border: 0; cursor: pointer; }
+button.btn-quiet { background: none; border: 1px solid var(--hairline); }
+button.btn:disabled { opacity: 0.55; cursor: progress; }
+#profile fieldset { border: 0; padding: 0; margin: 0 0 22px; display: grid; gap: 14px; }
+#profile legend { font-weight: 600; color: var(--text); padding: 0; margin-bottom: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px 18px; }
+.step input:not([type=radio]):not([type=file]), .step textarea, .step select {
+  font: inherit; font-size: 0.95rem; color: var(--text); background: var(--bg); width: 100%;
+  border: 1px solid var(--hairline); border-radius: 10px; padding: 9px 12px; min-height: 42px;
+}
+.step textarea { resize: vertical; line-height: 1.7; }
+.step input:focus-visible, .step textarea:focus-visible, .step select:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.pick { display: grid; gap: 10px; margin-top: 16px; max-width: 760px; }
+.pick select { padding: 6px; }
+.pick optgroup { color: var(--muted); font-style: normal; }
+.pick option { color: var(--text); padding: 6px 8px; border-radius: 6px; }
+.job-needs { color: var(--muted); font-size: 0.92rem; margin: 0; unicode-bidi: plaintext; }
+.status { margin: 12px 0 0; min-height: 1.75em; color: var(--muted); }
+.status.bad { color: var(--sand); }
+.muted { color: var(--muted); }
+
+#result { padding-block: 8px 40px; }
+.coverage { background: var(--surface); border: 1px solid var(--hairline); border-radius: 16px; padding: 18px 20px; margin-bottom: 14px; }
+.coverage p { margin: 0 0 8px; }
+.coverage-head { font-weight: 600; }
+.meter { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; margin-bottom: 12px; }
+.meter::before { content: ""; display: block; height: 100%; width: calc(var(--share) * 100%); background: var(--mint); border-radius: 5px; }
+.removed { margin-bottom: 14px; color: var(--muted); font-size: 0.92rem; }
+.removed summary { cursor: pointer; color: var(--text); }
+.removed li { display: grid; margin-block: 6px; }
+.removed-text { unicode-bidi: plaintext; text-decoration: line-through; }
+
+/* the CV itself is a document, not part of the site: white paper, plain type,
+   one column and standard headings, which is what ATS parsers read reliably */
+.paper {
+  background: #fff; color: #111; max-width: 820px; margin-top: 18px; padding: 44px 48px;
+  border-radius: 4px; font-size: 14px; line-height: 1.5;
+  font-family: Calibri, Carlito, Arial, Helvetica, sans-serif;
+}
+.paper:lang(ar) { font-family: "IBM Plex Sans Arabic", Arial, sans-serif; line-height: 1.7; }
+.paper h1 { font-size: 24px; margin: 0 0 4px; font-family: inherit; }
+.paper h2 { font-size: 15px; margin: 18px 0 6px; padding-bottom: 3px; border-bottom: 1px solid #999; font-family: inherit; }
+.paper p { margin: 0 0 6px; }
+.paper ul { margin: 2px 0 8px; padding-inline-start: 20px; }
+.paper li { margin-bottom: 2px; }
+.cv-contact { color: #333; unicode-bidi: plaintext; }
+.cv-item { margin-bottom: 8px; }
+.cv-row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.cv-row span { color: #333; }
+
+@media (max-width: 560px) { .paper { padding: 24px 18px; } }
+
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; }
+  .wrap { max-width: none; padding: 0; }
+  .wrap > :not(main), main > :not(#result), #result > :not(#cv-paper) { display: none !important; }
+  .paper { padding: 0; margin: 0; max-width: none; border-radius: 0; }
+}
