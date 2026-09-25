@@ -25,7 +25,7 @@
       levels_title: "المستوى المطلوب", levels_note: "من التدريب إلى الإدارة، بالترتيب.",
       where_title: "أين الفرص",
       where_note: "الدول التي يمكن أن يكون فيها الموظَّف. الإعلان المفتوح لأكثر من دولة يُحسب لكل منها.",
-      anywhere: "عن بُعد من أي مكان", unspecified: "غير محدد",
+      anywhere: "عن بُعد من أي مكان", unspecified: "غير محدد", other: "خارج الخليج", region: "الشرق الأوسط عموماً",
       tip_skill: "{name}: مطلوبة في {req} من {of} ({share})، ومفضّلة في {pref}.",
       tip_count: "{label}: {n} ({share}).",
       no_data: "لا بيانات لهذا الاختيار.",
@@ -64,7 +64,7 @@
       levels_title: "Level asked for", levels_note: "From internship to management, in order.",
       where_title: "Where the openings are",
       where_note: "Countries where the hire may be based. A posting open to several countries counts for each.",
-      anywhere: "Remote from anywhere", unspecified: "Not stated",
+      anywhere: "Remote from anywhere", unspecified: "Not stated", other: "Outside the Gulf", region: "Middle East, any country",
       tip_skill: "{name}: required in {req} of {of} ({share}), preferred in {pref}.",
       tip_count: "{label}: {n} ({share}).",
       no_data: "No data for this selection.",
@@ -97,16 +97,12 @@
   const LEVELS = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager", "Unknown"];
   const ENTRY = ["Intern", "Junior"];
   const MID_UP = ["Mid", "Senior", "Lead", "Manager"];
+  // Masar serves Saudi Arabia first, then the rest of the Gulf; these are the
+  // only countries a visitor can pick. Other Arab countries come later.
   const GULF = ["SA", "AE", "QA", "KW", "BH", "OM"];
-  // A posting that names only a region ("Remote, EMEA") should still reach
-  // someone whose country sits in it.
-  const REGION_OF = {};
-  [["Middle East", "SA AE QA KW BH OM JO EG LB IQ IL TR"],
-   ["Europe", "GB IE FR DE NL BE LU ES PT IT CH AT DK SE NO FI IS PL CZ SK HU RO BG GR HR SI EE LV LT CY MT RS UA"],
-   ["North America", "US CA MX"]]
-    .forEach(([region, codes]) => codes.split(" ").forEach((c) => { REGION_OF[c] = region; }));
+  const inGulf = (c) => GULF.includes(c);
 
-  const DEFAULTS = { scope: "all", home: "SA", prefs: [], remote: true, level: "", role: "" };
+  const DEFAULTS = { scope: "mine", home: "SA", prefs: [], remote: true, level: "", role: "" };
   const PAGE = 30;
 
   let postings = [];
@@ -118,9 +114,9 @@
   function loadState() {
     try {
       const s = { ...DEFAULTS, ...JSON.parse(store.get("masar.filters") || "{}") };
-      if (!["all", "mine"].includes(s.scope)) s.scope = "all";
-      if (!/^[A-Z]{2}$/.test(s.home)) s.home = "SA";
-      s.prefs = (Array.isArray(s.prefs) ? s.prefs : []).filter((c) => /^[A-Z]{2}$/.test(c) && c !== s.home);
+      if (!["all", "mine"].includes(s.scope)) s.scope = "mine";
+      if (!inGulf(s.home)) s.home = "SA";
+      s.prefs = (Array.isArray(s.prefs) ? s.prefs : []).filter((c) => inGulf(c) && c !== s.home);
       s.remote = s.remote !== false;
       if (!["", "entry", "mid"].includes(s.level)) s.level = "";
       if (typeof s.role !== "string") s.role = "";
@@ -134,11 +130,15 @@
   const isAnywhere = (p) => p.regions.includes("Worldwide")
     || (p.mode === "remote" && !p.countries.length && !p.regions.length);
 
+  // "Remote, EMEA" names no country but does reach the Gulf. "Americas,
+  // Europe, Israel" is tagged Middle East because of Israel alone, so a
+  // posting that names Israel never counts as open to the Gulf.
+  const gulfByRegion = (p) => !p.countries.length && p.regions.includes("Middle East")
+    && !/israel/i.test(p.location);
+
   function inMyCountries(p) {
     const wanted = new Set([state.home, ...state.prefs]);
-    if (p.countries.some((c) => wanted.has(c))) return true;
-    const myRegions = new Set([...wanted].map((c) => REGION_OF[c]).filter(Boolean));
-    return !p.countries.length && p.regions.some((r) => myRegions.has(r));
+    return p.countries.some((c) => wanted.has(c)) || gulfByRegion(p);
   }
 
   function matches(p) {
@@ -222,19 +222,26 @@
     const where = new Map();
     const bump = (k) => where.set(k, (where.get(k) || 0) + 1);
     rows.forEach((p) => {
-      if (p.countries.length) p.countries.forEach(bump);
+      // countries outside the Gulf are not named; each posting counts once there
+      if (p.countries.some(inGulf)) p.countries.filter(inGulf).forEach(bump);
       else if (isAnywhere(p)) bump("_any");
+      else if (gulfByRegion(p)) bump("_region");
+      else if (p.countries.length || p.regions.length) bump("_other");
       else bump("_unknown");
     });
-    countChart("chart-where", [...where].sort((a, b) => b[1] - a[1]).slice(0, 10), n,
-               (k) => (k === "_any" ? t("anywhere") : k === "_unknown" ? t("unspecified") : countryName(k, L.lang)));
+    const whereName = { _any: "anywhere", _unknown: "unspecified", _other: "other", _region: "region" };
+    countChart("chart-where", [...where].sort((a, b) => b[1] - a[1]), n,
+               (k) => (whereName[k] ? t(whereName[k]) : countryName(k, L.lang)));
   }
 
   // ---------- postings ----------
 
   function whereText(p) {
-    if (p.countries.length) return p.countries.map((c) => countryName(c, L.lang)).join(t("list_sep"));
+    const gulf = p.countries.filter(inGulf);
+    if (gulf.length) return gulf.map((c) => countryName(c, L.lang)).join(t("list_sep"));
     if (isAnywhere(p)) return t("anywhere");
+    if (gulfByRegion(p)) return t("region");
+    if (p.countries.length || p.regions.length) return t("other");
     return p.location || "—";
   }
 
@@ -267,12 +274,7 @@
 
   // ---------- controls ----------
 
-  function countriesOffered() {
-    const seen = new Map();
-    postings.forEach((p) => p.countries.forEach((c) => seen.set(c, (seen.get(c) || 0) + 1)));
-    GULF.forEach((c) => seen.has(c) || seen.set(c, 0));
-    return [...seen.keys()].sort((a, b) => countryName(a, L.lang).localeCompare(countryName(b, L.lang), L.lang));
-  }
+  const countriesOffered = () => [...GULF];
 
   function option(value, text, selected) {
     const o = el("option", null, text);

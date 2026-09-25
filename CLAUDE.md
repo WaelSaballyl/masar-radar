@@ -81,6 +81,9 @@ in the browser from jobs.json; filters persist in localStorage. Shared helpers
 (language, theme, Arabic counts, country names) live in `assets/core.js`.
 Chart colours `--req`/`--pref` were checked with the dataviz validator per
 surface; re-run it if they change. Countries come from AI prompt v4.
+Scope is Saudi Arabia first, then the Gulf (`GULF` in market.js): only those
+six are selectable, everything else is shown as "outside the Gulf". Other Arab
+countries (Jordan etc.) come later, by the user's decision.
 
 Next: the dashboard's co-op section and country filter need JSearch data to be
 useful for Saudi users (required vs preferred, seniority, `last_seen`,

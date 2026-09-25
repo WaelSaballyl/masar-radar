@@ -12,7 +12,8 @@ SEARCHES = [
     "data analyst in Saudi Arabia",
     "data engineer in Saudi Arabia",
     "business intelligence in Saudi Arabia",
-]
+    "data internship in Saudi Arabia",
+]  # one request each per daily run: 4 x 30 = ~120 of the free plan's 200 a month
 
 
 def enabled() -> bool:
