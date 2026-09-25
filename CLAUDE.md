@@ -55,7 +55,7 @@ Jobicy (highest yield), Remote OK, Arbeitnow (only European coverage), Remotive
 
 ## Secrets
 
-GitHub secrets: `GEMINI_API_KEY` (set), `RAPIDAPI_KEY` (not set). Never ask the
+GitHub secrets: `GEMINI_API_KEY` and `RAPIDAPI_KEY` (both set; JSearch free plan, 200 requests/month hard limit, 4 per run - each manual run costs 4). Never ask the
 user to paste a key into chat; they run `gh secret set NAME -R WaelSaballyl/masar-radar`.
 
 ## Environment gotchas

@@ -30,6 +30,18 @@ ENTRY_LEVELS = ("Intern", "Junior")
 MIN_ENTRY_POSTINGS = 8
 ROUTE_STOPS = 7
 
+# Masar serves Saudi Arabia first, then the Gulf. The landing page uses Gulf
+# postings whenever there are enough of them, and says which basis it used.
+GULF = {"SA", "AE", "QA", "KW", "BH", "OM"}
+# One employer can post four variants of the same internship; below this the
+# Gulf route mostly describes that employer, so the route stays global.
+MIN_GULF_ROUTE = 20
+
+
+def _company(name: str) -> str:
+    """'Tabby | تابي' and 'تابي' are one employer; keep the Arabic half."""
+    return name.rsplit("|", 1)[-1].strip() if name else name
+
 
 def _skill_shares(con, job_ids: list[str], limit: int) -> list[dict]:
     """Share of the given postings that require each skill, most common first."""
@@ -55,20 +67,34 @@ def build() -> dict:
     cutoff = (datetime.fromisoformat(latest) - timedelta(days=ACTIVE_DAYS)).isoformat()
 
     active = con.execute(
-        """SELECT id, title, company, location, url, seniority, posted_at, source
+        """SELECT id, title, company, location, url, seniority, posted_at, source, countries
              FROM jobs WHERE last_seen >= ?""",
         (cutoff,),
     ).fetchall()
     ids = [r[0] for r in active]
+    in_gulf = lambda r: bool(GULF & set((r[8] or "").split(",")))
+    gulf = [r for r in active if in_gulf(r)]
     entry = [r for r in active if r[5] in ENTRY_LEVELS]
+    gulf_entry = [r for r in entry if in_gulf(r)]
 
-    if len(entry) >= MIN_ENTRY_POSTINGS:
+    if len(gulf_entry) >= MIN_GULF_ROUTE:
+        route_basis, route_ids = "gulf_entry", [r[0] for r in gulf_entry]
+    elif len(entry) >= MIN_ENTRY_POSTINGS:
         route_basis, route_ids = "entry", [r[0] for r in entry]
     else:
         route_basis, route_ids = "all", ids
 
-    entry_sorted = sorted(entry, key=lambda r: (r[6] or "", r[1]), reverse=True)
-    companies = Counter(r[2] for r in active if r[2])
+    # the internship list and the company names show the Gulf alone once it
+    # has any; before JSearch there were none, and an empty page helps nobody
+    listed = gulf_entry or entry
+    entry_sorted, seen = [], set()
+    for r in sorted(listed, key=lambda r: (r[6] or "", r[1]), reverse=True):
+        # the same posting reaches JSearch from several job boards
+        key = (r[1].strip().lower(), _company(r[2]))
+        if key not in seen:
+            seen.add(key)
+            entry_sorted.append(r)
+    companies = Counter(_company(r[2]) for r in (gulf or active) if r[2])
 
     summary = {
         "updated_at": latest,
@@ -77,16 +103,19 @@ def build() -> dict:
         "companies": len(companies),
         "sources": sorted({r[7] for r in active}),
         "entry_postings": len(entry),
+        "gulf_postings": len(gulf),
+        "jobs_basis": "gulf" if gulf_entry else "all",
+        "companies_basis": "gulf" if gulf else "all",
         "route": {
-            "basis": route_basis,  # "entry" or "all" - the page labels it
+            "basis": route_basis,  # "gulf_entry", "entry" or "all" - the page labels it
             "postings": len(route_ids),
             "stops": _skill_shares(con, route_ids, ROUTE_STOPS),
         },
         "top_skills": _skill_shares(con, ids, 10),
         "entry_jobs": [
-            {"title": t, "company": c, "location": loc, "url": u,
+            {"title": t, "company": _company(c), "location": loc, "url": u,
              "level": lvl, "posted_at": p}
-            for _, t, c, loc, u, lvl, p, _ in entry_sorted[:12]
+            for _, t, c, loc, u, lvl, p, _, _ in entry_sorted[:12]
         ],
         "company_names": [name for name, _ in companies.most_common(40)],
     }
