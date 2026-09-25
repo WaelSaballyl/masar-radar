@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-25T08:37:23+00:00",
- "active_postings": 170,
+ "updated_at": "2026-09-25T08:41:33+00:00",
+ "active_postings": 161,
  "total_postings": 188,
- "companies": 125,
+ "companies": 120,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -54,53 +54,53 @@
  "top_skills": [
   {
    "name": "Python",
-   "postings": 92,
-   "share": 0.541
+   "postings": 89,
+   "share": 0.553
   },
   {
    "name": "SQL",
-   "postings": 73,
+   "postings": 69,
    "share": 0.429
   },
   {
    "name": "Data Modeling",
-   "postings": 38,
-   "share": 0.224
+   "postings": 37,
+   "share": 0.23
   },
   {
    "name": "Data Governance",
    "postings": 36,
-   "share": 0.212
+   "share": 0.224
   },
   {
    "name": "ETL",
-   "postings": 35,
-   "share": 0.206
+   "postings": 34,
+   "share": 0.211
   },
   {
    "name": "A/B Testing",
-   "postings": 32,
-   "share": 0.188
+   "postings": 29,
+   "share": 0.18
   },
   {
    "name": "Machine Learning",
-   "postings": 29,
-   "share": 0.171
+   "postings": 26,
+   "share": 0.161
   },
   {
    "name": "Statistics",
-   "postings": 24,
-   "share": 0.141
+   "postings": 21,
+   "share": 0.13
   },
   {
    "name": "PyTorch",
    "postings": 20,
-   "share": 0.118
+   "share": 0.124
   },
   {
    "name": "dbt",
    "postings": 20,
-   "share": 0.118
+   "share": 0.124
   }
  ],
  "entry_jobs": [
@@ -202,7 +202,6 @@
   }
  ],
  "company_names": [
-  "Karrieretutor De",
   "Deliveroo ",
   "Decathlontechnology",
   "Aircall",
@@ -211,7 +210,6 @@
   "Affirm",
   "Tripadvisor",
   "Luxury Presence",
-  "Liftoff",
   "GESIS – Leibniz-Institut für Sozialwissenschaften",
   "rebuy",
   "Gusti Leder GmbH",
@@ -235,12 +233,14 @@
   "Gopuff",
   "Oddball",
   "Mactores",
-  "Astronomer",
-  "ExtraHop",
-  "Climate",
-  "Zapier",
   "Fanduel",
   "Remote",
-  "Bumble Inc."
+  "Bumble Inc.",
+  "grafanalabs",
+  "Marshmallow",
+  "Transficc",
+  "Makersite GmbH",
+  "Skylum",
+  "Hudl"
  ]
 }
