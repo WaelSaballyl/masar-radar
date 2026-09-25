@@ -26,11 +26,17 @@ def fetch() -> list[dict]:
     headers = {"X-RapidAPI-Key": key, "X-RapidAPI-Host": "jsearch.p.rapidapi.com"}
     jobs = []
     for term in SEARCHES:
-        data = get_json(
-            # /search was retired upstream; /search-v2 takes the same query
-            f"https://jsearch.p.rapidapi.com/search-v2?query={quote(term)}&country=sa&num_pages=1",
-            headers=headers,
-        )
+        # JSearch queries Google live and can take over a minute; one slow or
+        # failed search must not cost the others.
+        try:
+            data = get_json(
+                # /search was retired upstream; /search-v2 takes the same query
+                f"https://jsearch.p.rapidapi.com/search-v2?query={quote(term)}&country=sa&num_pages=1",
+                headers=headers, timeout=90,
+            )
+        except Exception as e:
+            print(f"[warn] jsearch: {term!r} failed: {e}")
+            continue
         found = data.get("data", [])
         if isinstance(found, dict):  # v2 may nest the list, e.g. {"jobs": [...]}
             found = found.get("jobs") or found.get("data") or []
