@@ -396,18 +396,28 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
 
 @media (max-width: 560px) { .paper { padding: 24px 18px; } }
 
+/* Print size, also applied on screen for a moment to measure it. --fit is set
+   by cv.js (0.9 to 1.25) so the CV fills one A4 page: type grows with fit,
+   spacing faster, so a short CV breathes instead of shouting. */
+.paper.print-size {
+  --f: var(--fit, 1);
+  width: 210mm; max-width: none; box-sizing: border-box; margin: 0; border-radius: 0;
+  padding: calc(10mm * var(--f)) 13mm;
+  font-size: calc(9.5pt * var(--f)); line-height: calc(1.3 + (var(--f) - 1) * 0.4);
+}
+.paper.print-size h1 { font-size: calc(16pt * var(--f)); margin: 0 0 calc(2px * var(--f)); }
+.paper.print-size h2 { font-size: calc(10.5pt * var(--f)); margin: calc(7px * var(--f) * var(--f)) 0 calc(3px * var(--f)); break-after: avoid; }
+.paper.print-size p { margin: 0 0 calc(3px * var(--f)); }
+.paper.print-size ul { margin: 1px 0 calc(4px * var(--f) * var(--f)); }
+.paper.print-size li { margin-bottom: calc(1px * var(--f) * var(--f)); }
+.paper.print-size .cv-item { margin-bottom: calc(4px * var(--f) * var(--f)); break-inside: avoid; }
+
 @media print {
   /* no page margin: the browser has nowhere to print its URL, date and title;
-     the paper's own padding is the margin. Sized for one A4 page. */
+     the paper's own padding is the margin */
   @page { size: A4; margin: 0; }
   body { background: #fff; }
   .wrap { max-width: none; padding: 0; }
   .wrap > :not(main), main > :not(#result), #result > :not(#cv-paper) { display: none !important; }
-  .paper { padding: 10mm 13mm; margin: 0; max-width: none; border-radius: 0; font-size: 9.5pt; line-height: 1.3; }
-  .paper h1 { font-size: 16pt; margin: 0 0 2px; }
-  .paper h2 { font-size: 10.5pt; margin: 7px 0 3px; break-after: avoid; }
-  .paper p { margin: 0 0 3px; }
-  .paper ul { margin: 1px 0 4px; }
-  .paper li { margin-bottom: 1px; }
-  .cv-item { margin-bottom: 4px; break-inside: avoid; }
 }
+

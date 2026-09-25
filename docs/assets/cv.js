@@ -288,7 +288,11 @@
     const paper = $("cv-paper");
     paper.lang = lang;
     paper.dir = lang === "ar" ? "rtl" : "ltr";
-    paper.replaceChildren(el("h1", null, p.name || (lang === "ar" ? "اسمك" : "Your Name")));
+    // "faisal omar alzahrani" -> "Faisal Omar Alzahrani"; a name typed with
+    // capitals ("McDonald", "AL-Otaibi") is left as the student wrote it
+    const name = p.name && p.name === p.name.toLowerCase()
+      ? p.name.replace(/(^|[\s-])([a-z])/g, (_, sep, c) => sep + c.toUpperCase()) : p.name;
+    paper.replaceChildren(el("h1", null, name || (lang === "ar" ? "اسمك" : "Your Name")));
     if (cv.headline) paper.append(el("p", "cv-headline", cv.headline));
     const contact = [p.city, p.phone, p.email, p.link].filter(Boolean).join("  |  ");
     if (contact) paper.append(el("p", "cv-contact", contact));
@@ -297,15 +301,18 @@
       if (!nodes || !nodes.length) return;
       paper.append(el("h2", null, title), ...nodes);
     };
+    // "remote", "summer 2022", "was employee of the month": each part starts
+    // with a capital, however the student or the model typed it
+    const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
     const item = (title, meta, bullets) => {
       const div = el("div", "cv-item");
       const row = el("p", "cv-row");
-      row.append(el("strong", null, title));
-      if (meta) row.append(el("span", null, meta));
+      row.append(el("strong", null, title.split(h.sep).map(cap).join(h.sep)));
+      if (meta) row.append(el("span", null, cap(meta)));
       div.append(row);
       if (bullets.length) {
         const ul = el("ul");
-        bullets.forEach((b) => ul.append(el("li", null, b)));
+        bullets.forEach((b) => ul.append(el("li", null, cap(b))));
         div.append(ul);
       }
       return div;
@@ -346,7 +353,7 @@
     // what the summary already says ("transferable iqama") is not said twice
     const said = new Set(cv.summary.toLowerCase().match(/[a-z0-9؀-ۿ]{3,}/g) || []);
     const repeats = (a) => (a.toLowerCase().match(/[a-z0-9؀-ۿ]{3,}/g) || []).every((w) => said.has(w));
-    [...(cv.additional || []).filter((a) => !repeats(a)), ...unplaced].forEach((a) => extra.append(el("li", null, a)));
+    [...(cv.additional || []).filter((a) => !repeats(a)), ...unplaced].forEach((a) => extra.append(el("li", null, cap(a))));
     section(h.additional, extra.children.length && [extra]);
   }
 
@@ -416,11 +423,35 @@
   });
 
   // the saved PDF takes the page title as its file name
+  // A short CV leaves the bottom third of the page empty and a long one spills
+  // onto a second page. Before printing, the paper is laid out at A4 print
+  // size and --fit scales type and spacing (0.9 to 1.25) until it fills the
+  // page without passing it.
+  const A4 = (297 * 96) / 25.4;
+  function fitToPage() {
+    const paper = $("cv-paper");
+    paper.classList.add("print-size");
+    let fit = 1.25;
+    for (; fit > 0.9; fit -= 0.025) {
+      paper.style.setProperty("--fit", fit.toFixed(3));
+      if (paper.getBoundingClientRect().height <= A4 * 0.97) break;
+    }
+  }
+  function unfit() {
+    const paper = $("cv-paper");
+    paper.classList.remove("print-size");
+    paper.style.removeProperty("--fit");
+  }
+  window.addEventListener("beforeprint", fitToPage);
+  window.addEventListener("afterprint", unfit);
+
+  // the saved PDF takes the page title as its file name
   $("print").addEventListener("click", () => {
     const title = document.title;
     const name = $("cv-paper").querySelector("h1")?.textContent || "CV";
     document.title = `${name} - CV`;
     window.addEventListener("afterprint", () => { document.title = title; }, { once: true });
+    fitToPage();
     window.print();
   });
   $("copy").addEventListener("click", async () => {

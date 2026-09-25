@@ -69,6 +69,15 @@ export function audit(cv, source, jobSkills) {
     return kept && (label ? `${label}: ${kept}` : kept);
   }).filter(Boolean);
   cv.headline = field("headline", str(cv.headline, 160));
+  // "2021-2022 part time": the arrangement moves out of the dates
+  const ARRANGEMENT = /\s*[,(-]?\s*\b(part[- ]?time|full[- ]?time|remote|hybrid|on[- ]?site|internship)\b\)?/gi;
+  (Array.isArray(cv.experience) ? cv.experience : []).forEach((x) => {
+    const moved = String(x?.dates || "").match(ARRANGEMENT);
+    if (!moved) return;
+    x.dates = x.dates.replace(ARRANGEMENT, "").trim();
+    const extra = moved.map((m) => m.replace(/[\s,()-]+/g, " ").trim()).join(", ");
+    x.location = [x.location, extra].filter(Boolean).join(", ");
+  });
   cv.experience = (Array.isArray(cv.experience) ? cv.experience : []).slice(0, 8).map((x) => ({
     title: field("experience", str(x?.title, 120)), org: field("experience", str(x?.org, 120)),
     // a model that puts "Summer 2022" in location as well as in dates
