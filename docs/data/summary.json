@@ -1,106 +1,107 @@
 {
- "updated_at": "2026-09-25T08:42:43+00:00",
- "active_postings": 161,
- "total_postings": 188,
- "companies": 120,
+ "updated_at": "2026-09-25T08:44:10+00:00",
+ "active_postings": 196,
+ "total_postings": 223,
+ "companies": 151,
  "sources": [
   "arbeitnow",
   "jobicy",
+  "jsearch",
   "remoteok",
   "remotive"
  ],
- "entry_postings": 21,
+ "entry_postings": 31,
  "route": {
   "basis": "entry",
-  "postings": 21,
+  "postings": 31,
   "stops": [
    {
     "name": "Excel",
-    "postings": 8,
-    "share": 0.381
-   },
-   {
-    "name": "Python",
-    "postings": 7,
-    "share": 0.333
+    "postings": 10,
+    "share": 0.323
    },
    {
     "name": "Data Modeling",
-    "postings": 5,
-    "share": 0.238
+    "postings": 9,
+    "share": 0.29
+   },
+   {
+    "name": "Python",
+    "postings": 9,
+    "share": 0.29
+   },
+   {
+    "name": "ETL",
+    "postings": 8,
+    "share": 0.258
+   },
+   {
+    "name": "SQL",
+    "postings": 8,
+    "share": 0.258
+   },
+   {
+    "name": "Data Governance",
+    "postings": 6,
+    "share": 0.194
    },
    {
     "name": "Google Sheets",
     "postings": 5,
-    "share": 0.238
-   },
-   {
-    "name": "SQL",
-    "postings": 5,
-    "share": 0.238
-   },
-   {
-    "name": "ETL",
-    "postings": 4,
-    "share": 0.19
-   },
-   {
-    "name": "AWS",
-    "postings": 3,
-    "share": 0.143
+    "share": 0.161
    }
   ]
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 89,
-   "share": 0.553
+   "postings": 97,
+   "share": 0.495
   },
   {
    "name": "SQL",
-   "postings": 69,
-   "share": 0.429
-  },
-  {
-   "name": "Data Modeling",
-   "postings": 37,
-   "share": 0.23
+   "postings": 88,
+   "share": 0.449
   },
   {
    "name": "Data Governance",
-   "postings": 36,
-   "share": 0.224
+   "postings": 56,
+   "share": 0.286
+  },
+  {
+   "name": "Data Modeling",
+   "postings": 52,
+   "share": 0.265
   },
   {
    "name": "ETL",
-   "postings": 34,
-   "share": 0.211
+   "postings": 47,
+   "share": 0.24
   },
   {
    "name": "A/B Testing",
-   "postings": 29,
-   "share": 0.18
+   "postings": 31,
+   "share": 0.158
   },
   {
    "name": "Machine Learning",
-   "postings": 26,
-   "share": 0.161
+   "postings": 28,
+   "share": 0.143
   },
   {
    "name": "Statistics",
-   "postings": 21,
-   "share": 0.13
-  },
-  {
-   "name": "PyTorch",
-   "postings": 20,
-   "share": 0.124
+   "postings": 25,
+   "share": 0.128
   },
   {
    "name": "dbt",
+   "postings": 25,
+   "share": 0.128
+  },
+  {
+   "name": "AWS",
    "postings": 20,
-   "share": 0.124
+   "share": 0.102
   }
  ],
  "entry_jobs": [
@@ -204,12 +205,14 @@
  "company_names": [
   "Deliveroo ",
   "Decathlontechnology",
+  "Jobgether",
   "Aircall",
   "Carrot",
   "Ruby Labs",
   "Affirm",
   "Tripadvisor",
   "Luxury Presence",
+  "تابي",
   "GESIS – Leibniz-Institut für Sozialwissenschaften",
   "rebuy",
   "Gusti Leder GmbH",
@@ -222,7 +225,6 @@
   "Checkout.com",
   "ILLUIN Technology",
   "Coreweaveu",
-  "Jobgether",
   "Knuddels GmbH & Co. KG",
   "Meta",
   "Dex",
@@ -240,7 +242,6 @@
   "Marshmallow",
   "Transficc",
   "Makersite GmbH",
-  "Skylum",
-  "Hudl"
+  "Skylum"
  ]
 }
