@@ -2,7 +2,7 @@
  "updated_at": "2026-09-25T08:44:10+00:00",
  "active_postings": 196,
  "total_postings": 223,
- "companies": 151,
+ "companies": 28,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -11,6 +11,9 @@
   "remotive"
  ],
  "entry_postings": 31,
+ "gulf_postings": 32,
+ "jobs_basis": "gulf",
+ "companies_basis": "gulf",
  "route": {
   "basis": "entry",
   "postings": 31,
@@ -106,142 +109,106 @@
  ],
  "entry_jobs": [
   {
-   "title": "Stage 2027 - AI/ML Engineer - 50% Client 50% R&D",
-   "company": "Ekimetrics",
-   "location": "Paris",
-   "url": "https://www.arbeitnow.fr/jobs/companies/ekimetrics/stage-2027-ai-ml-engineer-50-client-50-rd-paris-242613",
-   "level": "Intern",
-   "posted_at": "2026-09-25"
-  },
-  {
-   "title": "Stage 2027  Business Data Scientist - Marketing effectivness",
-   "company": "Ekimetrics",
-   "location": "Paris",
-   "url": "https://www.arbeitnow.fr/jobs/companies/ekimetrics/stage-2027-business-data-scientist-marketing-effectivness-paris-229554",
-   "level": "Intern",
-   "posted_at": "2026-09-25"
-  },
-  {
-   "title": "Junior Google Performance & Analytics Manager (m/w/d)",
-   "company": "eFLY Marketplace Services GmbH",
-   "location": "Stuttgart",
-   "url": "https://www.arbeitnow.com/jobs/companies/efly-marketplace-services-gmbh/junior-google-performance-analytics-manager-stuttgart-127810",
+   "title": "Data Analyst Assistant",
+   "company": "Arabian Private Holdings",
+   "location": "دبي, دبي دبي الإمارات العربية المتحدة",
+   "url": "https://remoteOK.com/remote-jobs/remote-data-analyst-assistant-arabian-private-holdings-1136217",
    "level": "Junior",
-   "posted_at": "2026-09-25"
+   "posted_at": "2026-08-04"
   },
   {
-   "title": "Data Engineer Working Student (m/w/d)",
-   "company": "Trusteq Gmbh",
-   "location": "Köln",
-   "url": "https://www.arbeitnow.com/jobs/companies/trusteq-gmbh/data-engineer-working-student-koln-54584",
+   "title": "【Internship】Business Analyst Intern",
+   "company": "Meituan",
+   "location": "",
+   "url": "https://bebee.com/sa/jobs/internshipbusiness-analyst-intern-meituan-riyadh-riyadh--t7xk-824381532",
    "level": "Intern",
-   "posted_at": "2026-09-25"
+   "posted_at": ""
   },
   {
-   "title": "Working Student – Content and Data Management (all genders)",
-   "company": "Ctrl Qs",
-   "location": "Berlin",
-   "url": "https://www.arbeitnow.com/jobs/companies/ctrl-qs/working-student-content-and-data-management-all-genders-berlin-247566",
+   "title": "Intern Data Engineer - Path to Junior Analytics Engineer",
+   "company": "تابي",
+   "location": "الرياض, SA",
+   "url": "https://sa.jobrapido.com/jobpreview/4163882074480050176",
    "level": "Intern",
-   "posted_at": "2026-09-24"
+   "posted_at": ""
   },
   {
-   "title": "Werkstudent (m/w/d) MarTech, Data & Analytics",
-   "company": "Es Group",
-   "location": "Berlin",
-   "url": "https://www.arbeitnow.com/jobs/companies/es-group/werkstudent-martech-data-analytics-berlin-205095",
+   "title": "Finance Co-op Intern - Reporting & Data Analysis",
+   "company": "Alturki Holding",
+   "location": "الدمام, SA",
+   "url": "https://www.jobleads.com/sa/job/finance-co-op-intern-reporting-data-analysis--dammam--e66566a9b066f7aecdf559a9ad084d27c",
    "level": "Intern",
-   "posted_at": "2026-09-24"
+   "posted_at": ""
   },
   {
-   "title": "Customer Care Data Analyst Intern",
-   "company": "Backmarket",
-   "location": "Bordeaux",
-   "url": "https://www.arbeitnow.fr/jobs/companies/backmarket/customer-care-data-analyst-intern-bordeaux-478284",
+   "title": "Data Engineering Intern: Build Production Pipelines",
+   "company": "تابي",
+   "location": "الرياض, SA",
+   "url": "https://www.jobleads.com/sa/job/data-engineering-intern-build-production-pipelines--riyadh--ec8db27220ebfb06de4fa05c1b2e40182",
    "level": "Intern",
-   "posted_at": "2026-09-24"
+   "posted_at": ""
   },
   {
-   "title": "Werkstudentin im Bereich Performance Marketing Analytics (m/w/d)",
-   "company": "Gusti Leder GmbH",
-   "location": "Rostock",
-   "url": "https://www.arbeitnow.com/jobs/companies/gusti-leder-gmbh/werkstudentin-im-bereich-performance-marketing-analytics-rostock-360733",
+   "title": "Data Engineer Intern — Real Production Data (KSA)",
+   "company": "تابي",
+   "location": "الرياض, SA",
+   "url": "https://www.jobleads.com/sa/job/data-engineer-intern-real-production-data-ksa--riyadh--ea5e2a97fca98fe23f95d72b8c5f5348b",
    "level": "Intern",
-   "posted_at": "2026-09-23"
+   "posted_at": ""
   },
   {
-   "title": "Werkstudentin im Bereich Performance Marketing Analytics (m/w/d)",
-   "company": "Gusti Leder GmbH",
-   "location": "Rostock, Mecklenburg-Vorpommern, Deutschland",
-   "url": "https://www.arbeitnow.com/jobs/companies/gusti-leder-gmbh/werkstudentin-im-bereich-performance-marketing-analytics-rostock-47022",
-   "level": "Intern",
-   "posted_at": "2026-09-23"
-  },
-  {
-   "title": "Praktikum Digital Analytics (m/w/d)| Ab September, München",
-   "company": "TOWA - the digital growth company",
-   "location": "Munich",
-   "url": "https://www.arbeitnow.com/jobs/companies/towa-the-digital-growth-company/praktikum-digital-analytics-ab-september-munchen-munich-301282",
-   "level": "Intern",
-   "posted_at": "2026-09-23"
-  },
-  {
-   "title": "Junior Product Data Manager (m/w/d)",
-   "company": "DocCheck AG",
-   "location": "Köln, Nordrhein-Westfalen, Deutschland",
-   "url": "https://www.arbeitnow.com/jobs/companies/doccheck-ag/junior-product-data-manager-koln-25742",
+   "title": "Data Analyst",
+   "company": "Confidential Jobs",
+   "location": "",
+   "url": "https://www.jobleads.com/sa/job/data-analyst--al-khobar--eebd75fb34ca041355df05a8dabf496d8",
    "level": "Junior",
-   "posted_at": "2026-09-23"
+   "posted_at": ""
   },
   {
-   "title": "Junior Applied AI Engineer",
-   "company": "ILLUIN Technology",
-   "location": "Paris La Défense",
-   "url": "https://www.arbeitnow.fr/jobs/companies/illuin-technology/junior-applied-ai-engineer-paris-445144",
-   "level": "Junior",
-   "posted_at": "2026-09-23"
+   "title": "Business Analyst Intern",
+   "company": "SoftwareOne",
+   "location": "",
+   "url": "https://jobs.accaglobal.com/job/14156090/business-analyst-intern/",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
+   "title": "AI and Data Scientist Study and Intern",
+   "company": "Refonte Technologies",
+   "location": "الرياض, SA",
+   "url": "https://www.getsaudijobs.com/jobs/view/ai-data-scientist-study-intern",
+   "level": "Intern",
+   "posted_at": ""
   }
  ],
  "company_names": [
-  "Deliveroo ",
-  "Decathlontechnology",
-  "Jobgether",
-  "Aircall",
-  "Carrot",
-  "Ruby Labs",
-  "Affirm",
-  "Tripadvisor",
-  "Luxury Presence",
   "تابي",
-  "GESIS – Leibniz-Institut für Sozialwissenschaften",
-  "rebuy",
-  "Gusti Leder GmbH",
-  "sonyinteractiveentertainmentglobal",
-  "Kayak",
-  "OpenAI",
-  "Nebius",
-  "Wayve",
-  "oliver",
-  "Checkout.com",
-  "ILLUIN Technology",
-  "Coreweaveu",
-  "Knuddels GmbH & Co. KG",
-  "Meta",
-  "Dex",
-  "Lemon.io",
-  "Quora",
-  "Ekimetrics",
-  "Anaplan",
-  "Gopuff",
-  "Oddball",
-  "Mactores",
-  "Fanduel",
-  "Remote",
-  "Bumble Inc.",
-  "grafanalabs",
-  "Marshmallow",
-  "Transficc",
-  "Makersite GmbH",
-  "Skylum"
+  "Jobgether",
+  "Brainlake Advertising LLC",
+  "Propel Consult",
+  "Masterworks",
+  "ROBUSTA",
+  "Sautic",
+  "Basamh Group",
+  "Arabian Private Holdings",
+  "Müller's Solutions",
+  "Meituan",
+  "Refonte Technologies",
+  "Assystem",
+  "HungerStation",
+  "الصافي دانون",
+  "Carrefour KSA",
+  "SoftwareOne",
+  "Salla",
+  "Nexttec Technology Outsourcing",
+  "YO IT Consulting",
+  "Soar",
+  "Riyad Bank",
+  "AJEX",
+  "Alturki Holding",
+  "MRSOOL Inc",
+  "Karma Sugar Company For Food Industries",
+  "Agoda",
+  "Confidential Jobs"
  ]
 }

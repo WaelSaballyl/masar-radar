@@ -18,6 +18,7 @@
       line_name: "مسار المتدرّب",
       loading: "جارٍ تحميل البيانات…",
       load_failed: "تعذّر تحميل البيانات. حدّث الصفحة بعد قليل.",
+      caption_gulf_entry: "نسبة إعلانات التدريب والمبتدئين في السعودية والخليج التي تطلب كل مهارة، من {n}.",
       caption_entry: "نسبة إعلانات التدريب والمبتدئين التي تطلب كل مهارة، من {n}.",
       caption_all: "نسبة الإعلانات النشطة التي تطلب كل مهارة، من {n}.",
       // no adjective on the count: its gender and case would have to follow
@@ -25,6 +26,8 @@
       hero_meta: "إعلانات مفتوحة الآن: {active_n}، من {companies}. آخر تحديث {date}.",
       coop_title: "فرص تدريب ووظائف للمبتدئين",
       coop_lede: "المصادر الحالية عالمية، ومعظم فرصها عن بُعد أو في أوروبا. نعمل على إضافة مصادر سعودية.",
+      coop_lede_gulf: "فرص تدريب ووظائف للمبتدئين في السعودية والخليج، الأحدث أولاً. تتحدّث كل يوم.",
+      companies_title_gulf: "شركات تنشر إعلانات بيانات في السعودية والخليج الآن",
       coop_empty: "لا توجد فرص تدريب نشطة في آخر تحديث. ابدأ بالمهارات في مسار المتدرّب أعلاه، وارجع غداً.",
       level_intern: "تدريب",
       level_junior: "مبتدئ",
@@ -64,11 +67,14 @@
       line_name: "Intern line",
       loading: "Loading data…",
       load_failed: "The data could not be loaded. Refresh the page in a moment.",
+      caption_gulf_entry: "Share of internship and junior postings in Saudi Arabia and the Gulf that require each skill, out of {n}.",
       caption_entry: "Share of internship and junior postings that require each skill, out of {n}.",
       caption_all: "Share of active postings that require each skill, out of {n}.",
       hero_meta: "Open postings: {active_n}, from {companies}. Updated {date}.",
       coop_title: "Internships and junior roles",
       coop_lede: "Current sources are international, and most openings are remote or in Europe. Saudi sources are being added.",
+      coop_lede_gulf: "Internships and junior roles in Saudi Arabia and the Gulf, newest first. Updated daily.",
+      companies_title_gulf: "Companies posting data roles in Saudi Arabia and the Gulf now",
       coop_empty: "No internships were open in the latest update. Start with the skills on the intern line above, and check back tomorrow.",
       level_intern: "Internship",
       level_junior: "Junior",
@@ -112,7 +118,12 @@
 
   // ---------- rendering ----------
 
-  function renderStatic() { L.apply(); }
+  function renderStatic() {
+    L.apply();
+    // once Gulf postings exist the list and company names show only them
+    if (data && data.jobs_basis === "gulf") document.getElementById("coop-lede").textContent = t("coop_lede_gulf");
+    if (data && data.companies_basis === "gulf") document.getElementById("companies-title").textContent = t("companies_title_gulf");
+  }
 
   function renderRoute() {
     const route = document.getElementById("route");
@@ -122,8 +133,7 @@
     if (!data) { route.append(el("li", "route-note", t("loading"))); return; }
 
     const r = data.route;
-    caption.textContent = t(r.basis === "entry" ? "caption_entry" : "caption_all",
-                            { n: count(r.postings, "posting") });
+    caption.textContent = t(`caption_${r.basis}`, { n: count(r.postings, "posting") });
     r.stops.forEach((s, i) => {
       const li = el("li", "stop");
       li.style.setProperty("--i", i);
