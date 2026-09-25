@@ -75,4 +75,13 @@ assert.deepEqual(out.profile.skills, ["Python"]);
 assert.equal(out.profile.gpa, "");
 assert.equal(out.profile.experience, "Intern, Shop, 2024\nBuilt reports");
 
+// grouped skills: the label is free, the items are checked one by one
+const grouped = { skills: ["BI tools: Power BI (DAX), Tableau", "Excel"] };
+const gr = audit(grouped, "Power BI with DAX, Excel", []);
+assert.deepEqual(grouped.skills, ["BI tools: Power BI, DAX", "Excel"]);
+assert.ok(gr.some((r) => r.text === "Tableau"));
+const intact = { skills: ["Microsoft Excel: pivot tables, lookups"] };
+audit(intact, "Microsoft Excel: pivot tables, lookups", []);
+assert.deepEqual(intact.skills, ["Microsoft Excel: pivot tables, lookups"]);
+
 console.log("worker tests passed");

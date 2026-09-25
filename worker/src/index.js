@@ -89,10 +89,15 @@ async function parse(input, env) {
   if (text.length < 80) throw fail(400, "too_short");
   const out = await gemini(env, `Split this CV into the fields of a form. Copy the student's own words and keep every fact; do not invent, translate or summarise facts away. Contact details were removed on purpose.
 
-experience and projects: one entry per paragraph, entries separated by a blank line. First line of an entry: title or project name, organisation, dates. Following lines: its points, one per line.
+experience and projects: one entry per paragraph, entries separated by a blank line. First line of an entry: title or project name, organisation, location, work arrangement (remote, part-time) and dates exactly as written. Following lines: its points, one per line.
+skills: one string per group as written, e.g. "Microsoft Excel: pivot tables, lookups".
+other: everything else worth keeping, one per line: headline or target role, work authorisation or iqama, driving licence, availability, relocation, coursework, links to work.
+city: the city the student lives in, if stated.
+graduation: the study period exactly as written, e.g. "2021-2026", or the graduation year if only that is given.
+In experience, the first line keeps the organisation name apart from its location.
 
 Return JSON only, in this shape:
-{"university":"","degree":"","major":"","graduation":"","gpa":"","skills":[""],"experience":"","projects":"","certificates":[""],"languages":[""]}
+{"city":"","university":"","degree":"","major":"","graduation":"","gpa":"","skills":[""],"experience":"","projects":"","certificates":[""],"languages":[""],"other":""}
 
 CV:
 ${text}`);
@@ -106,6 +111,7 @@ ${text}`);
     skills: strings(out.skills, 60).filter((s) => mentions(text, s)),
     experience: honest(out.experience), projects: honest(out.projects),
     certificates: strings(out.certificates, 20), languages: strings(out.languages, 10),
+    city: mentions(text, str(out.city, 60)) ? str(out.city, 60) : "", other: honest(out.other),
   } };
 }
 
@@ -115,7 +121,7 @@ async function tailor(input, env) {
     university: str(p.university, 160), degree: str(p.degree, 120), major: str(p.major, 120),
     graduation: str(p.graduation, 40), gpa: str(p.gpa, 20), skills: str(p.skills, 1500),
     experience: str(p.experience, 6000), projects: str(p.projects, 6000),
-    certificates: str(p.certificates, 1500), languages: str(p.languages, 300),
+    certificates: str(p.certificates, 1500), languages: str(p.languages, 300), other: str(p.other, 1500),
   };
   const source = Object.values(profile).join("\n");
   if (source.replace(/\s/g, "").length < 40) throw fail(400, "too_short");
@@ -135,14 +141,20 @@ Hard rules:
 - You may rephrase, reorder, merge or drop the student's own points, and use the posting's wording for things the student really did.
 - Tie a skill to a job or project only where PROFILE says it was used there. Keep qualifiers such as "basic" or "in progress".
 - No stock phrases ("eager to leverage", "passionate", "results-driven"); say what the student did.
-- Bullets start with an action verb, one line each, at most 4 per item, most relevant first.
+- Keep every date range, location, work arrangement (remote, part-time), metric and qualifier PROFILE states: "2021-2026" stays "2021-2026". Keep a point that carries a number or a result (what the work led to) unless an item has more than 4.
+- Experience and projects newest first, as on a normal CV.
+- Never name the employer of the POSTING. If the posting is for another field than PROFILE, still write an honest CV of what the student has; do not stretch facts to fit.
+- Bullets start with an action verb, at most 4 per item, most relevant first.
 - Write in ${lang}. Keep tool and skill names in their usual Latin spelling.
 - summary: 2-3 sentences aimed at this posting, only from PROFILE.
-- skills: the student's skills from PROFILE, most relevant to the posting first.
-- job_required, job_preferred: short names of the tools and technical skills the POSTING itself lists as required / nice to have. Not degrees, enrolment, languages or years of experience.
+- headline: if PROFILE states a headline or target role, use it as written; otherwise the student's role and 3-4 core skills, e.g. "Data Analyst | Excel, Power BI, SQL".
+- experience: org is the organisation name only; its city or region goes in location, together with the work arrangement.
+- skills: the student's skills from PROFILE, most relevant to the posting first. With more than 8, group them as "Group: a, b, c", one string per group. Soft skills and licences do not go here.
+- additional: work authorisation or iqama, driving licence, availability, relocation, coursework and similar facts from PROFILE, one per string.
+- job_required, job_preferred: arrays of short names of the tools and technical skills the POSTING asks for (required / nice to have), e.g. ["Microsoft 365", "network troubleshooting"]. Every posting names some; never leave job_required empty. Not degrees, enrolment, languages or years of experience.
 
 Shape:
-{"summary":"","skills":[""],"experience":[{"title":"","org":"","dates":"","bullets":[""]}],"projects":[{"name":"","tools":"","bullets":[""]}],"education":[{"degree":"","major":"","school":"","dates":"","gpa":""}],"certificates":[""],"languages":[""],"job_required":[""],"job_preferred":[""]}
+{"headline":"","summary":"","skills":[""],"experience":[{"title":"","org":"","location":"","dates":"","bullets":[""]}],"projects":[{"name":"","tools":"","dates":"","bullets":[""]}],"education":[{"degree":"","major":"","school":"","dates":"","gpa":""}],"certificates":[""],"languages":[""],"additional":[""],"job_required":[""],"job_preferred":[""]}
 
 POSTING:
 ${posting}
@@ -151,8 +163,10 @@ PROFILE:
 ${JSON.stringify(profile, null, 1)}`);
 
   // a listed posting's skills come from our own extraction; a pasted one's from the model
-  const required = pasted ? strings(cv.job_required, 30) : listed.required;
-  const preferred = pasted ? strings(cv.job_preferred, 30) : listed.preferred;
+  // models sometimes answer these lists with one comma-separated string
+  const list = (v) => strings(typeof v === "string" ? v.split(/[,،]/) : v, 30);
+  const required = pasted ? list(cv.job_required) : listed.required;
+  const preferred = pasted ? list(cv.job_preferred) : listed.preferred;
   delete cv.job_required; delete cv.job_preferred;
 
   // Skills to watch for in free text: the posting's, every name the market

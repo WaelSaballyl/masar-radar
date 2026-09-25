@@ -38,18 +38,26 @@ export function audit(cv, source, jobSkills) {
   const field = (where, text) => (keep(where)(text) ? text : "");
 
   cv.summary = sentences(cv.summary).filter(keep("summary")).join(" ");
-  cv.skills = strings(cv.skills).filter((s) => {
-    if (mentions(source, s)) return true;
-    removed.push({ where: "skills", text: s, why: `skill:${s}` });
-    return false;
-  });
+  // "Dashboards & BI: Power BI (DAX, data modeling)" - the group label is the
+  // model's own words; every item after it must be the student's
+  cv.skills = strings(cv.skills).map((entry) => {
+    const colon = entry.indexOf(":");
+    const label = colon > 0 ? entry.slice(0, colon).trim() : "";
+    const items = (colon > 0 ? entry.slice(colon + 1) : entry).split(/[,،;؛()]/).map((x) => x.trim()).filter(Boolean);
+    const lacking = items.filter((x) => !mentions(source, x));
+    lacking.forEach((x) => removed.push({ where: "skills", text: x, why: `skill:${x}` }));
+    if (!lacking.length) return entry;
+    const kept = items.filter((x) => mentions(source, x)).join(", ");
+    return kept && (label ? `${label}: ${kept}` : kept);
+  }).filter(Boolean);
+  cv.headline = field("headline", str(cv.headline, 160));
   cv.experience = (Array.isArray(cv.experience) ? cv.experience : []).slice(0, 8).map((x) => ({
     title: field("experience", str(x?.title, 120)), org: field("experience", str(x?.org, 120)),
-    dates: field("experience", str(x?.dates, 60)), bullets: strings(x?.bullets, 6).filter(keep("experience")),
+    location: field("experience", str(x?.location, 120)), dates: field("experience", str(x?.dates, 60)), bullets: strings(x?.bullets, 6).filter(keep("experience")),
   }));
   cv.projects = (Array.isArray(cv.projects) ? cv.projects : []).slice(0, 8).map((x) => ({
     name: field("projects", str(x?.name, 120)), tools: field("projects", str(x?.tools, 200)),
-    bullets: strings(x?.bullets, 6).filter(keep("projects")),
+    dates: field("projects", str(x?.dates, 60)), bullets: strings(x?.bullets, 6).filter(keep("projects")),
   }));
   cv.education = (Array.isArray(cv.education) ? cv.education : []).slice(0, 4).map((x) => ({
     degree: str(x?.degree, 120), major: str(x?.major, 120), school: str(x?.school, 160),
@@ -57,5 +65,6 @@ export function audit(cv, source, jobSkills) {
   }));
   cv.certificates = strings(cv.certificates, 12).filter(keep("certificates"));
   cv.languages = strings(cv.languages, 8);
+  cv.additional = strings(cv.additional, 10).filter(keep("additional"));
   return removed;
 }

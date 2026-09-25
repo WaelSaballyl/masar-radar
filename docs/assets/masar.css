@@ -403,3 +403,7 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
   .wrap > :not(main), main > :not(#result), #result > :not(#cv-paper) { display: none !important; }
   .paper { padding: 0; margin: 0; max-width: none; border-radius: 0; }
 }
+.coverage-for { color: var(--muted); font-size: 0.92rem; unicode-bidi: plaintext; }
+.coverage .far { color: var(--sand); }
+.cv-headline { font-weight: 600; margin: 0 0 2px; }
+.cv-skill { margin-bottom: 2px; }

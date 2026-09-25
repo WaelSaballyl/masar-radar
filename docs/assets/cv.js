@@ -34,7 +34,7 @@
 
   const form = $("profile");
   const FIELDS = ["name", "email", "phone", "city", "link", "university", "degree", "major",
-                  "graduation", "gpa", "skills", "experience", "projects", "certificates", "languages"];
+                  "graduation", "gpa", "skills", "experience", "projects", "certificates", "languages", "other"];
   const CONTACT = ["name", "email", "phone", "city", "link"];
 
   const readProfile = () => Object.fromEntries(FIELDS.map((f) => [f, form.elements[f].value.trim()]));
@@ -43,7 +43,7 @@
   function fill(p, onlyEmpty) {
     FIELDS.forEach((f) => {
       let v = p[f];
-      if (Array.isArray(v)) v = v.join(f === "certificates" ? "\n" : ", ");
+      if (Array.isArray(v)) v = v.join(f === "certificates" || f === "skills" ? "\n" : ", ");
       if (typeof v !== "string" || !v.trim()) return;
       if (onlyEmpty && form.elements[f].value.trim()) return;
       form.elements[f].value = v.trim();
@@ -76,7 +76,7 @@
     const first = text.split("\n").map((l) => l.trim()).find(Boolean) || "";
     const name = first.split(/\s+/).length <= 5 && !/[\d@:|]/.test(first) ? first : "";
     return { name, email: (text.match(EMAIL) || [])[0], phone: phone && phone.trim(),
-             link: (text.match(LINK) || [])[0] };
+             link: [...new Set(text.match(LINK) || [])].join("  |  ") };
   }
 
   const withoutContact = (p) => Object.fromEntries(
@@ -102,7 +102,9 @@
       const pages = [];
       for (let i = 1; i <= Math.min(doc.numPages, 5); i++) {
         const { items } = await (await doc.getPage(i)).getTextContent();
-        pages.push(items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join(""));
+        // pdf.js hands "two", "-", "day" over as separate pieces
+        pages.push(items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join("")
+          .replace(/(\p{L}) ?- (?=\p{L})|(\p{L}) -(?=\p{L})/gu, "$1$2-"));
       }
       return pages.join("\n");
     }
@@ -208,9 +210,11 @@
 
   const HEAD = {
     en: { summary: "Summary", education: "Education", skills: "Skills", experience: "Experience",
-          projects: "Projects", certificates: "Certificates", languages: "Languages", gpa: "GPA", sep: ", " },
+          projects: "Projects", certificates: "Certificates", languages: "Languages", gpa: "GPA",
+          additional: "Additional information", sep: ", " },
     ar: { summary: "نبذة", education: "التعليم", skills: "المهارات", experience: "الخبرات",
-          projects: "المشاريع", certificates: "الشهادات", languages: "اللغات", gpa: "المعدل", sep: "، " },
+          projects: "المشاريع", certificates: "الشهادات", languages: "اللغات", gpa: "المعدل",
+          additional: "معلومات إضافية", sep: "، " },
   };
 
   function renderCV(cv, p, lang) {
@@ -219,7 +223,8 @@
     paper.lang = lang;
     paper.dir = lang === "ar" ? "rtl" : "ltr";
     paper.replaceChildren(el("h1", null, p.name || (lang === "ar" ? "اسمك" : "Your Name")));
-    const contact = [p.email, p.phone, p.city, p.link].filter(Boolean).join("  |  ");
+    if (cv.headline) paper.append(el("p", "cv-headline", cv.headline));
+    const contact = [p.city, p.phone, p.email, p.link].filter(Boolean).join("  |  ");
     if (contact) paper.append(el("p", "cv-contact", contact));
 
     const section = (title, nodes) => {
@@ -246,20 +251,32 @@
     section(h.education, education.filter((x) => x.school || x.degree).map((x) =>
       item([[x.degree, x.major].filter(Boolean).join(h.sep), x.school].filter(Boolean).join(lang === "ar" ? "، " : ", "),
            x.dates, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
-    section(h.skills, cv.skills.length && [el("p", null, cv.skills.join(h.sep))]);
     section(h.experience, cv.experience.filter((x) => x.title || x.bullets.length)
-      .map((x) => item([x.title, x.org].filter(Boolean).join(h.sep), x.dates, x.bullets)));
+      .map((x) => item([x.title, x.org, x.location].filter(Boolean).join(h.sep), x.dates, x.bullets)));
     section(h.projects, cv.projects.filter((x) => x.name || x.bullets.length)
-      .map((x) => item(x.name, x.tools, x.bullets)));
+      .map((x) => item([x.name, x.tools].filter(Boolean).join(h.sep), x.dates, x.bullets)));
+    // grouped skills ("Excel: pivot tables, lookups") read better one group a line
+    const grouped = cv.skills.some((s) => s.includes(":"));
+    section(h.skills, cv.skills.length && (grouped ? cv.skills.map((s) => {
+      const [label, ...rest] = s.split(":");
+      const line = el("p", "cv-skill");
+      if (rest.length) line.append(el("strong", null, `${label}:`), ` ${rest.join(":").trim()}`);
+      else line.textContent = s;
+      return line;
+    }) : [el("p", null, cv.skills.join(h.sep))]));
     const list = el("ul");
     cv.certificates.forEach((c) => list.append(el("li", null, c)));
     section(h.certificates, cv.certificates.length && [list]);
     section(h.languages, cv.languages.length && [el("p", null, cv.languages.join(h.sep))]);
+    const extra = el("ul");
+    (cv.additional || []).forEach((a) => extra.append(el("li", null, a)));
+    section(h.additional, cv.additional?.length && [extra]);
   }
 
-  function renderCoverage({ required, matched, missing, preferred_missing: prefMissing }) {
+  function renderCoverage({ required, matched, missing, preferred_missing: prefMissing }, job) {
     const box = $("coverage");
-    box.replaceChildren();
+    box.replaceChildren(el("p", "coverage-for",
+      job.description ? "هذه السيرة للوصف الذي ألصقته." : `هذه السيرة لإعلان: ${job.title}، ${job.company}.`));
     if (!required.length) {
       box.append(el("p", null, "لم نجد في الإعلان قائمة مهارات مطلوبة، فرتّبنا سيرتك حسب وصفه."));
       return;
@@ -272,6 +289,9 @@
       box.append(el("p", null, `ينقصك: ${missing.join("، ")}. لم نضفها إلى سيرتك. إذا كنت تعرفها فعلاً، أضفها إلى مهاراتك في الخطوة الأولى وجهّز السيرة من جديد.`));
     }
     if (prefMissing.length) box.append(el("p", "muted", `ومن المهارات المفضّلة: ${prefMissing.join("، ")}.`));
+    if (required.length >= 3 && matched.length / required.length < 0.34) {
+      box.append(el("p", "far", "هذا الإعلان بعيد عن خبرتك الحالية، والسيرة لا تستطيع سدّ هذه الفجوة بصدق. قد يكون وقتك أنفع في إعلانات أقرب لمهاراتك."));
+    }
   }
 
   function renderRemoved(removed) {
@@ -305,7 +325,7 @@
       // model slipped into a sentence without the student having it
       const vocabulary = [...new Set(postings.flatMap((x) => x.skills.map((s) => s[0])))];
       const out = await api("/tailor", { profile: withoutContact(p), job, lang, vocabulary });
-      renderCoverage(out.coverage);
+      renderCoverage(out.coverage, job);
       renderRemoved(out.removed);
       renderCV(out.cv, p, lang);
       $("result").hidden = false;

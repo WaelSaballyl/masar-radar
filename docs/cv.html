@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=2">
+<link rel="stylesheet" href="assets/masar.css?v=4">
 </head>
 <body>
 <div class="wrap">
@@ -65,7 +65,7 @@
             <label class="field">الجامعة<input name="university"></label>
             <label class="field">الدرجة<input name="degree" placeholder="بكالوريوس"></label>
             <label class="field">التخصص<input name="major"></label>
-            <label class="field">سنة التخرج المتوقعة<input name="graduation" inputmode="numeric"></label>
+            <label class="field">سنوات الدراسة<input name="graduation" placeholder="2022 - 2026" dir="ltr"></label>
             <label class="field">المعدل<input name="gpa" placeholder="4.2 / 5" dir="ltr"></label>
           </div>
         </fieldset>
@@ -78,6 +78,7 @@
             <label class="field">الشهادات والدورات<textarea name="certificates" rows="3" dir="auto"></textarea></label>
             <label class="field">اللغات<textarea name="languages" rows="3" dir="auto" placeholder="العربية (الأم)، الإنجليزية (متقدم)"></textarea></label>
           </div>
+          <label class="field">معلومات إضافية، كل واحدة في سطر: المسمى الذي تستهدفه، نوع الإقامة، رخصة القيادة، متى تستطيع البدء، الانتقال لمدينة أخرى، المقررات<textarea name="other" rows="4" dir="auto"></textarea></label>
         </fieldset>
         <button class="reset" type="button" id="clear">امسح معلوماتي من هذا المتصفح</button>
       </form>
@@ -128,6 +129,6 @@
   </footer>
 </div>
 <script src="assets/core.js"></script>
-<script src="assets/cv.js?v=2"></script>
+<script src="assets/cv.js?v=4"></script>
 </body>
 </html>
