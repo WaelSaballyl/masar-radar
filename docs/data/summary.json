@@ -1,7 +1,7 @@
 {
- "updated_at": "2026-09-25T08:44:10+00:00",
- "active_postings": 196,
- "total_postings": 223,
+ "updated_at": "2026-09-25T08:55:46+00:00",
+ "active_postings": 197,
+ "total_postings": 224,
  "companies": 28,
  "sources": [
   "arbeitnow",
@@ -11,7 +11,7 @@
   "remotive"
  ],
  "entry_postings": 31,
- "gulf_postings": 32,
+ "gulf_postings": 33,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
@@ -59,47 +59,47 @@
   {
    "name": "Python",
    "postings": 97,
-   "share": 0.495
+   "share": 0.492
   },
   {
    "name": "SQL",
    "postings": 88,
-   "share": 0.449
+   "share": 0.447
   },
   {
    "name": "Data Governance",
    "postings": 56,
-   "share": 0.286
+   "share": 0.284
   },
   {
    "name": "Data Modeling",
    "postings": 52,
-   "share": 0.265
+   "share": 0.264
   },
   {
    "name": "ETL",
    "postings": 47,
-   "share": 0.24
+   "share": 0.239
   },
   {
    "name": "A/B Testing",
    "postings": 31,
-   "share": 0.158
+   "share": 0.157
   },
   {
    "name": "Machine Learning",
    "postings": 28,
-   "share": 0.143
+   "share": 0.142
   },
   {
    "name": "Statistics",
    "postings": 25,
-   "share": 0.128
+   "share": 0.127
   },
   {
    "name": "dbt",
    "postings": 25,
-   "share": 0.128
+   "share": 0.127
   },
   {
    "name": "AWS",
@@ -184,30 +184,30 @@
  "company_names": [
   "تابي",
   "Jobgether",
-  "Brainlake Advertising LLC",
   "Propel Consult",
-  "Masterworks",
-  "ROBUSTA",
   "Sautic",
   "Basamh Group",
+  "الصافي دانون",
+  "Carrefour KSA",
+  "Salla",
+  "Soar",
+  "AJEX",
+  "Karma Sugar Company For Food Industries",
+  "Brainlake Advertising LLC",
+  "Masterworks",
+  "ROBUSTA",
   "Arabian Private Holdings",
   "Müller's Solutions",
   "Meituan",
   "Refonte Technologies",
   "Assystem",
   "HungerStation",
-  "الصافي دانون",
-  "Carrefour KSA",
   "SoftwareOne",
-  "Salla",
   "Nexttec Technology Outsourcing",
   "YO IT Consulting",
-  "Soar",
   "Riyad Bank",
-  "AJEX",
   "Alturki Holding",
   "MRSOOL Inc",
-  "Karma Sugar Company For Food Industries",
   "Agoda",
   "Confidential Jobs"
  ]
