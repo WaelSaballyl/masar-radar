@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-25T20:44:30+00:00",
- "active_postings": 216,
- "total_postings": 243,
- "companies": 32,
+ "updated_at": "2026-09-25T20:55:03+00:00",
+ "active_postings": 217,
+ "total_postings": 244,
+ "companies": 31,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,48 +10,48 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 32,
+ "entry_postings": 30,
  "gulf_postings": 39,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 32,
+  "postings": 30,
   "stops": [
    {
     "name": "Excel",
-    "postings": 10,
-    "share": 0.312
+    "postings": 8,
+    "share": 0.267
    },
    {
     "name": "Python",
-    "postings": 9,
-    "share": 0.281
+    "postings": 8,
+    "share": 0.267
    },
    {
     "name": "Data Modeling",
-    "postings": 8,
-    "share": 0.25
-   },
-   {
-    "name": "ETL",
-    "postings": 8,
-    "share": 0.25
+    "postings": 7,
+    "share": 0.233
    },
    {
     "name": "SQL",
-    "postings": 8,
-    "share": 0.25
+    "postings": 7,
+    "share": 0.233
+   },
+   {
+    "name": "ETL",
+    "postings": 6,
+    "share": 0.2
    },
    {
     "name": "Data Governance",
-    "postings": 6,
-    "share": 0.188
+    "postings": 5,
+    "share": 0.167
    },
    {
-    "name": "Statistics",
-    "postings": 5,
-    "share": 0.156
+    "name": "Google Sheets",
+    "postings": 4,
+    "share": 0.133
    }
   ]
  },
@@ -59,52 +59,52 @@
   {
    "name": "Python",
    "postings": 105,
-   "share": 0.486
+   "share": 0.484
   },
   {
    "name": "SQL",
-   "postings": 98,
-   "share": 0.454
+   "postings": 96,
+   "share": 0.442
   },
   {
    "name": "Data Modeling",
-   "postings": 61,
-   "share": 0.282
+   "postings": 67,
+   "share": 0.309
   },
   {
    "name": "Data Governance",
-   "postings": 60,
-   "share": 0.278
+   "postings": 62,
+   "share": 0.286
   },
   {
    "name": "ETL",
-   "postings": 48,
-   "share": 0.222
+   "postings": 55,
+   "share": 0.253
   },
   {
    "name": "A/B Testing",
-   "postings": 39,
-   "share": 0.181
-  },
-  {
-   "name": "GenAI/LLM",
-   "postings": 31,
-   "share": 0.144
-  },
-  {
-   "name": "Statistics",
-   "postings": 31,
-   "share": 0.144
+   "postings": 38,
+   "share": 0.175
   },
   {
    "name": "Machine Learning",
+   "postings": 36,
+   "share": 0.166
+  },
+  {
+   "name": "Statistics",
    "postings": 30,
-   "share": 0.139
+   "share": 0.138
   },
   {
    "name": "dbt",
    "postings": 28,
-   "share": 0.13
+   "share": 0.129
+  },
+  {
+   "name": "BigQuery",
+   "postings": 25,
+   "share": 0.115
   }
  ],
  "entry_jobs": [
@@ -127,8 +127,8 @@
   {
    "title": "Intern Data Engineer - Path to Junior Analytics Engineer",
    "company": "تابي",
-   "location": "",
-   "url": "https://www.jobleads.com/sa/job/intern-data-engineer-path-to-junior-analytics-engineer--saudi-arabia--ef9f3d7acc41d141a26443fdd03b80f79",
+   "location": "الرياض, SA",
+   "url": "https://sa.jobrapido.com/jobpreview/4163882074480050176",
    "level": "Intern",
    "posted_at": ""
   },
@@ -193,34 +193,33 @@
   "Jobgether",
   "تابي",
   "الصافي دانون",
+  "Nexttec Technology Outsourcing",
   "Carrefour KSA",
   "Salla",
-  "Meituan",
   "Refonte Technologies",
   "Assystem",
-  "SoftwareOne",
   "YO IT Consulting",
-  "Alturki Holding",
-  "Agoda",
   "Brainlake Advertising LLC",
   "Propel Consult",
   "Masterworks",
   "ROBUSTA",
-  "Sautic",
   "Basamh Group",
   "Arabian Private Holdings",
   "Müller's Solutions",
+  "Meituan",
+  "Peroptyx",
+  "Aramco",
   "HungerStation",
+  "SoftwareOne",
   "Soar",
   "Riyad Bank",
   "AJEX",
-  "Karma Sugar Company For Food Industries",
-  "Confidential Jobs",
-  "Peroptyx",
-  "Nexttec Technology Outsourcing",
-  "Aramco",
+  "Alturki Holding",
   "Team Saudi",
+  "Karma Sugar Company For Food Industries",
+  "شركة علم",
+  "Confidential Jobs",
   "Tata Consultancy Services",
-  "شركة علم"
+  "تالنتس سي"
  ]
 }
