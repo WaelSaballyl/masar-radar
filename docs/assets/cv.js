@@ -79,8 +79,12 @@
              link: [...new Set(text.match(LINK) || [])].join("  |  ") };
   }
 
+  // pdf.js hands "two", "-", "day" over as separate pieces; profiles read
+  // before this fix still carry "two - day", so it runs on every send too
+  const joinHyphens = (s) => s.replace(/(\p{L}) ?- (?=\p{L})|(\p{L}) -(?=\p{L})/gu, "$1$2-");
+
   const withoutContact = (p) => Object.fromEntries(
-    FIELDS.filter((f) => !CONTACT.includes(f)).map((f) => [f, stripContact(p[f], p)]));
+    FIELDS.filter((f) => !CONTACT.includes(f)).map((f) => [f, joinHyphens(stripContact(p[f], p))]));
 
   // ---------- reading an existing CV ----------
 
@@ -102,9 +106,7 @@
       const pages = [];
       for (let i = 1; i <= Math.min(doc.numPages, 5); i++) {
         const { items } = await (await doc.getPage(i)).getTextContent();
-        // pdf.js hands "two", "-", "day" over as separate pieces
-        pages.push(items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join("")
-          .replace(/(\p{L}) ?- (?=\p{L})|(\p{L}) -(?=\p{L})/gu, "$1$2-"));
+        pages.push(joinHyphens(items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join("")));
       }
       return pages.join("\n");
     }
@@ -248,22 +250,25 @@
     const education = cv.education.length ? cv.education
       : [{ degree: p.degree, major: p.major, school: p.university, dates: p.graduation, gpa: p.gpa }];
     section(h.summary, cv.summary && [el("p", null, cv.summary)]);
+    // a date the audit removed falls back to what the student typed
     section(h.education, education.filter((x) => x.school || x.degree).map((x) =>
       item([[x.degree, x.major].filter(Boolean).join(h.sep), x.school].filter(Boolean).join(lang === "ar" ? "، " : ", "),
-           x.dates, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
+           x.dates || p.graduation, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
     section(h.experience, cv.experience.filter((x) => x.title || x.bullets.length)
       .map((x) => item([x.title, x.org, x.location].filter(Boolean).join(h.sep), x.dates, x.bullets)));
     section(h.projects, cv.projects.filter((x) => x.name || x.bullets.length)
       .map((x) => item([x.name, x.tools].filter(Boolean).join(h.sep), x.dates, x.bullets)));
-    // grouped skills ("Excel: pivot tables, lookups") read better one group a line
-    const grouped = cv.skills.some((s) => s.includes(":"));
-    section(h.skills, cv.skills.length && (grouped ? cv.skills.map((s) => {
+    // groups ("Excel: pivot tables, lookups") one a line; loose skills share
+    // a single line after them instead of one line each
+    const groups = cv.skills.filter((s) => s.includes(":")).map((s) => {
       const [label, ...rest] = s.split(":");
       const line = el("p", "cv-skill");
-      if (rest.length) line.append(el("strong", null, `${label}:`), ` ${rest.join(":").trim()}`);
-      else line.textContent = s;
+      line.append(el("strong", null, `${label}:`), ` ${rest.join(":").trim()}`);
       return line;
-    }) : [el("p", null, cv.skills.join(h.sep))]));
+    });
+    const loose = cv.skills.filter((s) => !s.includes(":"));
+    if (loose.length) groups.push(el("p", "cv-skill", loose.join(h.sep)));
+    section(h.skills, groups.length && groups);
     const list = el("ul");
     cv.certificates.forEach((c) => list.append(el("li", null, c)));
     section(h.certificates, cv.certificates.length && [list]);
