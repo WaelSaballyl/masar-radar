@@ -10,7 +10,7 @@
 // it afterwards: a skill the posting wants but the profile lacks, or a number
 // the profile never states, is removed and reported rather than trusted.
 
-import { audit, mentions, numbersIn, strings, str } from "./audit.js";
+import { audit, mentions, numbersIn, restore, strings, str } from "./audit.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -174,6 +174,8 @@ ${JSON.stringify(profile, null, 1)}`);
   const watch = [...required, ...preferred, ...strings(input?.vocabulary, 300), ...strings(cv.skills)]
     .filter((s) => s.length <= 40);
   const removed = audit(cv, source, watch);
+  restore(cv.experience, profile.experience, lang === "Arabic");
+  restore(cv.projects, profile.projects, lang === "Arabic");
   // Coverage forgives qualifiers: "Advanced Excel" is covered by "Excel". The
   // audit above stays literal, so the CV still cannot claim "advanced".
   const QUALIFIERS = /\b(advanced|strong|basic|good|solid|excellent|proficiency|proficient|knowledge|experience|skills?|hands-on|of|in|with|and|the)\b/gi;

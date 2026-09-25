@@ -84,6 +84,20 @@ const intact = { skills: ["Microsoft Excel: pivot tables, lookups"] };
 audit(intact, "Microsoft Excel: pivot tables, lookups", []);
 assert.deepEqual(intact.skills, ["Microsoft Excel: pivot tables, lookups"]);
 
+// a dropped sentence of the student's own comes back, attached to its bullet
+import { restore } from "./src/audit.js";
+const items = [{ title: "Data Analyst", org: "Kaner Group", bullets: [
+  "Built 10+ Power BI dashboards and Excel reports that showed sales patterns by product",
+  "Collected and cleaned sales datasets in SQL and Python"] }];
+const back = restore(items, "Data Analyst | Kaner Group, Cyprus | 2025\n• Collected and cleaned sales datasets in SQL and Python.\n"
+  + "• Built 10+ Power BI dashboards and Excel reports that showed sales patterns by product. "
+  + "They flagged slow-moving products for management and cut report preparation time.", false);
+assert.deepEqual(back, ["They flagged slow-moving products for management and cut report preparation time."]);
+assert.match(items[0].bullets[0], /by product\. They flagged slow-moving/);
+assert.equal(items[0].bullets.length, 2);
+// nothing restored into an Arabic CV from English notes, or when all is covered
+assert.deepEqual(restore(items, "Data Analyst | Kaner Group\n• They flagged slow-moving products for management and cut report preparation time.", true), []);
+
 // coverage forgives "Advanced", the audit does not
 reply = { summary: "Uses advanced Excel daily.", skills: ["Excel"] };
 r = await call("/tailor", { profile: { skills: "Excel, SQL", experience: "Built weekly Excel reports for a retail shop in Riyadh." },
