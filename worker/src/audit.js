@@ -24,7 +24,7 @@ export function mentions(text, skill) {
 // cleaning" is covered by "cleaned the data". With forgive, qualifiers such as
 // "Advanced" are not required (coverage); without it they are (the audit,
 // so a CV cannot say "advanced" when the student did not).
-const QUALIFIERS = /\b(advanced|strong|basic|good|solid|excellent|proficiency|proficient|knowledge|experience|skills?|hands-on|of|in|with|and|the|for|to)\b/gi;
+const QUALIFIERS = /\b(advanced|strong|basic|good|solid|excellent|proficiency|proficient|knowledge|experience|skills?|hands-on|certificate|certification|certified|course|of|in|with|and|the|for|to)\b/gi;
 const stem = (w) => w.toLowerCase().replace(/(ing|ed|es|s)$/, "");
 export function covers(source, skill, forgive = false) {
   if (mentions(source, skill)) return true;
