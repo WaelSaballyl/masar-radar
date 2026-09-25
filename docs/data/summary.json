@@ -1,109 +1,133 @@
 {
- "updated_at": "2026-09-24T08:33:59+00:00",
- "active_postings": 147,
- "total_postings": 153,
- "companies": 105,
+ "updated_at": "2026-09-25T07:15:29+00:00",
+ "active_postings": 162,
+ "total_postings": 180,
+ "companies": 121,
  "sources": [
   "arbeitnow",
   "jobicy",
   "remoteok",
   "remotive"
  ],
- "entry_postings": 18,
+ "entry_postings": 20,
  "route": {
   "basis": "entry",
-  "postings": 18,
+  "postings": 20,
   "stops": [
    {
     "name": "Excel",
-    "postings": 8,
-    "share": 0.444
+    "postings": 7,
+    "share": 0.35
+   },
+   {
+    "name": "Python",
+    "postings": 7,
+    "share": 0.35
+   },
+   {
+    "name": "Data Modeling",
+    "postings": 5,
+    "share": 0.25
+   },
+   {
+    "name": "SQL",
+    "postings": 5,
+    "share": 0.25
+   },
+   {
+    "name": "ETL",
+    "postings": 4,
+    "share": 0.2
    },
    {
     "name": "Google Sheets",
     "postings": 4,
-    "share": 0.222
-   },
-   {
-    "name": "Python",
-    "postings": 4,
-    "share": 0.222
-   },
-   {
-    "name": "SQL",
-    "postings": 4,
-    "share": 0.222
+    "share": 0.2
    },
    {
     "name": "AWS",
     "postings": 3,
-    "share": 0.167
-   },
-   {
-    "name": "Data Governance",
-    "postings": 3,
-    "share": 0.167
-   },
-   {
-    "name": "Machine Learning",
-    "postings": 3,
-    "share": 0.167
+    "share": 0.15
    }
   ]
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 79,
-   "share": 0.537
+   "postings": 89,
+   "share": 0.549
   },
   {
    "name": "SQL",
-   "postings": 60,
-   "share": 0.408
+   "postings": 70,
+   "share": 0.432
+  },
+  {
+   "name": "Data Modeling",
+   "postings": 36,
+   "share": 0.222
   },
   {
    "name": "Data Governance",
-   "postings": 39,
-   "share": 0.265
-  },
-  {
-   "name": "Machine Learning",
-   "postings": 31,
-   "share": 0.211
+   "postings": 35,
+   "share": 0.216
   },
   {
    "name": "ETL",
-   "postings": 30,
-   "share": 0.204
+   "postings": 34,
+   "share": 0.21
   },
   {
    "name": "A/B Testing",
    "postings": 28,
-   "share": 0.19
+   "share": 0.173
   },
   {
-   "name": "Data Modeling",
-   "postings": 27,
-   "share": 0.184
+   "name": "Machine Learning",
+   "postings": 26,
+   "share": 0.16
   },
   {
    "name": "Statistics",
-   "postings": 26,
-   "share": 0.177
-  },
-  {
-   "name": "AWS",
-   "postings": 20,
+   "postings": 22,
    "share": 0.136
   },
   {
-   "name": "CI/CD",
-   "postings": 18,
-   "share": 0.122
+   "name": "dbt",
+   "postings": 20,
+   "share": 0.123
+  },
+  {
+   "name": "AWS",
+   "postings": 19,
+   "share": 0.117
   }
  ],
  "entry_jobs": [
+  {
+   "title": "Stage 2027 - AI/ML Engineer - 50% Client 50% R&D",
+   "company": "Ekimetrics",
+   "location": "Paris",
+   "url": "https://www.arbeitnow.fr/jobs/companies/ekimetrics/stage-2027-ai-ml-engineer-50-client-50-rd-paris-242613",
+   "level": "Intern",
+   "posted_at": "2026-09-25"
+  },
+  {
+   "title": "Stage 2027  Business Data Scientist - Marketing effectivness",
+   "company": "Ekimetrics",
+   "location": "Paris",
+   "url": "https://www.arbeitnow.fr/jobs/companies/ekimetrics/stage-2027-business-data-scientist-marketing-effectivness-paris-229554",
+   "level": "Intern",
+   "posted_at": "2026-09-25"
+  },
+  {
+   "title": "Data Engineer Working Student (m/w/d)",
+   "company": "Trusteq Gmbh",
+   "location": "Köln",
+   "url": "https://www.arbeitnow.com/jobs/companies/trusteq-gmbh/data-engineer-working-student-koln-54584",
+   "level": "Intern",
+   "posted_at": "2026-09-25"
+  },
   {
    "title": "Working Student – Content and Data Management (all genders)",
    "company": "Ctrl Qs",
@@ -117,6 +141,14 @@
    "company": "Es Group",
    "location": "Berlin",
    "url": "https://www.arbeitnow.com/jobs/companies/es-group/werkstudent-martech-data-analytics-berlin-205095",
+   "level": "Intern",
+   "posted_at": "2026-09-24"
+  },
+  {
+   "title": "Customer Care Data Analyst Intern",
+   "company": "Backmarket",
+   "location": "Bordeaux",
+   "url": "https://www.arbeitnow.fr/jobs/companies/backmarket/customer-care-data-analyst-intern-bordeaux-478284",
    "level": "Intern",
    "posted_at": "2026-09-24"
   },
@@ -167,57 +199,21 @@
    "url": "https://www.arbeitnow.fr/jobs/companies/decathlontechnology/internship-data-engineer-core-data-product-lille-villeneuve-dascq-nord-171725",
    "level": "Intern",
    "posted_at": "2026-09-23"
-  },
-  {
-   "title": "Internship - Data Engineer Core Data Product (f/m/d)- Paris",
-   "company": "Decathlontechnology",
-   "location": "Paris, Paris",
-   "url": "https://www.arbeitnow.fr/jobs/companies/decathlontechnology/internship-data-engineer-core-data-product-paris-paris-paris-421816",
-   "level": "Intern",
-   "posted_at": "2026-09-23"
-  },
-  {
-   "title": "Graduate Student Research Assistant, Team Assessing Survey Data Quality (DE/EN) (SHK_SDM_2026_024)",
-   "company": "GESIS – Leibniz-Institut für Sozialwissenschaften",
-   "location": "Mannheim",
-   "url": "https://www.arbeitnow.com/jobs/companies/gesis-leibniz-institut-fur-sozialwissenschaften/graduate-student-research-assistant-team-assessing-survey-data-quality-de-en-shk-sdm-2026-024-mannheim-157773",
-   "level": "Intern",
-   "posted_at": "2026-09-23"
-  },
-  {
-   "title": "EU-Expansion & Business Analytics (m/w/d) Werkstudent:in (Berlin/Bonn/Frankfurt)",
-   "company": "ELMI Power GmbH",
-   "location": "Berlin",
-   "url": "https://www.arbeitnow.com/jobs/companies/elmi-power-gmbh/eu-expansion-business-analytics-werkstudentin-berlin-bonn-frankfurt-139211",
-   "level": "Intern",
-   "posted_at": "2026-09-23"
-  },
-  {
-   "title": "Doctoral Researcher in spatial data management (SDC-36)",
-   "company": "GESIS – Leibniz-Institut für Sozialwissenschaften",
-   "location": "Köln",
-   "url": "https://www.arbeitnow.com/jobs/companies/gesis-leibniz-institut-fur-sozialwissenschaften/doctoral-researcher-in-spatial-data-management-sdc-36-koln-464742",
-   "level": "Junior",
-   "posted_at": "2026-09-23"
   }
  ],
  "company_names": [
   "Karrieretutor De",
   "Decathlontechnology",
-  "Relay",
-  "Towa",
   "Aircall",
-  "Luxury Presence",
+  "Carrot",
   "Ruby Labs",
+  "Luxury Presence",
   "Affirm",
-  "tripadvisor",
-  "Fivetran",
   "Liftoff",
   "GESIS – Leibniz-Institut für Sozialwissenschaften",
   "rebuy",
   "Gusti Leder GmbH",
   "sonyinteractiveentertainmentglobal",
-  "Carrot",
   "Kayak",
   "OpenAI",
   "Nebius",
@@ -225,22 +221,26 @@
   "oliver",
   "Checkout.com",
   "Deliveroo ",
-  "Meta",
   "ILLUIN Technology",
   "Coreweaveu",
+  "Jobgether",
+  "Knuddels GmbH & Co. KG",
+  "Meta",
   "Lemon.io",
   "Quora",
-  "Jobgether",
   "Oddball",
   "Mactores",
-  "Knuddels GmbH & Co. KG",
-  "Flagstone",
-  "Reddit",
-  "G&N Gruppe",
-  "Kaiser X Labs",
-  "Lrz",
+  "Tripadvisor",
+  "Anaplan",
+  "Dex",
+  "Ekimetrics",
   "Astronomer",
   "ExtraHop",
-  "Climate"
+  "Climate",
+  "Zapier",
+  "Fanduel",
+  "Remote",
+  "Bumble Inc.",
+  "grafanalabs"
  ]
 }
