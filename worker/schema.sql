@@ -23,3 +23,7 @@ CREATE TABLE IF NOT EXISTS postings (
   apply_url     TEXT
 );
 CREATE INDEX IF NOT EXISTS postings_status ON postings (status, expires_at);
+
+-- screening by rules (src/board.js screen): green | yellow | red, and why
+ALTER TABLE postings ADD COLUMN risk TEXT;
+ALTER TABLE postings ADD COLUMN reasons TEXT;
