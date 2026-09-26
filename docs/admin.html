@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>مراجعة الإعلانات — مسار</title>
+<meta name="theme-color" content="#0E2624">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="stylesheet" href="assets/masar.css?v=13">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar"><a class="wordmark" href="./">مسار</a>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+  <main>
+    <div class="page-head"><h1>مراجعة الإعلانات الحصرية</h1></div>
+    <form class="filters" id="login" onsubmit="return false">
+      <label class="field grow">رمز الإدارة<input type="password" id="token" autocomplete="current-password" dir="ltr"></label>
+      <label class="field">الحالة
+        <select id="state"><option value="pending">بانتظار المراجعة</option><option value="approved">منشورة</option><option value="rejected">مرفوضة</option></select>
+      </label>
+      <button class="btn btn-primary btn-small" type="submit" id="load">اعرض</button>
+    </form>
+    <p class="match-meta" id="meta" aria-live="polite"></p>
+    <ul class="postings" id="list"></ul>
+  </main>
+</div>
+<script src="assets/core.js?v=13"></script>
+<script src="assets/admin.js?v=13"></script>
+</body>
+</html>

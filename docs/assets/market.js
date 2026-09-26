@@ -6,7 +6,7 @@
 
   const I18N = {
     ar: {
-      brand: "مسار", nav_label: "الأقسام", nav_coop: "فرص التدريب", nav_jobs: "الإعلانات", nav_how: "كيف نبني المؤشر",
+      brand: "مسار", nav_label: "الأقسام", nav_coop: "فرص التدريب", nav_jobs: "الإعلانات", nav_emp: "للشركات", nav_how: "كيف نبني المؤشر",
       nav_market: "مؤشر السوق", nav_cv: "سيرتك", theme_label: "تبديل المظهر",
       title: "مؤشر سوق وظائف البيانات",
       lede: "المهارات والأدوار والدول في الإعلانات المفتوحة الآن. اختر دولتك والدول التي تفضّلها لترى السوق الذي يخصّك.",
@@ -45,7 +45,7 @@
       },
     },
     en: {
-      brand: "Masar", nav_label: "Sections", nav_coop: "Internships", nav_jobs: "Postings", nav_how: "How it works",
+      brand: "Masar", nav_label: "Sections", nav_coop: "Internships", nav_jobs: "Postings", nav_emp: "Employers", nav_how: "How it works",
       nav_market: "Market index", nav_cv: "Your CV", theme_label: "Switch theme",
       title: "Data jobs market index",
       lede: "Skills, roles and countries in the postings open right now. Choose your country and the ones you prefer to see the market that is yours.",

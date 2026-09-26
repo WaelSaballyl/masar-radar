@@ -8,6 +8,7 @@
   const PAGE = 40;
 
   const GROUPS = [
+    ["exclusive", "حصري على مسار"],
     ["gulf", "السعودية والخليج"],
     ["anywhere", "عن بُعد من أي مكان"],
     ["region", "الشرق الأوسط، دون تحديد دولة"],
@@ -15,6 +16,7 @@
   ];
   const LEVELS = { Intern: "تدريب", Junior: "مبتدئ", Mid: "متوسط", Senior: "خبرة عالية", Lead: "قيادي", Manager: "مدير" };
   const MODES = { remote: "عن بُعد", hybrid: "هجين", onsite: "من المقر" };
+  const EMPLOYMENT = { coop: "تدريب تعاوني", internship: "تدريب", full_time: "دوام كامل", part_time: "دوام جزئي", contract: "عقد مؤقت" };
   const ROLES = {
     "Data Analyst": "محلل بيانات", "Data Engineer": "مهندس بيانات", "Data Scientist": "عالم بيانات",
     "ML Engineer": "مهندس تعلّم آلة", "BI Developer": "مطوّر ذكاء أعمال", "Business Analyst": "محلل أعمال",
@@ -29,6 +31,7 @@
 
   // "الرياض، السعودية" for the Gulf; country names elsewhere, never Israel
   function whereText(p, group) {
+    if (group === "exclusive") group = "gulf"; // employers post Gulf jobs only
     if (group === "anywhere") return "عن بُعد من أي مكان";
     if (group === "region") return "الشرق الأوسط";
     const codes = p.countries.filter((c) => (group === "gulf" ? GULF.includes(c) : c !== "IL"));
@@ -39,8 +42,10 @@
   }
 
   function card(p, group) {
-    const li = el("li", "posting");
+    const li = el("li", p.exclusive ? "posting exclusive" : "posting");
     const top = el("div", "posting-top");
+    if (p.exclusive) top.append(el("span", "badge-exclusive", "حصري على مسار"));
+    if (EMPLOYMENT[p.employment]) top.append(el("span", "tag", EMPLOYMENT[p.employment]));
     if (LEVELS[p.level]) top.append(el("span", `level level-${ENTRY.includes(p.level) ? p.level.toLowerCase() : "other"}`, LEVELS[p.level]));
     if (MODES[p.mode]) top.append(el("span", "tag", MODES[p.mode]));
     top.append(el("span", "posting-age", ago(p.posted_at, "ar")));
@@ -67,12 +72,14 @@
     const actions = el("div", "posting-actions");
     const href = safeUrl(p.url);
     if (href) {
-      const open = el("a", "btn btn-primary btn-small", "افتح الإعلان");
+      const open = el("a", "btn btn-primary btn-small", p.exclusive ? "قدّم على الإعلان" : "افتح الإعلان");
       open.href = href; open.target = "_blank"; open.rel = "noopener";
       actions.append(open);
+    } else if (p.exclusive) {
+      actions.append(el("span", "tag", "التقديم عبر مسار قريباً"));
     }
     const cv = el("a", "btn btn-quiet btn-small", "جهّز سيرتي لهذا الإعلان");
-    cv.href = `cv.html?job=${encodeURIComponent(p.id)}`;
+    cv.href = `cv.html?${p.exclusive ? "ex" : "job"}=${encodeURIComponent(p.id)}`;
     actions.append(cv);
     li.append(actions);
     return li;
@@ -81,7 +88,7 @@
   function matches(p) {
     const where = $("where").value, level = $("level").value, role = $("role").value;
     const q = $("q").value.trim().toLowerCase();
-    if (where === "gulf" && p.group !== "gulf") return false;
+    if (where === "gulf" && p.group !== "gulf" && !p.exclusive) return false;
     if (where === "near" && p.group === "other") return false;
     if (level === "entry" && !ENTRY.includes(p.level)) return false;
     if (level === "mid" && !MID_UP.includes(p.level)) return false;
@@ -116,10 +123,21 @@
     more.textContent = `اعرض المزيد (بقي ${rows.length - shown})`;
   }
 
-  fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()).then((d) => {
-    postings = d.postings
+  // Exclusive postings live in the worker's database, not in jobs.json; the
+  // collected list still shows if the worker cannot be reached.
+  const API = document.querySelector('meta[name="masar-api"]').content;
+  const list = (s) => (s || "").split(",").map((x) => x.trim()).filter(Boolean);
+  const exclusive = fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings.map((p) => ({
+    id: p.id, title: p.title, company: p.company, location: p.city, url: p.apply_url, level: p.level,
+    posted_at: (p.created_at || "").slice(0, 10), role: "", countries: [p.country], regions: [], mode: p.workplace,
+    skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])],
+    employment: p.employment, exclusive: true, group: "exclusive",
+  }))).catch(() => []);
+
+  Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()), exclusive]).then(([d, ex]) => {
+    postings = [...ex, ...d.postings
       .map((p) => ({ ...p, group: place(p) === "unknown" ? "other" : place(p) }))
-      .sort((a, b) => (b.posted_at || "").localeCompare(a.posted_at || ""));
+      .sort((a, b) => (b.posted_at || "").localeCompare(a.posted_at || ""))];
     const roles = [...new Set(postings.map((p) => p.role).filter((r) => ROLES[r]))];
     roles.forEach((r) => { const o = el("option", null, ROLES[r]); o.value = r; $("role").append(o); });
     render();

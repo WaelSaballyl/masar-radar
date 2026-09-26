@@ -253,6 +253,18 @@
       .sort((a, b) => (ENTRY.includes(b.level) - ENTRY.includes(a.level)));
     renderPicker();
     // arriving from "prepare my CV for this posting" on the postings page
+    // an exclusive posting is not in jobs.json: its text goes in as a pasted description
+    const ex = new URLSearchParams(location.search).get("ex");
+    if (ex && API) {
+      fetch(`${API}/board/postings`).then((r) => r.json()).then(({ postings: list }) => {
+        const p = list.find((x) => x.id === ex);
+        if (!p) return;
+        document.querySelector('input[name="source"][value="pasted"]').click();
+        $("job-text").value = `${p.title} - ${p.company}, ${p.city}\n\n${p.description}\n\nRequired: ${p.required}`
+          + (p.preferred ? `\nPreferred: ${p.preferred}` : "");
+        $("s2").scrollIntoView();
+      }).catch(() => {});
+    }
     const wanted = postings.find((p) => p.id === new URLSearchParams(location.search).get("job"));
     if (wanted) {
       $("job-pick").value = String(wanted.i);
