@@ -5,18 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الإعلانات — مسار</title>
 <meta name="description" content="كل إعلانات وظائف البيانات المفتوحة الآن، السعودية والخليج أولاً، مع المهارات المطلوبة في كل إعلان.">
-<meta name="theme-color" content="#1A1C1F">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="الإعلانات — مسار">
+<meta property="og:description" content="كل إعلانات وظائف البيانات المفتوحة الآن، السعودية والخليج أولاً، مع المهارات المطلوبة في كل إعلان.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/jobs.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#181A1B">
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=24">
+<link rel="stylesheet" href="assets/masar.css?v=27">
 </head>
 <body>
 <div class="wrap">
 
   <header class="topbar">
-    <a class="wordmark" href="./">مسار</a>
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
     <nav class="nav" aria-label="الأقسام">
       <a href="jobs.html" aria-current="page">الإعلانات</a>
       <a href="dashboard.html">مؤشر السوق</a>
@@ -34,9 +43,10 @@
       <p class="section-lede">كل الإعلانات المفتوحة الآن، السعودية والخليج أولاً ثم ما يمكن العمل فيه عن بُعد، والأحدث أولاً في كل قسم. تحت كل إعلان المهارات التي يطلبها. على الإعلانات الحصرية تقدر تقدّم من هنا، أو <a href="swipe.html">بالسحب بطاقة بطاقة</a>، وتتابع ردود الشركات في <a href="applications.html">طلباتي</a>.</p>
     </div>
 
-    <form class="filters" id="filters" onsubmit="return false" aria-label="تصفية الإعلانات">
-      <label class="field grow">بحث<input type="search" id="q" placeholder="المسمى أو الشركة أو مهارة"></label>
-      <label class="field">الدولة
+    <form class="board" id="filters" onsubmit="return false" aria-label="البحث في الإعلانات">
+      <div class="searchbar">
+        <label class="search-q"><span class="sr-only">بحث</span><input type="search" id="q" placeholder="المسمى أو الشركة أو مهارة"></label>
+        <label class="search-where"><span class="sr-only">الدولة</span>
         <select id="where">
           <option value="">كل الأماكن</option>
           <option value="gulf">الخليج كله</option>
@@ -49,8 +59,13 @@
           <option value="near">الخليج وعن بُعد</option>
           <option value="remote">عن بُعد فقط</option>
         </select>
-      </label>
-      <label class="field">نوع الفرصة
+        </label>
+        <button class="btn btn-quiet filters-toggle" type="button" id="open-filters" aria-expanded="false" aria-controls="side">فلترة</button>
+      </div>
+      <div class="board-body">
+        <aside class="board-filters" id="side" aria-label="الفلاتر">
+          <div class="side-head"><strong>الفلاتر</strong><button class="icon-btn" type="button" id="close-filters">تم</button></div>
+          <label class="field">نوع الفرصة
         <select id="type">
           <option value="">الكل</option>
           <option value="training">كل التدريب</option>
@@ -59,8 +74,8 @@
           <option value="student">دوام طلابي</option>
           <option value="job">وظيفة</option>
         </select>
-      </label>
-      <label class="field">الخبرة المطلوبة
+          </label>
+          <label class="field">الخبرة المطلوبة
         <select id="exp">
           <option value="">أي خبرة</option>
           <option value="0">بدون خبرة</option>
@@ -68,24 +83,29 @@
           <option value="5">من 3 إلى 5 سنوات</option>
           <option value="6">أكثر من 5 سنوات</option>
         </select>
-      </label>
-      <label class="field">المستوى
+          </label>
+          <label class="field">المستوى
         <select id="level">
           <option value="">كل المستويات</option>
           <option value="entry">تدريب ومبتدئ</option>
           <option value="mid">متوسط فأعلى</option>
         </select>
-      </label>
-      <label class="field">الدور<select id="role"><option value="">كل الأدوار</option></select></label>
-      <label class="field">الترتيب
+          </label>
+          <label class="field">الدور<select id="role"><option value="">كل الأدوار</option></select></label>
+          <label class="field">الترتيب
         <select id="sort"><option value="new">الأحدث</option><option value="fit">الأقرب لمهاراتي</option></select>
-      </label>
-      <label class="check"><input type="checkbox" id="saved"><span>المحفوظة فقط</span></label>
+          </label>
+          <label class="check"><input type="checkbox" id="saved"><span>المحفوظة فقط</span></label>
+          <button class="btn btn-quiet btn-small" type="button" id="reset">امسح الفلاتر</button>
+        </aside>
+        <section class="board-list">
+          <div class="chips" id="chips" aria-label="الفلاتر المختارة"></div>
+          <p class="match-meta" id="meta" aria-live="polite"></p>
+          <div id="groups"></div>
+          <button class="more" type="button" id="more" hidden></button>
+        </section>
+      </div>
     </form>
-
-    <p class="match-meta" id="meta" aria-live="polite"></p>
-    <div id="groups"></div>
-    <button class="more" type="button" id="more" hidden></button>
   </main>
 
   <footer>
@@ -97,7 +117,7 @@
     <span>و</span><a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" rel="noopener">JSearch</a>.
   </footer>
 </div>
-<script src="assets/core.js?v=18"></script>
-<script src="assets/jobs.js?v=18"></script>
+<script src="assets/core.js?v=27"></script>
+<script src="assets/jobs.js?v=25"></script>
 </body>
 </html>

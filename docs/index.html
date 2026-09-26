@@ -7,17 +7,26 @@
 <meta name="description" content="اعرف المهارات التي تطلبها الشركات من المتدربين في مجال البيانات، من إعلانات حقيقية تُقرأ كل يوم.">
 <meta property="og:title" content="مسار — دليلك للتدريب التعاوني في البيانات">
 <meta property="og:description" content="المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين، محدّثة يومياً.">
-<meta name="theme-color" content="#1A1C1F">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="مسار — دليلك للتدريب التعاوني في البيانات">
+<meta property="og:description" content="اعرف المهارات التي تطلبها الشركات من المتدربين في مجال البيانات، من إعلانات حقيقية تُقرأ كل يوم.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#181A1B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=24">
+<link rel="stylesheet" href="assets/masar.css?v=27">
 </head>
 <body>
 <div class="wrap">
 
   <header class="topbar">
-    <a class="wordmark" href="./" data-i18n="brand">مسار</a>
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
     <nav class="nav" aria-label="الأقسام" data-i18n-aria="nav_label">
       <a href="jobs.html" data-i18n="nav_jobs">الإعلانات</a>
       <a href="#how" data-i18n="nav_how">كيف نبني المؤشر</a>
@@ -36,8 +45,15 @@
       <div>
         <h1 data-i18n="hero_title">اعرف ما تطلبه الشركات من المتدرّب قبل أن تقدّم</h1>
         <p class="lede" data-i18n="hero_lede">نقرأ إعلانات وظائف البيانات كل يوم ونستخرج المهارات التي تطلبها فعلاً. هذا مسار المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين الآن.</p>
+        <form class="searchbar hero-search" action="jobs.html" method="get" role="search">
+          <label class="search-q"><span class="sr-only" data-i18n="search_btn">ابحث</span><input type="search" name="q" data-i18n-ph="search_q" placeholder="المسمى أو المهارة، مثل SQL"></label>
+          <label class="search-where"><span class="sr-only" data-i18n="search_where">كل الأماكن</span>
+            <select name="where"><option value="" data-i18n="search_where">كل الأماكن</option><option value="SA" data-i18n="search_sa" selected>السعودية</option><option value="gulf" data-i18n="search_gulf">الخليج كله</option></select>
+          </label>
+          <button class="btn btn-primary" type="submit" data-i18n="search_btn">ابحث</button>
+        </form>
         <div class="actions">
-          <a class="btn btn-primary" href="#coop" data-i18n="cta_coop">تصفّح فرص التدريب</a>
+          <a class="btn btn-quiet" href="#coop" data-i18n="cta_coop">تصفّح فرص التدريب</a>
           <a class="btn btn-quiet" href="dashboard.html" data-i18n="cta_market">افتح مؤشر السوق</a>
         </div>
         <p class="meta" id="hero-meta" aria-live="polite"></p>
@@ -99,7 +115,7 @@
   </footer>
 
 </div>
-<script src="assets/core.js?v=18"></script>
-<script src="assets/masar.js?v=18"></script>
+<script src="assets/core.js?v=27"></script>
+<script src="assets/masar.js?v=27"></script>
 </body>
 </html>
