@@ -15,6 +15,12 @@
 
   function card(p) {
     const li = el("li", "posting");
+    // the screening bot's verdict and why
+    const RISK = { green: "سليم", yellow: "يحتاج نظرة", red: "احتيال محتمل" };
+    if (p.risk) {
+      li.append(el("span", `risk risk-${p.risk}`, RISK[p.risk]));
+      if (p.reasons) li.append(el("p", "posting-pref", p.reasons.replace(/\n/g, "  |  ")));
+    }
     li.append(el("h3", "posting-title", p.title),
       el("p", "posting-who", `${p.company} — ${p.city}، ${p.country} — ${p.employment} / ${p.workplace} / ${p.level}`),
       el("p", "posting-pref", `تواصل: ${p.contact_email}${p.website ? `  |  ${p.website}` : ""}`),

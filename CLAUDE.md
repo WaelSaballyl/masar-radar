@@ -41,7 +41,10 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   login belongs to the user's other project (Dagesh, account wael78041) - never touch it.
   Exclusive postings: `src/board.js` + D1 `masar-board` (`worker/schema.sql`). Employers submit
   on `docs/employers.html` (work email required, free-mail domains refused); nothing is public
-  until approved on `docs/admin.html` with the `ADMIN_TOKEN` worker secret. jobs.html lists them
+  until approved on `docs/admin.html` with the `ADMIN_TOKEN` worker secret. `screen()` in board.js
+  grades each by fixed rules (red: fees, ID copies, WhatsApp/Telegram - rejected silently; yellow:
+  domain mismatch, non-data role, odd pay, phone in text, duplicate); set the `AUTO_APPROVE` var to
+  "1" to publish green ones without review once the verdicts have proved right. jobs.html lists them
   first ("exclusive"); cv.html?ex=<id> loads one as a pasted description.
   cv.html loads `cv.js?v=N` / `masar.css?v=N`: bump N when either changes, or visitors keep a cached copy.
 

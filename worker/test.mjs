@@ -115,4 +115,19 @@ assert.deepEqual(out.coverage.matched, ["Advanced Excel"]);
 assert.deepEqual(out.coverage.missing, ["Data modeling"]);
 assert.equal(out.cv.summary, "", "the CV may not claim 'advanced'");
 
+// exclusive postings: the screening bot
+import { screen } from "./src/board.js";
+const post = (x = {}) => ({ title: "Data Analyst Co-op", description: "Build Power BI dashboards and SQL reports.",
+  salary: "3,000 SAR", apply_url: "", website: "https://www.acme.sa/", contact_email: "hr@acme.sa",
+  required: "SQL, Excel", employment: "coop", ...x });
+assert.deepEqual(screen(post()), { risk: "green", reasons: [] });
+assert.equal(screen(post({ description: "Send your CV on WhatsApp to apply" })).risk, "red");
+assert.equal(screen(post({ description: "رسوم التسجيل 500 ريال" })).risk, "red");
+assert.equal(screen(post({ contact_email: "hr@other.com" })).risk, "yellow");
+assert.equal(screen(post({ contact_email: "jobs@careers.acme.sa" })).risk, "green", "a subdomain of the site is fine");
+assert.equal(screen(post({ title: "Sales Representative", required: "Negotiation" })).risk, "yellow");
+assert.equal(screen(post({ salary: "25000" })).risk, "yellow");
+assert.equal(screen(post({ description: "Call 0551234567 now" })).risk, "yellow");
+assert.equal(screen(post(), true).risk, "yellow");
+
 console.log("worker tests passed");

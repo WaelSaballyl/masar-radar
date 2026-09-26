@@ -25,6 +25,30 @@ const url = (v) => {
 };
 const bad = (field) => Object.assign(new Error(field), { status: 400, code: `field:${field}` });
 
+// Screening by fixed rules, not a model: the same posting always gets the same
+// verdict, the reason is known, and wording cannot talk its way past a
+// WhatsApp link. red is rejected silently (a scammer learns nothing), yellow
+// waits for a person, green waits too until AUTO_APPROVE is "1".
+const SCAM = /رسوم|رسم تسجيل|تحويل مبلغ|ايداع|إيداع|آيبان|ايبان|\biban\b|صورة (?:ال)?هوية|صورة (?:ال)?جواز|registration fee|training fee|deposit|pay (?:a|the) fee|bank account|passport copy|id copy|wa\.me|whatsapp|واتساب|واتس اب|telegram|تيليجرام|t\.me\//i;
+const DATA = /data|بيانات|analy|تحليل|\bbi\b|business intelligence|ذكاء الأعمال|sql|python|power ?bi|tableau|excel|dashboard|machine learning|تعلم الآلة|statistic|إحصاء|report/i;
+const host = (s) => { try { return new URL(s).hostname.replace(/^www\./, ""); } catch { return ""; } };
+
+export function screen(p, duplicate = false) {
+  const red = [], yellow = [];
+  const all = `${p.title}\n${p.description}\n${p.salary}\n${p.apply_url}`;
+  if (SCAM.test(all)) red.push("طلب رسوم أو بيانات شخصية أو تواصل عبر واتساب/تيليجرام");
+  const site = host(p.website), mail = p.contact_email.split("@")[1] || "";
+  if (!site) yellow.push("لا يوجد موقع للشركة");
+  else if (mail !== site && !mail.endsWith(`.${site}`) && !site.endsWith(`.${mail}`)) yellow.push(`دومين الإيميل (${mail}) لا يطابق الموقع (${site})`);
+  if (!DATA.test(`${p.title} ${p.required}`)) yellow.push("الوظيفة لا تبدو وظيفة بيانات");
+  const pay = Math.max(0, ...(p.salary.replace(/[,٬]/g, "").match(/\d+/g) || []).map(Number));
+  if (["internship", "coop"].includes(p.employment) && pay > 15000) yellow.push("مكافأة تدريب عالية بشكل غير معتاد");
+  if (/(?:\+|00)?9665\d{8}|(?<!\d)05\d{8}(?!\d)/.test(p.description.replace(/[\s-]/g, ""))) yellow.push("رقم جوال داخل الوصف");
+  if ((p.description.match(/!/g) || []).length > 5 || (p.description.match(/\p{Extended_Pictographic}/gu) || []).length > 5) yellow.push("علامات تعجب أو رموز تعبيرية كثيرة");
+  if (duplicate) yellow.push("الإعلان نفسه أُرسل من الشركة نفسها خلال أسبوعين");
+  return { risk: red.length ? "red" : yellow.length ? "yellow" : "green", reasons: [...red, ...yellow] };
+}
+
 async function admin(request, env) {
   const given = new TextEncoder().encode((request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, ""));
   const wanted = new TextEncoder().encode(env.ADMIN_TOKEN || "");
@@ -58,13 +82,22 @@ async function submit(input, env) {
   const max = new Date(now.getTime() + 90 * 86_400_000);
   const expires = until > now && until <= max ? until : new Date(now.getTime() + 30 * 86_400_000);
 
+  const since = new Date(now.getTime() - 14 * 86_400_000).toISOString();
+  const dup = await env.DB.prepare(
+    "SELECT 1 FROM postings WHERE lower(company) = lower(?) AND lower(title) = lower(?) AND created_at >= ? LIMIT 1",
+  ).bind(p.company, p.title, since).first();
+  const { risk, reasons } = screen(p, !!dup);
+  const status = risk === "red" ? "rejected" : risk === "green" && env.AUTO_APPROVE === "1" ? "approved" : "pending";
+
   const id = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
   await env.DB.prepare(
-    `INSERT INTO postings (id, created_at, expires_at, company, website, contact_email, title, city, country,
-       workplace, employment, level, description, required, preferred, salary, apply_url)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).bind(id, now.toISOString(), expires.toISOString().slice(0, 10), p.company, p.website, p.contact_email, p.title,
-    p.city, p.country, p.workplace, p.employment, p.level, p.description, p.required, p.preferred, p.salary, p.apply_url).run();
+    `INSERT INTO postings (id, status, created_at, reviewed_at, expires_at, company, website, contact_email, title, city,
+       country, workplace, employment, level, description, required, preferred, salary, apply_url, risk, reasons)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).bind(id, status, now.toISOString(), status === "pending" ? null : now.toISOString(), expires.toISOString().slice(0, 10),
+    p.company, p.website, p.contact_email, p.title, p.city, p.country, p.workplace, p.employment, p.level,
+    p.description, p.required, p.preferred, p.salary, p.apply_url, risk, reasons.join("\n")).run();
+  // the same answer whatever the verdict: a rejected scammer learns nothing
   return { id };
 }
 
@@ -82,7 +115,7 @@ export async function board(request, env, path) {
     await admin(request, env);
     const status = new URL(request.url).searchParams.get("status") || "pending";
     const { results } = await env.DB.prepare(
-      `SELECT ${PUBLIC}, status, contact_email FROM postings WHERE status = ? ORDER BY created_at DESC LIMIT 100`,
+      `SELECT ${PUBLIC}, status, contact_email, risk, reasons FROM postings WHERE status = ? ORDER BY created_at DESC LIMIT 100`,
     ).bind(status).all();
     return { postings: results };
   }

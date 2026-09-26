@@ -464,3 +464,7 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
 .admin-desc { white-space: pre-wrap; font-size: 0.9rem; max-height: 14em; overflow: auto; margin: 0; color: var(--text); }
 .badge-exclusive { background: var(--sand); color: var(--on-mint); border-radius: 999px; padding: 1px 10px; font-weight: 600; }
 .posting.exclusive { border-color: var(--sand); }
+.risk { align-self: flex-start; border-radius: 999px; padding: 1px 10px; font-size: 0.85rem; font-weight: 600; border: 1px solid; }
+.risk-green { color: var(--mint-text); }
+.risk-yellow { color: var(--sand); }
+.risk-red { color: #E5484D; }
