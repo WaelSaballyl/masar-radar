@@ -340,7 +340,11 @@
     rail.append(save, share);
     const stamp = el("span", "reel-stamp", "قدّمت");
     stamp.setAttribute("aria-hidden", "true");
-    r.append(head, body, rail, stamp);
+    // the middle of the screen, as on the reference banners: one big word for what this is
+    const WORD = { coop: "CO-OP", internship: "INTERNSHIP", student: "STUDENT JOB", graduate: "GRADUATE" };
+    const word = el("p", "reel-word", WORD[p.kind] || (p.role || "Data job").toUpperCase());
+    word.setAttribute("aria-hidden", "true");
+    r.append(head, word, body, rail, stamp);
     return r;
   }
 
@@ -391,6 +395,7 @@
         "إعلان تجريبي. إعداد التقارير الشهرية وأتمتة جداول Excel ومراجعة جودة البيانات."),
     ];
     $("route").before(el("p", "swipe-demo", "وضع التجربة: إعلانات وهمية، ولا يُرسل أي شيء."));
+    document.body.classList.add("demo");
     if (PHONE) gulf.then((g) => feed(queue, g)); else deal();
   } else {
     Promise.all([fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings), gulf]).then(([postings, g]) => {
