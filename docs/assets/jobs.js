@@ -16,14 +16,7 @@
     ["region", "الشرق الأوسط، دون تحديد دولة"],
     ["other", "خارج الخليج"],
   ];
-  const LEVELS = { Intern: "تدريب", Junior: "مبتدئ", Mid: "متوسط", Senior: "خبرة عالية", Lead: "قيادي", Manager: "مدير" };
-  const MODES = { remote: "عن بُعد", hybrid: "هجين", onsite: "من المقر" };
-  const EMPLOYMENT = { coop: "تدريب تعاوني", internship: "تدريب", full_time: "دوام كامل", part_time: "دوام جزئي", contract: "عقد مؤقت" };
-  const ROLES = {
-    "Data Analyst": "محلل بيانات", "Data Engineer": "مهندس بيانات", "Data Scientist": "عالم بيانات",
-    "ML Engineer": "مهندس تعلّم آلة", "BI Developer": "مطوّر ذكاء أعمال", "Business Analyst": "محلل أعمال",
-    "Analytics Engineer": "مهندس تحليلات",
-  };
+  const { LEVELS, MODES, KINDS, ROLES, yearsText: YEARS, fit, has, mine } = Masar;
   const ENTRY = ["Intern", "Junior"];
   const MID_UP = ["Mid", "Senior", "Lead", "Manager"];
 
@@ -43,33 +36,53 @@
     return names.join("، ") || "خارج الخليج";
   }
 
+  // ---------- the student's own view: saved postings and skill match ----------
+
+  const SAVED = "masar.saved";
+  let saved = [];
+  try { saved = JSON.parse(Masar.store.get(SAVED) || "[]"); } catch { /* a damaged copy */ }
+  const toggleSaved = (id) => {
+    saved = saved.includes(id) ? saved.filter((x) => x !== id) : [...saved, id];
+    Masar.store.set(SAVED, JSON.stringify(saved));
+  };
   function card(p, group) {
     const li = el("li", p.exclusive ? "posting exclusive" : "posting");
     const top = el("div", "posting-top");
     if (p.exclusive) top.append(el("span", "badge-exclusive", "حصري على مسار"));
-    if (EMPLOYMENT[p.employment]) top.append(el("span", "tag", EMPLOYMENT[p.employment]));
-    if (LEVELS[p.level]) top.append(el("span", `level level-${ENTRY.includes(p.level) ? p.level.toLowerCase() : "other"}`, LEVELS[p.level]));
+    if (KINDS[p.kind] && p.kind !== "job") top.append(el("span", "tag tag-training", KINDS[p.kind]));
+    if (LEVELS[p.level] && !(p.level === "Intern" && p.kind !== "job")) top.append(el("span", `level level-${ENTRY.includes(p.level) ? p.level.toLowerCase() : "other"}`, LEVELS[p.level]));
+    if (p.years != null) top.append(el("span", "tag", YEARS(p.years)));
     if (MODES[p.mode]) top.append(el("span", "tag", MODES[p.mode]));
     top.append(el("span", "posting-age", ago(p.posted_at, "ar")));
 
-    const title = el("h3", "posting-title", p.title);
-    title.dir = "auto";
+    const title = el("h3", "posting-title");
+    const link = el("a", null, p.title);
+    link.href = `job.html?${p.exclusive ? "ex" : "id"}=${encodeURIComponent(p.id)}`;
+    link.dir = "auto";
+    title.append(link);
     const who = el("p", "posting-who");
     const company = el("span", "posting-company", p.company);
     company.dir = "auto";
     who.append(company, el("span", "posting-where", whereText(p, group)));
-
     li.append(top, title, who);
 
+    const f = fit(p);
+    if (f) li.append(el("p", `posting-fit${f.have / f.of >= 0.6 ? " good" : ""}`, `عندك ${f.have} من ${f.of} مهارات مطلوبة`));
     const required = p.skills.filter((s) => s[1]).map((s) => s[0]);
     const preferred = p.skills.filter((s) => !s[1]).map((s) => s[0]);
     if (required.length) {
       const chips = el("p", "posting-skills");
       chips.append(el("span", "posting-label", "يطلب:"));
-      required.slice(0, 8).forEach((s) => chips.append(el("span", "skill", s)));
+      // each skill opens every posting that asks for it
+      required.slice(0, 8).forEach((s) => {
+        const a = el("a", `skill${mine() && has(s) ? " have" : ""}`, s);
+        a.href = `jobs.html?q=${encodeURIComponent(s)}`;
+        chips.append(a);
+      });
       li.append(chips);
     }
     if (preferred.length) li.append(el("p", "posting-pref", `ويُفضّل: ${preferred.slice(0, 6).join("، ")}`));
+    if (p.deadline) li.append(el("p", "posting-pref", `آخر موعد للتقديم: ${Masar.date(p.deadline, "ar")}`));
 
     const actions = el("div", "posting-actions");
     const href = safeUrl(p.url);
@@ -86,28 +99,66 @@
         site.href = href; site.target = "_blank"; site.rel = "noopener";
         actions.append(site);
       }
-      li.append(actions);
-      return li;
+    } else {
+      if (href) {
+        const open = el("a", "btn btn-primary btn-small", "افتح الإعلان");
+        open.href = href; open.target = "_blank"; open.rel = "noopener";
+        actions.append(open);
+      }
+      const cv = el("a", "btn btn-quiet btn-small", "جهّز سيرتي لهذا الإعلان");
+      cv.href = `cv.html?job=${encodeURIComponent(p.id)}`;
+      actions.append(cv);
     }
-    if (href) {
-      const open = el("a", "btn btn-primary btn-small", p.exclusive ? "قدّم على الإعلان" : "افتح الإعلان");
-      open.href = href; open.target = "_blank"; open.rel = "noopener";
-      actions.append(open);
-    } else if (p.exclusive) {
-      actions.append(el("span", "tag", "التقديم عبر مسار قريباً"));
-    }
-    const cv = el("a", "btn btn-quiet btn-small", "جهّز سيرتي لهذا الإعلان");
-    cv.href = `cv.html?${p.exclusive ? "ex" : "job"}=${encodeURIComponent(p.id)}`;
-    actions.append(cv);
+    actions.append(saveButton(p), shareButton(p));
     li.append(actions);
     return li;
   }
 
+  function saveButton(p) {
+    const b = el("button", "icon-btn");
+    b.type = "button";
+    const paint = () => {
+      b.textContent = saved.includes(p.id) ? "★ محفوظ" : "☆ احفظ";
+      b.setAttribute("aria-pressed", saved.includes(p.id));
+    };
+    paint();
+    b.onclick = () => { toggleSaved(p.id); paint(); if ($("saved").checked) render(); };
+    return b;
+  }
+  function shareButton(p) {
+    const b = el("button", "icon-btn", "شارك");
+    b.type = "button";
+    b.onclick = async () => {
+      const url = new URL(`job.html?${p.exclusive ? "ex" : "id"}=${encodeURIComponent(p.id)}`, location.href).href;
+      const text = `${p.title}، ${p.company}`;
+      try {
+        if (navigator.share) await navigator.share({ title: text, text, url });
+        else { await navigator.clipboard.writeText(`${text}\n${url}`); b.textContent = "نُسخ الرابط"; }
+      } catch { /* the share sheet was closed */ }
+    };
+    return b;
+  }
+
+  // ---------- filters, kept in the address so a filtered list can be shared ----------
+
+  const FILTERS = ["q", "where", "type", "exp", "level", "role", "sort"];
+  const TRAINING = ["coop", "internship", "student"];
+
   function matches(p) {
-    const where = $("where").value, level = $("level").value, role = $("role").value;
+    const [where, type, exp, level, role] = ["where", "type", "exp", "level", "role"].map((k) => $(k).value);
     const q = $("q").value.trim().toLowerCase();
+    if ($("saved").checked && !saved.includes(p.id)) return false;
     if (where === "gulf" && p.group !== "gulf" && !p.exclusive) return false;
+    if (/^[A-Z]{2}$/.test(where) && !p.countries.includes(where)) return false;
     if (where === "near" && p.group === "other") return false;
+    if (where === "remote" && p.mode !== "remote" && p.group !== "anywhere") return false;
+    if (type === "training" && !TRAINING.includes(p.kind)) return false;
+    if (type && type !== "training" && p.kind !== type) return false;
+    // training asks for no experience; otherwise only postings that state the years
+    if (exp === "0" && !(p.years === 0 || TRAINING.includes(p.kind))) return false;
+    if (exp === "2" && !(p.years != null && p.years <= 2)) return false;
+    if (exp === "5" && !(p.years >= 3 && p.years <= 5)) return false;
+    if (exp === "6" && !(p.years > 5)) return false;
     if (level === "entry" && !ENTRY.includes(p.level)) return false;
     if (level === "mid" && !MID_UP.includes(p.level)) return false;
     if (role && p.role !== role) return false;
@@ -115,23 +166,35 @@
   }
 
   function render() {
-    const rows = postings.filter(matches);
+    let rows = postings.filter(matches);
+    const byFit = $("sort").value === "fit";
+    if (byFit) {
+      const score = (p) => { const f = fit(p); return f ? f.have / f.of : -1; };
+      rows = rows.slice().sort((a, b) => score(b) - score(a));
+    }
     const companies = new Set(rows.map((p) => p.company)).size;
-    $("meta").textContent = rows.length
+    const exp = $("exp").value;
+    let meta = rows.length
       ? `${count(rows.length, "posting")} من ${count(companies, "company")}.`
-      : "لا توجد إعلانات تطابق هذا الاختيار. وسّع المكان أو المستوى.";
+        + (exp && exp !== "0" ? " نعرض الإعلانات التي تذكر سنوات الخبرة فقط." : "")
+      : $("saved").checked ? "لم تحفظ إعلانات بعد. اضغط ☆ احفظ على أي إعلان."
+        : "لا توجد إعلانات تطابق هذا الاختيار. وسّع المكان أو الخبرة.";
+    if (byFit && !mine()) meta += " لترتيبها حسب مهاراتك، أضف مهاراتك في صفحة سيرتك أولاً.";
+    $("meta").textContent = meta;
 
     const box = $("groups");
     box.replaceChildren();
     let left = shown;
-    for (const [key, label] of GROUPS) {
-      const inGroup = rows.filter((p) => p.group === key);
+    // sorted by fit: one list; otherwise grouped by where the work is
+    const groups = byFit ? [["all", "الأقرب لمهاراتك أولاً"]] : GROUPS;
+    for (const [key, label] of groups) {
+      const inGroup = key === "all" ? rows : rows.filter((p) => p.group === key);
       if (!inGroup.length || left <= 0) continue;
       const section = el("section", "posting-group");
       const head = el("h2", null, label);
       head.append(el("span", "group-count", count(inGroup.length, "posting")));
       const list = el("ul", "postings");
-      inGroup.slice(0, left).forEach((p) => list.append(card(p, key)));
+      inGroup.slice(0, left).forEach((p) => list.append(card(p, key === "all" ? p.group : key)));
       left -= inGroup.length;
       section.append(head, list);
       box.append(section);
@@ -141,26 +204,36 @@
     more.textContent = `اعرض المزيد (بقي ${rows.length - shown})`;
   }
 
+  function toAddress() {
+    const q = new URLSearchParams();
+    FILTERS.forEach((k) => { if ($(k).value.trim() && !(k === "sort" && $(k).value === "new")) q.set(k, $(k).value.trim()); });
+    history.replaceState(null, "", q.toString() ? `?${q}` : location.pathname);
+  }
+  const given = new URLSearchParams(location.search);
+  FILTERS.forEach((k) => { if (given.get(k)) $(k).value = given.get(k); });
+
   // Exclusive postings live in the worker's database, not in jobs.json; the
   // collected list still shows if the worker cannot be reached.
   const API = document.querySelector('meta[name="masar-api"]').content;
   const list = (s) => (s || "").split(",").map((x) => x.trim()).filter(Boolean);
+  const KIND = { coop: "coop", internship: "internship" };
   const exclusive = fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings.map((p) => ({
     id: p.id, title: p.title, company: p.company, location: p.city, url: p.apply_url, level: p.level,
     posted_at: (p.created_at || "").slice(0, 10), role: "", countries: [p.country], regions: [], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])],
-    employment: p.employment, exclusive: true, group: "exclusive",
+    kind: KIND[p.employment] || "job", years: null, deadline: p.expires_at, exclusive: true, group: "exclusive",
   }))).catch(() => []);
 
   Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()), exclusive]).then(([d, ex]) => {
     postings = [...ex, ...d.postings
-      .map((p) => ({ ...p, group: place(p) === "unknown" ? "other" : place(p) }))
+      .map((p) => ({ ...p, kind: p.employment || "job", group: place(p) === "unknown" ? "other" : place(p) }))
       .sort((a, b) => (b.posted_at || "").localeCompare(a.posted_at || ""))];
     const roles = [...new Set(postings.map((p) => p.role).filter((r) => ROLES[r]))];
     roles.forEach((r) => { const o = el("option", null, ROLES[r]); o.value = r; $("role").append(o); });
+    if (given.get("role")) $("role").value = given.get("role");
     render();
   }).catch(() => { $("meta").textContent = "تعذّر تحميل الإعلانات. حدّث الصفحة بعد قليل."; });
 
-  $("filters").addEventListener("input", () => { shown = PAGE; render(); });
+  $("filters").addEventListener("input", () => { shown = PAGE; toAddress(); render(); });
   $("more").addEventListener("click", () => { shown += PAGE; render(); });
 })();

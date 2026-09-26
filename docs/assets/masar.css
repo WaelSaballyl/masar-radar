@@ -515,7 +515,7 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
 .stamp-skip { inset-inline-end: 18px; color: var(--muted); opacity: var(--skip, 0); transform: rotate(10deg); }
 .swipe-empty { display: grid; place-items: center; height: 100%; margin: 0; padding: 24px; text-align: center; color: var(--muted);
   border: 1px dashed var(--hairline); border-radius: 16px; }
-.swipe-buttons { display: flex; justify-content: center; gap: 28px; margin: 22px 0; }
+.swipe-buttons { display: flex; justify-content: center; gap: 28px; margin: 22px 0; direction: ltr; } /* skip on the left, apply on the right, like the swipe */
 .swipe-btn { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; border: 2px solid; background: var(--surface);
   font-size: 26px; cursor: pointer; }
 .swipe-btn span { font-size: 12px; margin-top: -8px; }
@@ -527,3 +527,34 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
 .swipe-log li.bad { border-inline-start: 3px solid var(--sand); }
 @media (max-width: 480px) { .deck { height: 400px; } .swipe-title { font-size: 19px; } }
 .swipe-demo { margin: 12px 0 0; padding: 6px 12px; border: 1px dashed var(--sand); border-radius: 8px; color: var(--sand); font-size: 14px; }
+
+/* ---------- postings: fit, save, share, links ---------- */
+.check { display: flex; gap: 8px; align-items: center; align-self: end; padding-bottom: 8px; cursor: pointer; }
+.check input { accent-color: var(--mint); }
+.posting-title a { color: inherit; text-decoration: none; }
+.posting-title a:hover, .posting-title a:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+a.skill { text-decoration: none; }
+a.skill:hover { border-color: var(--mint); }
+.skill.have { border-color: var(--mint); color: var(--mint-text); }
+.tag-training { color: var(--sand); border-color: var(--sand); }
+.posting-fit { margin: 2px 0 6px; font-size: 14px; color: var(--muted); }
+.posting-fit.good { color: var(--mint-text); font-weight: 600; }
+.icon-btn { background: none; border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 12px; color: var(--text);
+  font: inherit; font-size: 14px; cursor: pointer; }
+.icon-btn[aria-pressed="true"] { color: var(--sand); border-color: var(--sand); }
+.icon-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- one posting ---------- */
+.job-page { max-width: 760px; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 24px; font-size: 14px; color: var(--muted); }
+.crumbs a { color: var(--muted); }
+.crumbs a:hover { color: var(--mint-text); }
+.crumb-sep { opacity: .6; }
+.job { margin-top: 14px; padding: 24px; border: 1px solid var(--hairline); border-radius: 16px; background: var(--surface); }
+.job-title { font-family: var(--kufi); font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.4; margin: 12px 0 4px; unicode-bidi: plaintext; text-align: start; }
+.job-who { margin: 0 0 4px; font-size: 1.05rem; }
+.job h2 { font-size: 1.05rem; margin: 22px 0 8px; }
+.job .posting-actions { margin: 16px 0 4px; }
+.job-desc { white-space: pre-line; line-height: 1.8; unicode-bidi: plaintext; text-align: start; }
+.related { margin-top: 28px; }
+.related h2 { font-size: 1.1rem; }
