@@ -526,3 +526,4 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
 .swipe-log li { padding: 8px 12px; border-radius: 8px; background: var(--surface); }
 .swipe-log li.bad { border-inline-start: 3px solid var(--sand); }
 @media (max-width: 480px) { .deck { height: 400px; } .swipe-title { font-size: 19px; } }
+.swipe-demo { margin: 12px 0 0; padding: 6px 12px; border: 1px dashed var(--sand); border-radius: 8px; color: var(--sand); font-size: 14px; }

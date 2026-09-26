@@ -180,6 +180,7 @@
 
   let chain = Promise.resolve();
   function send(p, station) {
+    if (DEMO) return demoSend(p, station);
     chain = chain.then(async () => {
       const lang = store.get("masar.swipe.lang") || "en";
       const job = { description: `${p.title} - ${p.company}, ${p.city}\n\n${p.description}\n\nRequired: ${p.required}`
@@ -211,7 +212,30 @@
 
   // ---------- start ----------
 
-  fetch(`${API}/board/postings`).then((r) => r.json()).then(({ postings }) => {
+  // swipe.html?demo=1: made-up postings, nothing sent, nothing saved - to try the deck
+  const DEMO = new URLSearchParams(location.search).has("demo");
+  function demoSend(p, station) {
+    setTimeout(() => {
+      station.className = `station arrived ${p.far ? "held-back" : "sent"}`;
+      log(p, p.far ? "بعيد عن مهاراتك، فلم نرسله باسمك (تجربة)." : "أرسلنا سيرتك (تجربة: لم يُرسل شيء فعلاً).", p.far);
+    }, 1500);
+  }
+  if (DEMO) {
+    const d = (id, title, company, city, employment, workplace, required, description, far) =>
+      ({ id, title, company, city, employment, workplace, required, description, salary: "", far });
+    queue = [
+      d("demo1", "Data Analyst Co-op", "شركة تجريبية للتجزئة", "الرياض", "coop", "hybrid", "SQL, Excel, Power BI",
+        "إعلان تجريبي. تنظّف بيانات المبيعات بـ SQL وتبني لوحات Power BI لمدراء الفروع، وتعرض النتائج أسبوعياً على الفريق."),
+      d("demo2", "BI Intern", "شركة تجريبية للخدمات اللوجستية", "جدة", "internship", "onsite", "Power BI, DAX, Excel",
+        "إعلان تجريبي. تدريب صيفي لبناء تقارير الشحنات اليومية ومؤشرات الأداء للإدارة."),
+      d("demo3", "Junior Data Scientist", "شركة تجريبية للتقنية المالية", "الخبر", "full_time", "remote", "Python, Spark, Airflow, AWS, Kubernetes",
+        "إعلان تجريبي. بناء نماذج لتوقع الاحتيال ونشرها على بيئة سحابية. هذا الإعلان بعيد عن ملف طالب مبتدئ عمداً، لترى كيف نحجبه.", true),
+      d("demo4", "Reporting Analyst Co-op", "جهة تجريبية حكومية", "الدمام", "coop", "onsite", "Excel, SQL",
+        "إعلان تجريبي. إعداد التقارير الشهرية وأتمتة جداول Excel ومراجعة جودة البيانات."),
+    ];
+    $("route").before(el("p", "swipe-demo", "وضع التجربة: إعلانات وهمية، ولا يُرسل أي شيء."));
+    deal();
+  } else fetch(`${API}/board/postings`).then((r) => r.json()).then(({ postings }) => {
     const seen = new Set([...list("masar.applied"), ...list("masar.skipped")]);
     queue = postings.filter((p) => !seen.has(p.id));
     // the path so far: one station per posting already applied to
