@@ -144,6 +144,20 @@ class SiteData(unittest.TestCase):
             self.assertIn(key, postings[0])
 
 
+class LogoTest(TempDatabase):
+    """A repeat sighting backfills a missing logo and never blanks one."""
+
+    def test_backfill(self):
+        con = db.connect()
+        j = dict(id="x1", source="jobicy", title="Data Analyst", company="A", location="", role="", url="",
+                 salary="", posted_at="", collected_at="2026-09-27", last_seen="2026-09-27", description="d")
+        db.insert_job(con, j, [])
+        db.insert_job(con, {**j, "logo": "https://e.com/l.png", "last_seen": "2026-09-28"}, [])
+        db.insert_job(con, {**j, "logo": "", "last_seen": "2026-09-29"}, [])
+        self.assertEqual(con.execute("SELECT logo FROM jobs").fetchone()[0], "https://e.com/l.png")
+        con.close()
+
+
 class TraitsTest(unittest.TestCase):
     """Training is proven by the title or a named programme, not the model's level."""
 

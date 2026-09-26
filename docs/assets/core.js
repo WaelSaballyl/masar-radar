@@ -153,8 +153,27 @@ window.Masar = (() => {
     if (!mine() || !req.length) return null;
     return { have: req.filter(has).length, of: req.length };
   }
+  // The company logo when the feed sent one, else the company's first letter;
+  // a logo that fails to load falls back to the letter too.
+  function logo(p, cls) {
+    const box = el("span", cls);
+    box.setAttribute("aria-hidden", "true");
+    const letter = () => { box.replaceChildren((p.company || "?").trim().charAt(0).toUpperCase()); box.classList.remove("has-img"); };
+    if (!/^https:\/\//.test(p.logo || "")) { letter(); return box; }
+    const img = document.createElement("img");
+    img.alt = ""; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.decoding = "async";
+    img.onerror = letter;
+    img.src = p.logo;
+    box.classList.add("has-img");
+    box.append(img);
+    return box;
+  }
+  // an exclusive posting's logo: the icon of the company's own site
+  const siteIcon = (website) => {
+    try { return `https://www.google.com/s2/favicons?domain=${new URL(website).hostname}&sz=128`; } catch { return ""; }
+  };
   const yearsText = (n) => (n === 0 ? "بدون خبرة" : n === 1 ? "خبرة سنة" : n === 2 ? "خبرة سنتين" : `خبرة ${n}+ سنوات`);
 
   return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme,
-           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText };
+           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon };
 })();

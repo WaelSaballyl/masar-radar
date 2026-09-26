@@ -275,8 +275,7 @@
     body.append(tags, h);
     // the top of the screen: who is hiring, where, and how close the student is
     const head = el("div", "reel-head");
-    const mono = el("span", "reel-logo", (p.company || "?").trim().charAt(0).toUpperCase());
-    mono.setAttribute("aria-hidden", "true");
+    const mono = Masar.logo(p, "reel-logo");
     const who = el("div", "reel-org");
     const name = el("strong", null, p.company);
     name.dir = "auto";
@@ -345,7 +344,7 @@
     return r;
   }
 
-  const asExclusive = (p) => ({ ...p, exclusive: true, location: p.city, mode: p.workplace, countries: [p.country],
+  const asExclusive = (p) => ({ ...p, exclusive: true, location: p.city, logo: Masar.siteIcon(p.website), mode: p.workplace, countries: [p.country],
     kind: p.employment === "coop" || p.employment === "internship" ? p.employment : "job", years: null,
     skills: [...p.required.split(",").map((s) => [s.trim(), 1]), ...(p.preferred || "").split(",").map((s) => [s.trim(), 0])].filter((s) => s[0]) });
 

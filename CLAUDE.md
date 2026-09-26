@@ -82,6 +82,10 @@ export_site (submit it in Google Search Console; a project site has no root robo
 - A repeat sighting refreshes `last_seen` and keeps the longer description.
 - Remote OK text arrives Latin-1-mangled upstream; `remoteok.repair()` fixes it.
 - Short uppercase skills (R, ML, SAS, ELT, SAP) are case-sensitive via `(?-i:...)`.
+- `jobs.logo` holds the feed's company logo URL (NULL when none, never ""); a repeat sighting
+  backfills it but never blanks it. `store.export` omits a null logo so old lines stay unchanged.
+  The page shows only https logos (`Masar.logo`, falls back to the first letter); exclusive
+  postings use the site's icon via Google's favicon service.
 - After any schema change, verify an export -> restore round trip by fingerprint.
 
 ## Sources

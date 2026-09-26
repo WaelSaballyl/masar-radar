@@ -33,7 +33,7 @@ DESCRIPTIONS = DATA / "descriptions.jsonl"
 FIELDS = ["id", "source", "title", "company", "location", "role", "url",
           "salary", "posted_at", "collected_at", "last_seen",
           "seniority", "years_experience", "ai_extracted_at", "ai_version",
-          "countries", "regions", "work_mode"]
+          "countries", "regions", "work_mode", "logo"]
 
 
 def _dump(record: dict) -> str:
@@ -72,6 +72,9 @@ def export() -> tuple[int, int]:
     cols = ", ".join(FIELDS)
     for row in con.execute(f"SELECT {cols}, description FROM jobs ORDER BY id"):
         record = dict(zip(FIELDS, row))
+        # most rows have no logo; leaving the key out keeps their lines unchanged
+        if not record["logo"]:
+            del record["logo"]
         record["skills"] = skills_by_job.get(record["id"], [])
         jobs.append(record)
         if row[-1]:

@@ -37,6 +37,7 @@ def fetch() -> list[dict]:
             "source": "remoteok",
             "title": repair(j.get("position", "")),
             "company": repair(j.get("company", "")),
+            "logo": j.get("company_logo") or j.get("logo") or "",
             "location": repair(j.get("location", "") or "Remote"),
             "url": j.get("url", ""),
             "salary": _salary(j),

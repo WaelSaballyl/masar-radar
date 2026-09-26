@@ -46,6 +46,7 @@
     const where = [/^[A-Z]{2}$/.test(city) ? "" : city, ...p.countries.filter((c) => c !== "IL").slice(0, 3).map((c) => countryName(c, "ar"))]
       .filter((x, i, a) => x && a.indexOf(x) === i).join("، ");
     const who = el("p", "job-who");
+    who.append(Masar.logo(p, "co-logo co-logo-lg"));
     const company = el("strong", null, p.company);
     company.dir = "auto";
     who.append(company, where ? `، ${where}` : "");
@@ -159,6 +160,7 @@
     id: p.id, title: p.title, company: p.company, website: p.website, location: p.city, url: p.apply_url, level: p.level,
     posted_at: (p.created_at || "").slice(0, 10), deadline: p.expires_at, role: "", countries: [p.country], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])], description: p.description,
+    logo: Masar.siteIcon(p.website),
     salary: p.salary, employment: p.employment, kind: KIND[p.employment] || "job", years: null, exclusive: true,
   }))).catch(() => []) : Promise.resolve([]);
 

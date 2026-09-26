@@ -49,6 +49,7 @@ def fetch() -> list[dict]:
                 "source": "jsearch",
                 "title": j.get("job_title", ""),
                 "company": j.get("employer_name", ""),
+                "logo": j.get("employer_logo") or "",
                 "location": ", ".join(p for p in (city, country) if p),
                 "url": j.get("job_apply_link", ""),
                 "salary": "",

@@ -19,6 +19,7 @@ def fetch() -> list[dict]:
             "source": "arbeitnow",
             "title": j.get("title", ""),
             "company": j.get("company_name", ""),
+            "logo": "",  # the feed carries none
             "location": j.get("location", "") or ("Remote" if j.get("remote") else ""),
             "url": j.get("url", ""),
             "salary": "",  # not exposed by this API

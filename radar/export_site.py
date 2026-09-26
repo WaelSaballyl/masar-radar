@@ -146,9 +146,9 @@ def build_jobs() -> dict:
     split = lambda v: [x for x in (v or "").split(",") if x]
     postings = []
     for (jid, title, company, location, url, posted, collected, level, role,
-         countries, regions, mode, description) in con.execute(
+         countries, regions, mode, description, logo) in con.execute(
         """SELECT id, title, company, location, url, posted_at, collected_at, seniority, role,
-                  countries, regions, work_mode, description
+                  countries, regions, work_mode, description, logo
              FROM jobs WHERE last_seen >= ? ORDER BY posted_at DESC, id""",
         (cutoff,),
     ):
@@ -161,6 +161,7 @@ def build_jobs() -> dict:
             "mode": mode or "unknown", "skills": skills.get(jid, []),
             # training or a job, and the years asked for (radar/traits.py)
             "employment": traits.employment(title, description), "years": traits.years(title, description),
+            "logo": logo if (logo or "").startswith("https://") else "",
         })
         # the model's "Intern" on a post that is not training (a research
         # assistant job) would put it under internships: it is entry level
