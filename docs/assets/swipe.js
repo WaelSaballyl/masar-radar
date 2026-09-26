@@ -272,9 +272,24 @@
     if (MODES[p.mode]) tags.append(el("span", "tag", MODES[p.mode]));
     const h = el("h2", "reel-title", p.title);
     h.dir = "auto";
-    body.append(tags, h, el("p", "reel-who", `${p.company}، ${p.location || ""}`.replace(/، $/, "")));
+    body.append(tags, h);
+    // the top of the screen: who is hiring, where, and how close the student is
+    const head = el("div", "reel-head");
+    const mono = el("span", "reel-logo", (p.company || "?").trim().charAt(0).toUpperCase());
+    mono.setAttribute("aria-hidden", "true");
+    const who = el("div", "reel-org");
+    const name = el("strong", null, p.company);
+    name.dir = "auto";
+    who.append(name, el("span", null, [p.location, p.posted_at || p.created_at ? Masar.ago((p.posted_at || p.created_at).slice(0, 10), "ar") : ""]
+      .filter(Boolean).join("، ")));
+    head.append(mono, who);
     const f = fit(p);
-    if (f) body.append(el("p", `posting-fit${f.have / f.of >= 0.6 ? " good" : ""}`, `عندك ${f.have} من ${f.of} مهارات مطلوبة`));
+    if (f) {
+      const ring = el("div", `reel-fit${f.have / f.of >= 0.6 ? " good" : ""}`);
+      ring.style.setProperty("--share", f.have / f.of);
+      ring.append(el("strong", null, `${f.have}/${f.of}`), el("span", null, "من مهاراتك"));
+      head.append(ring);
+    }
     const chips = el("p", "posting-skills");
     p.skills.filter((s) => s[1]).slice(0, 5).forEach(([s]) => chips.append(el("span", `skill${Masar.mine() && Masar.has(s) ? " have" : ""}`, s)));
     if (chips.children.length) body.append(chips);
@@ -326,7 +341,7 @@
     rail.append(save, share);
     const stamp = el("span", "reel-stamp", "قدّمت");
     stamp.setAttribute("aria-hidden", "true");
-    r.append(body, rail, stamp);
+    r.append(head, body, rail, stamp);
     return r;
   }
 
