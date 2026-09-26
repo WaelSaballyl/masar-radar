@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>قدّم بالسحب — مسار</title>
 <meta name="description" content="اسحب يميناً لتقدّم على الإعلانات الحصرية بسيرة معدّلة لكل إعلان، ويساراً لتتخطاه.">
-<meta name="theme-color" content="#0E2624">
+<meta name="theme-color" content="#0D1113">
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=19">
+<link rel="stylesheet" href="assets/masar.css?v=23">
 </head>
 <body>
 <div class="wrap">
@@ -40,11 +40,15 @@
       </label>
       <label class="consent"><input type="checkbox" id="consent"><span>أوافق أن يرسل مسار سيرتي المعدّلة واسمي وإيميلي وجوالي وروابط حساباتي إلى كل شركة أسحب إعلانها يميناً.</span></label>
       <p class="muted">اقرأ <a href="privacy.html">كيف نتعامل مع بياناتك</a>.</p>
-      <button class="btn btn-primary" type="button" id="start">ابدأ</button>
+      <div class="setup-actions">
+        <button class="btn btn-primary" type="button" id="start">ابدأ</button>
+        <button class="btn btn-quiet" type="button" id="later">لاحقاً</button>
+      </div>
     </section>
 
     <ol class="route" id="route" aria-label="إعلانات قدّمت عليها"></ol>
 
+    <div class="feed" id="feed" hidden aria-label="الإعلانات، واحد في كل شاشة"></div>
     <div class="deck" id="deck" aria-live="polite"></div>
     <div class="swipe-buttons" id="buttons" hidden>
       <button class="swipe-btn skip" type="button" id="skip" aria-label="تخطَّ هذا الإعلان">✕<span>تخطَّ</span></button>
@@ -56,6 +60,6 @@
 </div>
 <script src="assets/core.js?v=18"></script>
 <script src="assets/cvkit.js?v=18"></script>
-<script src="assets/swipe.js?v=18"></script>
+<script src="assets/swipe.js?v=23"></script>
 </body>
 </html>

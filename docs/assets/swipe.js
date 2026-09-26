@@ -43,8 +43,11 @@
     store.set("masar.swipe.consent", "1");
     store.set("masar.swipe.lang", $("cv-lang").value);
     $("setup").hidden = true;
-    deal();
+    $("setup").classList.remove("sheet");
+    if (!PHONE) deal();
+    else if (pending) { const go = pending; pending = null; go(); }
   });
+  $("later").addEventListener("click", () => { $("setup").hidden = true; $("setup").classList.remove("sheet"); pending = null; });
   $("cv-lang").value = store.get("masar.swipe.lang") || "en";
 
   // ---------- the deck ----------
@@ -211,6 +214,142 @@
     });
   }
 
+  // ---------- phones: a vertical feed, one posting a screen ----------
+  // Up for the next posting, right (or the ✓ on the rail) to apply. Exclusive
+  // postings come first and are applied to from here; the Gulf postings we
+  // collect follow, best fit first, and open at their source.
+
+  const PHONE = matchMedia("(max-width: 720px)").matches;
+  let pending = null; // an apply waiting for the profile or the consent
+  const { fit, yearsText, KINDS } = Masar;
+  const SAVED = "masar.saved";
+
+  function applyFrom(p, reel) {
+    if (!DEMO && !(ready() && store.get("masar.swipe.consent") === "1")) {
+      setup();
+      $("setup").classList.add("sheet");
+      pending = () => applyFrom(p, reel);
+      return;
+    }
+    if (reel.classList.contains("applied")) return;
+    reel.classList.add("applied");
+    // sending a CV cannot be taken back, so it waits five seconds for "undo"
+    document.querySelector(".undo-toast")?.commit();
+    const toast = el("div", "undo-toast");
+    toast.setAttribute("role", "status");
+    const undo = el("button", "btn btn-quiet btn-small", "تراجع");
+    undo.type = "button";
+    toast.append(el("span", null, `نرسل سيرتك إلى ${p.company} خلال 5 ثوانٍ`), undo);
+    document.body.append(toast);
+    const timer = setTimeout(() => toast.commit(), 5000);
+    undo.onclick = () => { clearTimeout(timer); toast.remove(); reel.classList.remove("applied"); };
+    toast.commit = () => {
+      clearTimeout(timer);
+      toast.remove();
+      const station = el("li", "station pending arrived");
+      station.title = `${p.title}، ${p.company}`;
+      $("route").append(station);
+      push("masar.applied", p.id);
+      send(p, station);
+    };
+    setTimeout(() => reel.nextElementSibling?.scrollIntoView({ behavior: still ? "auto" : "smooth" }), 900);
+  }
+
+  function railButton(label, icon, cls) {
+    const b = el("button", `rail-btn ${cls || ""}`);
+    b.type = "button";
+    b.append(el("span", "rail-icon", icon), el("span", "rail-label", label));
+    return b;
+  }
+
+  function reel(p, first) {
+    const r = el("section", `reel${p.exclusive ? " exclusive" : ""}${p.kind && p.kind !== "job" ? " training" : ""}`);
+    const body = el("div", "reel-body");
+    const tags = el("div", "posting-top");
+    if (p.exclusive) tags.append(el("span", "badge-exclusive", "حصري على مسار"));
+    if (KINDS[p.kind] && p.kind !== "job") tags.append(el("span", "tag tag-training", KINDS[p.kind]));
+    if (p.years != null) tags.append(el("span", "tag", yearsText(p.years)));
+    if (MODES[p.mode]) tags.append(el("span", "tag", MODES[p.mode]));
+    const h = el("h2", "reel-title", p.title);
+    h.dir = "auto";
+    body.append(tags, h, el("p", "reel-who", `${p.company}، ${p.location || ""}`.replace(/، $/, "")));
+    const f = fit(p);
+    if (f) body.append(el("p", `posting-fit${f.have / f.of >= 0.6 ? " good" : ""}`, `عندك ${f.have} من ${f.of} مهارات مطلوبة`));
+    const chips = el("p", "posting-skills");
+    p.skills.filter((s) => s[1]).slice(0, 5).forEach(([s]) => chips.append(el("span", `skill${Masar.mine() && Masar.has(s) ? " have" : ""}`, s)));
+    if (chips.children.length) body.append(chips);
+    if (p.description) {
+      const d = el("p", "reel-desc", p.description.slice(0, 200) + (p.description.length > 200 ? "…" : ""));
+      d.dir = "auto";
+      body.append(d);
+    }
+    if (first) body.append(el("p", "reel-hint", p.exclusive ? "اضغط ✓ لتقدّم، واسحب لفوق للإعلان التالي" : "اسحب لفوق للإعلان التالي"));
+
+    const rail = el("div", "rail");
+    if (p.exclusive) {
+      const go = railButton("قدّم", "✓", "go");
+      go.onclick = () => applyFrom(p, r);
+      rail.append(go);
+    } else {
+      const href = Masar.safeUrl(p.url);
+      if (href) {
+        const open = el("a", "rail-btn go");
+        open.href = href; open.target = "_blank"; open.rel = "noopener";
+        open.append(el("span", "rail-icon", "↗"), el("span", "rail-label", "افتح"));
+        rail.append(open);
+      }
+      const cv = el("a", "rail-btn");
+      cv.href = `cv.html?job=${encodeURIComponent(p.id)}`;
+      cv.append(el("span", "rail-icon", "✎"), el("span", "rail-label", "سيرتي"));
+      rail.append(cv);
+    }
+    const save = railButton("احفظ", "☆");
+    const paint = () => {
+      const on = list(SAVED).includes(p.id);
+      save.querySelector(".rail-icon").textContent = on ? "★" : "☆";
+      save.classList.toggle("on", on);
+    };
+    save.onclick = () => {
+      const all = list(SAVED);
+      store.set(SAVED, JSON.stringify(all.includes(p.id) ? all.filter((x) => x !== p.id) : [...all, p.id]));
+      paint();
+    };
+    paint();
+    const share = railButton("شارك", "⤴");
+    share.onclick = async () => {
+      const url = new URL(`job.html?${p.exclusive ? "ex" : "id"}=${encodeURIComponent(p.id)}`, location.href).href;
+      try {
+        if (navigator.share) await navigator.share({ title: `${p.title}، ${p.company}`, url });
+        else await navigator.clipboard.writeText(url);
+      } catch { /* the share sheet was closed */ }
+    };
+    rail.append(save, share);
+    const stamp = el("span", "reel-stamp", "قدّمت");
+    stamp.setAttribute("aria-hidden", "true");
+    r.append(body, rail, stamp);
+    return r;
+  }
+
+  const asExclusive = (p) => ({ ...p, exclusive: true, location: p.city, mode: p.workplace, countries: [p.country],
+    kind: p.employment === "coop" || p.employment === "internship" ? p.employment : "job", years: null,
+    skills: [...p.required.split(",").map((s) => [s.trim(), 1]), ...(p.preferred || "").split(",").map((s) => [s.trim(), 0])].filter((s) => s[0]) });
+
+  function feed(exclusive, gulf) {
+    document.body.classList.add("feed-mode");
+    const box = $("feed");
+    box.hidden = false;
+    const score = (p) => { const f = fit(p); return f ? f.have / f.of : -1; };
+    const others = gulf.map((p) => ({ ...p, kind: p.employment || "job" }))
+      .sort((a, b) => score(b) - score(a) || (b.posted_at || "").localeCompare(a.posted_at || "")).slice(0, 60);
+    const items = [...exclusive.map(asExclusive), ...others];
+    items.forEach((p, i) => box.append(reel(p, i === 0)));
+    const end = el("section", "reel reel-end");
+    const more = el("a", "btn btn-primary", "كل الإعلانات");
+    more.href = "jobs.html";
+    end.append(el("p", null, items.length ? "وصلت لآخر الإعلانات. نضيف الجديد كل يوم." : "لا توجد إعلانات الآن."), more);
+    box.append(end);
+  }
+
   // ---------- start ----------
 
   // swipe.html?demo=1: made-up postings, nothing sent, nothing saved - to try the deck
@@ -221,6 +360,9 @@
       log(p, p.far ? "بعيد عن مهاراتك، فلم نرسله باسمك (تجربة)." : "أرسلنا سيرتك (تجربة: لم يُرسل شيء فعلاً).", p.far);
     }, 1500);
   }
+  const gulf = PHONE ? fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json())
+    .then((d) => d.postings.filter((p) => Masar.place(p) === "gulf")).catch(() => []) : Promise.resolve([]);
+
   if (DEMO) {
     const d = (id, title, company, city, employment, workplace, required, description, far) =>
       ({ id, title, company, city, employment, workplace, required, description, salary: "", far });
@@ -235,12 +377,15 @@
         "إعلان تجريبي. إعداد التقارير الشهرية وأتمتة جداول Excel ومراجعة جودة البيانات."),
     ];
     $("route").before(el("p", "swipe-demo", "وضع التجربة: إعلانات وهمية، ولا يُرسل أي شيء."));
-    deal();
-  } else fetch(`${API}/board/postings`).then((r) => r.json()).then(({ postings }) => {
-    const seen = new Set([...list("masar.applied"), ...list("masar.skipped")]);
-    queue = postings.filter((p) => !seen.has(p.id));
-    // the path so far: one station per posting already applied to
-    list("masar.applied").slice(-24).forEach(() => $("route").append(el("li", "station arrived sent")));
-    if (setup()) deal();
-  }).catch(() => { $("deck").append(el("p", "swipe-empty", "تعذّر تحميل الإعلانات. تحقق من الإنترنت وحدّث الصفحة.")); });
+    if (PHONE) gulf.then((g) => feed(queue, g)); else deal();
+  } else {
+    Promise.all([fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings), gulf]).then(([postings, g]) => {
+      const seen = new Set([...list("masar.applied"), ...list("masar.skipped")]);
+      queue = postings.filter((p) => !seen.has(p.id));
+      // the path so far: one station per posting already applied to
+      list("masar.applied").slice(-24).forEach(() => $("route").append(el("li", "station arrived sent")));
+      if (PHONE) feed(queue, g);
+      else if (setup()) deal();
+    }).catch(() => { $("deck").append(el("p", "swipe-empty", "تعذّر تحميل الإعلانات. تحقق من الإنترنت وحدّث الصفحة.")); });
+  }
 })();
