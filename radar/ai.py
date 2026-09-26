@@ -264,6 +264,9 @@ def call(batch: list[dict], models: list[str], timeout: int = 90) -> tuple[list[
                 # return the same shape, so move on.
                 last = f"{model}: unreadable reply ({type(e).__name__})"
                 break
+        # v5 and v6 ran entirely on the fallback and the log never said why
+        if model != models[-1]:
+            print(f"[warn] ai: {last} - trying {models[models.index(model) + 1]}")
     raise BatchFailed(last)
 
 
