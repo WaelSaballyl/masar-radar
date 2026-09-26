@@ -46,6 +46,15 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   domain mismatch, non-data role, odd pay, phone in text, duplicate); set the `AUTO_APPROVE` var to
   "1" to publish green ones without review once the verdicts have proved right. jobs.html lists them
   first ("exclusive"); cv.html?ex=<id> loads one as a pasted description.
+  Applying (exclusive only): cv.html shows "قدّم بهذه السيرة" after the CV is made; swipe.html
+  (right = apply, left = skip) tailors the saved profile per posting and sends it, but holds
+  back a posting at <=25% coverage. `POST /board/apply` stores name/email/phone/link + the
+  paper as blocks (`cvkit.js` toBlocks/fromBlocks - never HTML) in D1 `applications`, one per
+  email per posting. This is the only path where contact data leaves the browser, and only
+  after the consent tick. Employers see applicants on `applicants.html#<id>.<token>`: the
+  token is returned once on submit, only its SHA-256 is stored; `/board/admin/<id>/relink`
+  issues a new one. Shared CV code (contact stripping, renderCV) lives in `assets/cvkit.js`.
+  Privacy page: `docs/privacy.html` - keep it true when data handling changes.
   cv.html loads `cv.js?v=N` / `masar.css?v=N`: bump N when either changes, or visitors keep a cached copy.
 
 ## Invariants - each of these was a real bug

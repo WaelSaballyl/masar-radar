@@ -6,6 +6,8 @@
   const { el, safeUrl, count, ago, place, countryName, GULF } = Masar;
   const $ = (id) => document.getElementById(id);
   const PAGE = 40;
+  let applied = [];
+  try { applied = JSON.parse(Masar.store.get("masar.applied") || "[]"); } catch { /* a damaged copy */ }
 
   const GROUPS = [
     ["exclusive", "حصري على مسار"],
@@ -71,6 +73,22 @@
 
     const actions = el("div", "posting-actions");
     const href = safeUrl(p.url);
+    // an exclusive posting is applied to here: the CV made for it goes to the employer
+    if (p.exclusive) {
+      if (applied.includes(p.id)) actions.append(el("span", "tag app-done", "قدّمت على هذا الإعلان"));
+      else {
+        const go = el("a", "btn btn-primary btn-small", "قدّم عبر مسار");
+        go.href = `cv.html?ex=${encodeURIComponent(p.id)}`;
+        actions.append(go);
+      }
+      if (href) {
+        const site = el("a", "btn btn-quiet btn-small", "الإعلان في موقع الشركة");
+        site.href = href; site.target = "_blank"; site.rel = "noopener";
+        actions.append(site);
+      }
+      li.append(actions);
+      return li;
+    }
     if (href) {
       const open = el("a", "btn btn-primary btn-small", p.exclusive ? "قدّم على الإعلان" : "افتح الإعلان");
       open.href = href; open.target = "_blank"; open.rel = "noopener";

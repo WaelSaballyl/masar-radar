@@ -1,9 +1,12 @@
 // Masar CV builder. The profile lives in this browser (localStorage); the
 // worker sees it without the contact fields, and only when asked to read or
 // tailor. Everything taken from the worker or a file goes in via textContent.
+// The one exception: applying to an exclusive posting sends the name, email,
+// phone and the finished CV to that employer, after the student ticks consent.
 (() => {
   "use strict";
   const { el, store } = Masar;
+  const { FIELDS, CONTACT, EMAIL, LINK, PHONE, isPhone, stripContact, joinHyphens, withoutContact, renderCV } = MasarCV;
   const $ = (id) => document.getElementById(id);
   const API = document.querySelector('meta[name="masar-api"]').content.replace(/\/$/, "");
   const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
@@ -24,6 +27,10 @@
     no_job: "اختر إعلاناً من القائمة أو الصق وصف وظيفة في الخطوة الثانية.",
     job_short: "وصف الوظيفة قصير. الصق نص الإعلان كاملاً مع المتطلبات.",
     other: "تعذّر إكمال الطلب. جرّب مرة ثانية.",
+    applied: "قدّمت على هذا الإعلان من قبل بهذا الإيميل.",
+    closed: "هذا الإعلان أُغلق أو انتهت مدته.",
+    "field:email": "إيميلك في الخطوة الأولى غير صحيح. صحّحه وجهّز السيرة من جديد.",
+    "field:name": "أضف اسمك في الخطوة الأولى، ثم جهّز السيرة من جديد.",
   };
   const fail = (code) => Object.assign(new Error(code), { code });
   const say = (id, text, bad) => { const p = $(id); p.textContent = text; p.classList.toggle("bad", !!bad); };
@@ -33,9 +40,6 @@
   // ---------- profile ----------
 
   const form = $("profile");
-  const FIELDS = ["name", "email", "phone", "city", "link", "university", "degree", "major",
-                  "graduation", "gpa", "skills", "experience", "projects", "certificates", "languages", "other", "worklinks"];
-  const CONTACT = ["name", "email", "phone", "city", "link", "worklinks"];
 
   const readProfile = () => Object.fromEntries(FIELDS.map((f) => [f, form.elements[f].value.trim()]));
   const save = () => store.set(KEY, JSON.stringify(readProfile()));
@@ -59,23 +63,6 @@
     store.set(KEY, "{}");
   });
 
-  // Contact details are found here, kept here, and cut out of anything sent.
-  const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
-  // with or without https: "coursera.org/verify/X" is a link too
-  const LINK = /\b(?:https?:\/\/|www\.)\S+|\b(?:[a-z0-9-]+\.)+(?:com|org|net|io|dev|app|me|co|sa|ai|edu)\/\S+/gi;
-  // A phone starts with +, 00 or 0 ("+966 54 ...", "0551234567"). Dates never
-  // count: "2026 (2021-2026)" has twelve digits but is only years.
-  const PHONE = /(?:\+|\b00|\b0)\d[\d\s\-]{7,14}\d/g;
-  const isPhone = (s) => {
-    const digits = s.replace(/\D/g, "");
-    return digits.length >= 9 && digits.length <= 15 && !/^(?:(?:19|20)\d\d\D*)+$/.test(s.trim());
-  };
-
-  function stripContact(text, p) {
-    let t = text.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m));
-    if (p.name) t = t.split(p.name).join(" ");
-    return t;
-  }
 
   function contactFrom(text) {
     const phone = (text.match(PHONE) || []).find(isPhone);
@@ -93,37 +80,7 @@
              link: links.filter(isAccount).join("  |  "), worklinks: links.filter((l) => !isAccount(l)).join("\n") };
   }
 
-  // Puts each work link under the project whose name shares the most words
-  // with the link's last part ("madinah-inspection-dashboard" -> "... Inspection
-  // ... Dashboard"); a link that matches nothing goes to additional information.
-  function placeLinks(cv, worklinks) {
-    const words = (s) => s.toLowerCase().split(/[^a-z0-9؀-ۿ]+/).filter((w) => w.length > 2);
-    const byProject = new Map(), byCert = new Map();
-    const unplaced = [];
-    worklinks.split("\n").map((l) => l.trim()).filter(Boolean).forEach((link) => {
-      const slug = words(link.split(/[/?#]/).filter(Boolean).pop() || "");
-      let best = -1, score = 0;
-      cv.projects.forEach((p, i) => {
-        const hits = words(`${p.name} ${p.tools}`).filter((w) => slug.includes(w)).length;
-        if (hits > score) { best = i; score = hits; }
-      });
-      if (best >= 0) { byProject.set(best, [...(byProject.get(best) || []), link]); return; }
-      // a certificate link is recognised by its site: coursera.org/verify/X
-      // goes to "Google Data Analytics ... | Google / Coursera"
-      const all = words(link);
-      const cert = cv.certificates.findIndex((c) => words(c).some((w) => all.includes(w)));
-      if (cert >= 0 && !byCert.has(cert)) byCert.set(cert, link);
-      else unplaced.push(link);
-    });
-    return { byProject, byCert, unplaced };
-  }
 
-  // pdf.js hands "two", "-", "day" over as separate pieces; profiles read
-  // before this fix still carry "two - day", so it runs on every send too
-  const joinHyphens = (s) => s.replace(/(\p{L}) ?- (?=\p{L})|(\p{L}) -(?=\p{L})/gu, "$1$2-");
-
-  const withoutContact = (p) => Object.fromEntries(
-    FIELDS.filter((f) => !CONTACT.includes(f)).map((f) => [f, joinHyphens(stripContact(p[f], p))]));
 
   // ---------- reading an existing CV ----------
 
@@ -259,6 +216,7 @@
       fetch(`${API}/board/postings`).then((r) => r.json()).then(({ postings: list }) => {
         const p = list.find((x) => x.id === ex);
         if (!p) return;
+        exclusive = p;
         document.querySelector('input[name="source"][value="pasted"]').click();
         $("job-text").value = `${p.title} - ${p.company}, ${p.city}\n\n${p.description}\n\nRequired: ${p.required}`
           + (p.preferred ? `\nPreferred: ${p.preferred}` : "");
@@ -293,88 +251,6 @@
 
   // ---------- the tailored CV ----------
 
-  const HEAD = {
-    en: { summary: "Summary", education: "Education", skills: "Skills", experience: "Experience",
-          projects: "Projects", certificates: "Certificates", languages: "Languages", gpa: "GPA",
-          additional: "Additional information", link: "Link", verify: "Verify", sep: ", " },
-    ar: { summary: "نبذة", education: "التعليم", skills: "المهارات", experience: "الخبرات",
-          projects: "المشاريع", certificates: "الشهادات", languages: "اللغات", gpa: "المعدل",
-          additional: "معلومات إضافية", link: "الرابط", verify: "للتحقق", sep: "، " },
-  };
-
-  function renderCV(cv, p, lang) {
-    const h = HEAD[lang];
-    const paper = $("cv-paper");
-    paper.lang = lang;
-    paper.dir = lang === "ar" ? "rtl" : "ltr";
-    // "faisal omar alzahrani" -> "Faisal Omar Alzahrani"; a name typed with
-    // capitals ("McDonald", "AL-Otaibi") is left as the student wrote it
-    const name = p.name && p.name === p.name.toLowerCase()
-      ? p.name.replace(/(^|[\s-])([a-z])/g, (_, sep, c) => sep + c.toUpperCase()) : p.name;
-    paper.replaceChildren(el("h1", null, name || (lang === "ar" ? "اسمك" : "Your Name")));
-    if (cv.headline) paper.append(el("p", "cv-headline", cv.headline));
-    const contact = [p.city, p.phone, p.email, p.link].filter(Boolean).join("  |  ");
-    if (contact) paper.append(el("p", "cv-contact", contact));
-
-    const section = (title, nodes) => {
-      if (!nodes || !nodes.length) return;
-      paper.append(el("h2", null, title), ...nodes);
-    };
-    // "remote", "summer 2022", "was employee of the month": each part starts
-    // with a capital, however the student or the model typed it
-    const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
-    const item = (title, meta, bullets) => {
-      const div = el("div", "cv-item");
-      const row = el("p", "cv-row");
-      row.append(el("strong", null, title.split(h.sep).map(cap).join(h.sep)));
-      if (meta) row.append(el("span", null, cap(meta)));
-      div.append(row);
-      if (bullets.length) {
-        const ul = el("ul");
-        bullets.forEach((b) => ul.append(el("li", null, cap(b))));
-        div.append(ul);
-      }
-      return div;
-    };
-
-    const education = cv.education.length ? cv.education
-      : [{ degree: p.degree, major: p.major, school: p.university, dates: p.graduation, gpa: p.gpa }];
-    section(h.summary, cv.summary && [el("p", null, cv.summary)]);
-    // a date the audit removed falls back to what the student typed
-    section(h.education, education.filter((x) => x.school || x.degree).map((x) =>
-      // "B.Sc. Software Engineering" already names the major
-      item([(x.major && x.degree.toLowerCase().includes(x.major.toLowerCase()) ? x.degree
-              : [x.degree, x.major].filter(Boolean).join(h.sep)), x.school].filter(Boolean).join(h.sep),
-           x.dates || p.graduation, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
-    section(h.experience, cv.experience.filter((x) => x.title || x.bullets.length)
-      .map((x) => item([x.title, x.org, x.location].filter(Boolean).join(h.sep), x.dates, x.bullets)));
-    const { byProject, byCert, unplaced } = placeLinks(cv, p.worklinks || "");
-    section(h.projects, cv.projects.map((x, i) => [x, i]).filter(([x]) => x.name || x.bullets.length)
-      .map(([x, i]) => item([x.name, x.tools].filter(Boolean).join(h.sep), x.dates,
-        [...x.bullets, ...(byProject.get(i) || []).map((l) => `${h.link}: ${l}`)])));
-    // groups ("Excel: pivot tables, lookups") one a line; loose skills share
-    // a single line after them instead of one line each
-    const groups = cv.skills.filter((s) => s.includes(":")).map((s) => {
-      const [label, ...rest] = s.split(":");
-      const line = el("p", "cv-skill");
-      line.append(el("strong", null, `${label}:`), ` ${rest.join(":").trim()}`);
-      return line;
-    });
-    const loose = cv.skills.filter((s) => !s.includes(":"));
-    if (loose.length) groups.push(el("p", "cv-skill", loose.join(h.sep)));
-    section(h.skills, groups.length && groups);
-    const list = el("ul");
-    cv.certificates.forEach((c, i) => list.append(el("li", null,
-      byCert.has(i) ? `${c}  |  ${h.verify}: ${byCert.get(i)}` : c)));
-    section(h.certificates, cv.certificates.length && [list]);
-    section(h.languages, cv.languages.length && [el("p", null, cv.languages.join(h.sep))]);
-    const extra = el("ul");
-    // what the summary already says ("transferable iqama") is not said twice
-    const said = new Set(cv.summary.toLowerCase().match(/[a-z0-9؀-ۿ]{3,}/g) || []);
-    const repeats = (a) => (a.toLowerCase().match(/[a-z0-9؀-ۿ]{3,}/g) || []).every((w) => said.has(w));
-    [...(cv.additional || []).filter((a) => !repeats(a)), ...unplaced].forEach((a) => extra.append(el("li", null, cap(a))));
-    section(h.additional, extra.children.length && [extra]);
-  }
 
   function renderCoverage({ required, matched, missing, preferred_missing: prefMissing }, job) {
     const box = $("coverage");
@@ -430,7 +306,9 @@
       const out = await api("/tailor", { profile: withoutContact(p), job, lang, vocabulary });
       renderCoverage(out.coverage, job);
       renderRemoved(out.removed);
-      renderCV(out.cv, p, lang);
+      renderCV($("cv-paper"), out.cv, p, lang);
+      coverage = out.coverage;
+      showApply();
       $("result").hidden = false;
       say("make-status", "");
       $("result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
@@ -438,6 +316,45 @@
       say("make-status", ERR[e.code] || ERR.other, true);
     } finally {
       button.disabled = false;
+    }
+  });
+
+  // ---------- applying to an exclusive posting ----------
+
+  let exclusive = null, coverage = null;
+  const APPLIED = "masar.applied";
+  const applied = () => { try { return JSON.parse(store.get(APPLIED) || "[]"); } catch { return []; } };
+
+  // only for the CV made for that posting: its pasted text still opens with the title
+  function showApply() {
+    const box = $("apply");
+    box.hidden = !(exclusive && source() === "pasted" && $("job-text").value.startsWith(exclusive.title));
+    if (box.hidden) return;
+    const p = readProfile();
+    $("apply-what").textContent = `نرسل إلى ${exclusive.company} السيرة الظاهرة أدناه كما هي، مع اسمك وإيميلك`
+      + `${p.phone ? " وجوالك" : ""}${p.link ? " وروابط حساباتك" : ""}. لا نرسل شيئاً غيرها من معلوماتك.`;
+    $("consent-text").textContent = `أوافق على إرسال سيرتي وبيانات التواصل هذه إلى ${exclusive.company} للتقديم على هذا الإعلان.`;
+    const done = applied().includes(exclusive.id);
+    $("apply-send").disabled = done;
+    say("apply-status", done ? "قدّمت على هذا الإعلان من قبل." : "");
+  }
+
+  $("apply-send").addEventListener("click", async () => {
+    const p = readProfile(), button = $("apply-send");
+    if (!$("consent").checked) { say("apply-status", "علّم على الموافقة أولاً.", true); return; }
+    if (!p.name || !p.email) { say("apply-status", ERR["field:name"], true); return; }
+    button.disabled = true;
+    say("apply-status", "نرسل طلبك…");
+    try {
+      await api("/board/apply", { posting_id: exclusive.id, consent: true, name: p.name, email: p.email, phone: p.phone,
+        link: p.link, matched: coverage?.matched.length || 0, required: coverage?.required.length || 0,
+        paper: MasarCV.toBlocks($("cv-paper")) });
+      store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
+      say("apply-status", `وصل طلبك إلى ${exclusive.company}. إن اختارتك الشركة ستتواصل معك على إيميلك.`);
+    } catch (e) {
+      if (e.code === "applied") store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
+      else button.disabled = false;
+      say("apply-status", ERR[e.code] || ERR.other, true);
     }
   });
 
