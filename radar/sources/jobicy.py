@@ -26,6 +26,7 @@ def fetch() -> list[dict]:
                 "source": "jobicy",
                 "title": j.get("jobTitle", ""),
                 "company": j.get("companyName", ""),
+                "logo": j.get("companyLogo") or "",
                 "location": j.get("jobGeo", "") or "Remote",
                 "url": j.get("url", ""),
                 "salary": _salary(j),

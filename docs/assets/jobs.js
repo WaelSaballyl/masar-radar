@@ -64,9 +64,7 @@
     const company = el("span", "posting-company", p.company);
     company.dir = "auto";
     // a monogram stands in for the logo job feeds do not carry
-    const logo = el("span", "co-logo", (p.company || "?").trim().charAt(0).toUpperCase());
-    logo.setAttribute("aria-hidden", "true");
-    who.append(logo, company, el("span", "posting-where", whereText(p, group)));
+    who.append(Masar.logo(p, "co-logo"), company, el("span", "posting-where", whereText(p, group)));
     li.append(top, title, who);
 
     const f = fit(p);
@@ -225,6 +223,7 @@
     posted_at: (p.created_at || "").slice(0, 10), role: "", countries: [p.country], regions: [], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])],
     kind: KIND[p.employment] || "job", years: null, deadline: p.expires_at, exclusive: true, group: "exclusive",
+    logo: Masar.siteIcon(p.website),
   }))).catch(() => []);
 
   Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()), exclusive]).then(([d, ex]) => {

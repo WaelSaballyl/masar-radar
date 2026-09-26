@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     ai_version       INTEGER,
     countries        TEXT,  -- ISO 3166-1 alpha-2, comma-separated, from the AI pass
     regions          TEXT,  -- comma-separated, e.g. "Europe,Worldwide"
-    work_mode        TEXT
+    work_mode        TEXT,
+    logo             TEXT   -- the company logo URL the feed sent, if any
 );
 
 CREATE TABLE IF NOT EXISTS job_skills (
@@ -64,7 +65,8 @@ def _migrate(con: sqlite3.Connection) -> None:
                          ("ai_version", "INTEGER"),
                          ("countries", "TEXT"),
                          ("regions", "TEXT"),
-                         ("work_mode", "TEXT")):
+                         ("work_mode", "TEXT"),
+                         ("logo", "TEXT")):
         if column not in cols:
             con.execute(f"ALTER TABLE jobs ADD COLUMN {column} {decl}")
             if column == "ai_version":
@@ -92,10 +94,10 @@ def insert_job(con: sqlite3.Connection, job: dict, skills: list[str]) -> bool:
     cur = con.execute(
         """INSERT OR IGNORE INTO jobs
            (id, source, title, company, location, role, url, salary, posted_at,
-            collected_at, last_seen, description)
+            collected_at, last_seen, description, logo)
            VALUES (:id, :source, :title, :company, :location, :role, :url, :salary,
-                   :posted_at, :collected_at, :last_seen, :description)""",
-        job,
+                   :posted_at, :collected_at, :last_seen, :description, :logo)""",
+        {**job, "logo": job.get("logo") or None},  # no logo is NULL, never ""
     )
     if cur.rowcount == 0:
         # Seen again: refresh the timestamp and keep whichever description is
@@ -105,12 +107,13 @@ def insert_job(con: sqlite3.Connection, job: dict, skills: list[str]) -> bool:
         con.execute(
             """UPDATE jobs
                   SET last_seen = :last_seen,
+                      logo = COALESCE(NULLIF(:logo, ''), logo),
                       description = CASE
                           WHEN LENGTH(:description) > LENGTH(COALESCE(description, ''))
                           THEN :description ELSE description END
                 WHERE id = :id""",
             {"last_seen": job["last_seen"], "description": job["description"],
-             "id": job["id"]},
+             "logo": job.get("logo") or "", "id": job["id"]},
         )
         return False
     con.executemany(
