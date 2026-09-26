@@ -108,10 +108,12 @@ user to paste a key into chat; they run `gh secret set NAME -R WaelSaballyl/masa
 Done: data fixes, four sources, jsonl storage, AI extraction (prompt v3),
 landing page for co-op students (`docs/index.html`, `docs/assets/masar.css|js`).
 
-Identity (v2, 2026-09-27): graphite ink (`#0D1113`), Saudi green route line (`#2BC48B`,
-light `#0E7F55`), gold (`#D6B36A`) for exclusive/training; wordmark `--logo` is white on dark,
-charcoal `#1C2023` on light, with a station glyph before it (CSS only). Tokens keep the old
-names (`--mint`, `--sand`). Noto Kufi Arabic for headings, IBM Plex Sans Arabic
+Identity (v3, 2026-09-27, the owner's pick after buff2u.com): monochrome - charcoal page
+(`#212428`, bar `#1A1C1F`), light-grey gradient panels (`--panel`) with near-black type and
+black pill buttons, one burgundy (`--wine` `#7B2D2D`) for exclusive/training. Panels re-declare
+the tokens, so anything inside turns dark-on-light. Wordmark white on dark, `#2B2B2B` on light.
+Do not bring back green or gold: the owner rejected them. Token names are old (`--mint` =
+action colour, `--sand` = burgundy text). Noto Kufi Arabic for headings, IBM Plex Sans Arabic
 for text. The hero draws top skills as stations on a metro line ("masar" =
 path). Arabic counted nouns go through `count()` in masar.js - never hand-write
 "N إعلان". Local preview: `.claude/launch.json` serves docs/ on :8765.
