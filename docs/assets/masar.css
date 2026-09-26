@@ -489,7 +489,7 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
 .route { position: relative; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; list-style: none;
   min-height: 28px; margin: 18px 0 10px; padding: 6px 4px; }
 .route::before { content: ""; position: absolute; inset-inline: 0; top: 50%; height: 3px; border-radius: 3px;
-  background: linear-gradient(to left, var(--mint), color-mix(in srgb, var(--mint) 25%, transparent)); }
+  background: var(--mint); opacity: .55; }
 .route:empty::after { content: "مسارك يبدأ من أول إعلان تسحبه يميناً"; position: relative; margin-inline: auto; padding: 0 10px;
   background: var(--bg); color: var(--muted); font-size: 13px; }
 .station { position: relative; width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--mint); background: var(--bg); }
@@ -558,3 +558,16 @@ a.skill:hover { border-color: var(--mint); }
 .job-desc { white-space: pre-line; line-height: 1.8; unicode-bidi: plaintext; text-align: start; }
 .related { margin-top: 28px; }
 .related h2 { font-size: 1.1rem; }
+
+/* ---------- my applications: each one a short route ---------- */
+.my-apps { list-style: none; padding: 0; display: grid; gap: 14px; }
+.my-app { padding: 18px 20px; border: 1px solid var(--hairline); border-radius: 14px; background: var(--surface); }
+.my-app .posting-title a { color: inherit; }
+.app-route { list-style: none; padding: 0; margin: 14px 0 8px; display: grid; grid-template-columns: repeat(3, 1fr); position: relative; }
+.app-route::before { content: ""; position: absolute; top: 7px; inset-inline: 16.6%; height: 3px; background: var(--hairline); border-radius: 3px; }
+.app-route li { position: relative; display: grid; justify-items: center; gap: 4px; text-align: center; font-size: 13px; }
+.app-route .dot { width: 16px; height: 16px; border-radius: 50%; border: 3px solid var(--hairline); background: var(--bg); }
+.app-route li.done .dot { border-color: var(--mint); background: var(--mint); }
+.app-route li.done .step-label { color: var(--mint-text); font-weight: 600; }
+.app-note { margin: 6px 0 0; }
+[hidden] { display: none !important; }

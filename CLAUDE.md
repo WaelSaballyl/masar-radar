@@ -55,6 +55,8 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   token is returned once on submit, only its SHA-256 is stored; `/board/admin/<id>/relink`
   issues a new one. Shared CV code (contact stripping, renderCV) lives in `assets/cvkit.js`.
   Privacy page: `docs/privacy.html` - keep it true when data handling changes.
+  Each apply returns a receipt (hash stored) kept in `masar.receipts`; `applications.html` ("my
+  applications") posts them to `/board/mine` for status, first-viewed time and shortlist.
 
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link

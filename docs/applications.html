@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>إعلان وظيفة — مسار</title>
-<meta name="description" content="تفاصيل إعلان وظيفة أو تدريب في البيانات: المهارات المطلوبة، والخبرة، والمكان، وسيرة معدّلة له.">
+<meta name="robots" content="noindex">
+<title>طلباتي — مسار</title>
 <meta name="theme-color" content="#0E2624">
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,24 +17,24 @@
   <header class="topbar">
     <a class="wordmark" href="./">مسار</a>
     <nav class="nav" aria-label="الأقسام">
-      <a href="jobs.html" aria-current="page">الإعلانات</a>
-      <a href="dashboard.html">مؤشر السوق</a>
+      <a href="jobs.html">الإعلانات</a>
+      <a href="swipe.html">قدّم بالسحب</a>
+      <a href="applications.html" aria-current="page">طلباتي</a>
       <a href="cv.html">سيرتك</a>
-      <a href="employers.html">للشركات</a>
     </nav>
     <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
   </header>
-  <main class="job-page">
-    <nav class="crumbs" id="crumbs" aria-label="أنت هنا"></nav>
-    <article class="job" id="job"><p class="muted">نحمّل الإعلان…</p></article>
-    <section class="related" id="related" hidden>
-      <h2>إعلانات قريبة منه</h2>
-      <ul class="postings" id="related-list"></ul>
-    </section>
+  <main class="swipe-page">
+    <div class="page-head">
+      <h1>طلباتي</h1>
+      <p class="section-lede" id="meta" aria-live="polite">نحمّل طلباتك…</p>
+    </div>
+    <ul class="my-apps" id="list"></ul>
+    <p class="muted">نحفظ طلباتك في هذا المتصفح فقط. إذا مسحت بيانات الموقع أو قدّمت من جهاز آخر، لن تظهر هنا، لكنها تبقى عند الشركة.</p>
   </main>
-  <footer><span>مسار مشروع مفتوح المصدر:</span> <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener">الشيفرة على GitHub</a></footer>
 </div>
 <script src="assets/core.js?v=18"></script>
-<script src="assets/job.js?v=18"></script>
+<script src="assets/cvkit.js?v=18"></script>
+<script src="assets/applications.js?v=18"></script>
 </body>
 </html>
