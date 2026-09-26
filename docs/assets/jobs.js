@@ -63,7 +63,10 @@
     const who = el("p", "posting-who");
     const company = el("span", "posting-company", p.company);
     company.dir = "auto";
-    who.append(company, el("span", "posting-where", whereText(p, group)));
+    // a monogram stands in for the logo job feeds do not carry
+    const logo = el("span", "co-logo", (p.company || "?").trim().charAt(0).toUpperCase());
+    logo.setAttribute("aria-hidden", "true");
+    who.append(logo, company, el("span", "posting-where", whereText(p, group)));
     li.append(top, title, who);
 
     const f = fit(p);
@@ -231,9 +234,58 @@
     const roles = [...new Set(postings.map((p) => p.role).filter((r) => ROLES[r]))];
     roles.forEach((r) => { const o = el("option", null, ROLES[r]); o.value = r; $("role").append(o); });
     if (given.get("role")) $("role").value = given.get("role");
+    chips();
     render();
   }).catch(() => { $("meta").textContent = "تعذّر تحميل الإعلانات. حدّث الصفحة بعد قليل."; });
 
-  $("filters").addEventListener("input", () => { shown = PAGE; toAddress(); render(); });
+  // the chosen filters above the results, each with its own x, and one reset
+  const DEFAULTS = { q: "", where: "", type: "", exp: "", level: "", role: "", sort: "new" };
+  function chips() {
+    const box = $("chips");
+    box.replaceChildren();
+    const on = FILTERS.filter((k) => $(k).value.trim() !== DEFAULTS[k]);
+    const label = (k) => (k === "q" ? `"${$(k).value.trim()}"` : $(k).selectedOptions[0].textContent);
+    on.forEach((k) => {
+      const c = el("button", "chip", label(k));
+      c.type = "button";
+      c.setAttribute("aria-label", `احذف فلتر ${label(k)}`);
+      c.append(el("span", "chip-x", "×"));
+      c.onclick = () => { $(k).value = DEFAULTS[k]; changed(); };
+      box.append(c);
+    });
+    if ($("saved").checked) {
+      const c = el("button", "chip", "المحفوظة");
+      c.type = "button";
+      c.append(el("span", "chip-x", "×"));
+      c.onclick = () => { $("saved").checked = false; changed(); };
+      box.append(c);
+    }
+    const any = box.children.length > 0;
+    if (any) {
+      const all = el("button", "chip-clear", "امسح الكل");
+      all.type = "button";
+      all.onclick = reset;
+      box.append(all);
+    }
+    $("reset").hidden = !any;
+    $("open-filters").textContent = any ? `فلترة (${box.children.length - 1})` : "فلترة";
+  }
+  function reset() {
+    FILTERS.forEach((k) => { $(k).value = DEFAULTS[k]; });
+    $("saved").checked = false;
+    changed();
+  }
+  function changed() { shown = PAGE; toAddress(); chips(); render(); }
+  $("reset").addEventListener("click", reset);
+  const sheet = (open) => {
+    $("side").classList.toggle("open", open);
+    $("open-filters").setAttribute("aria-expanded", open);
+    document.body.classList.toggle("sheet-open", open);
+  };
+  $("open-filters").addEventListener("click", () => sheet(true));
+  $("close-filters").addEventListener("click", () => sheet(false));
+  chips();
+
+  $("filters").addEventListener("input", changed);
   $("more").addEventListener("click", () => { shown += PAGE; render(); });
 })();

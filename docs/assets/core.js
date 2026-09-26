@@ -71,6 +71,7 @@ window.Masar = (() => {
         html.dir = lang === "ar" ? "rtl" : "ltr";
         document.querySelectorAll("[data-i18n]").forEach((n) => { n.textContent = this.t(n.dataset.i18n); });
         document.querySelectorAll("[data-i18n-aria]").forEach((n) => { n.setAttribute("aria-label", this.t(n.dataset.i18nAria)); });
+        document.querySelectorAll("[data-i18n-ph]").forEach((n) => { n.placeholder = this.t(n.dataset.i18nPh); });
         const toggle = document.getElementById("lang-toggle");
         if (toggle) {
           toggle.textContent = lang === "ar" ? "EN" : "ع";

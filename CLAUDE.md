@@ -109,9 +109,9 @@ Done: data fixes, four sources, jsonl storage, AI extraction (prompt v3),
 landing page for co-op students (`docs/index.html`, `docs/assets/masar.css|js`).
 
 Identity (v3, 2026-09-27, the owner's pick after buff2u.com): monochrome - charcoal page
-(`#212428`, bar `#1A1C1F`), light-grey gradient panels (`--panel`) with near-black type and
+(`#232628`, bar `#181A1B`, logo grey `#E0E0E0`, sampled from buff2u), light-grey gradient panels (`--panel`) with near-black type and
 black pill buttons, one burgundy (`--wine` `#7B2D2D`) for exclusive/training. Panels re-declare
-the tokens, so anything inside turns dark-on-light. Wordmark white on dark, `#2B2B2B` on light.
+the tokens, so anything inside turns dark-on-light. Wordmark: the owner's MASAR RADAR artwork in `docs/assets/brand/` (source: Downloads/تصميم شعار Ruff/export), `#E0E0E0` on dark, `#2B2B2B` on light; favicon and og.png from the same set.
 Do not bring back green or gold: the owner rejected them. Token names are old (`--mint` =
 action colour, `--sand` = burgundy text). Noto Kufi Arabic for headings, IBM Plex Sans Arabic
 for text. The hero draws top skills as stations on a metro line ("masar" =
