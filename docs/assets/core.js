@@ -14,6 +14,7 @@ window.Masar = (() => {
   const AR_NOUNS = {
     posting: ["إعلان واحد", "إعلانان", "إعلانات", "إعلاناً", "إعلان"],
     company: ["شركة واحدة", "شركتان", "شركات", "شركة", "شركة"],
+    applicant: ["متقدم واحد", "متقدمان", "متقدمين", "متقدماً", "متقدم"],
   };
   const EN_NOUNS = { posting: ["posting", "postings"], company: ["company", "companies"] };
 

@@ -27,3 +27,22 @@ CREATE INDEX IF NOT EXISTS postings_status ON postings (status, expires_at);
 -- screening by rules (src/board.js screen): green | yellow | red, and why
 ALTER TABLE postings ADD COLUMN risk TEXT;
 ALTER TABLE postings ADD COLUMN reasons TEXT;
+
+-- applying through Masar: the employer's private link opens its applicants
+-- (only a SHA-256 of the link's token is stored); one application per email
+ALTER TABLE postings ADD COLUMN manage_hash TEXT;
+CREATE TABLE IF NOT EXISTS applications (
+  id          TEXT PRIMARY KEY,
+  posting_id  TEXT NOT NULL,
+  created_at  TEXT NOT NULL,
+  status      TEXT NOT NULL DEFAULT 'new',          -- new | shortlisted | rejected (set by the employer)
+  name        TEXT NOT NULL,
+  email       TEXT NOT NULL,
+  phone       TEXT,
+  link        TEXT,
+  matched     INTEGER NOT NULL DEFAULT 0,           -- required skills the student has
+  required    INTEGER NOT NULL DEFAULT 0,
+  paper       TEXT NOT NULL,                        -- the rendered CV as blocks (cvkit.js toBlocks)
+  UNIQUE (posting_id, email)
+);
+CREATE INDEX IF NOT EXISTS applications_posting ON applications (posting_id, created_at);

@@ -29,6 +29,16 @@
       if (!r.ok) { say(WHY[d.error] || "تعذّر إرسال الإعلان. جرّب مرة ثانية.", true); return; }
       form.reset();
       say("وصلنا إعلانك، وسنراجعه وننشره خلال يوم عمل. سنتواصل معك على إيميل العمل إن احتجنا توضيحاً.");
+      // the private link to the applicants: shown once, the token lives only in it
+      const link = new URL(`applicants.html#${d.id}.${d.manage}`, location.href).href;
+      const box = Masar.el("div", "manage-link");
+      const a = Masar.el("a", null, link);
+      a.href = link; a.dir = "ltr";
+      const copy = Masar.el("button", "btn btn-primary btn-small", "انسخ الرابط");
+      copy.type = "button";
+      copy.onclick = () => navigator.clipboard.writeText(link).then(() => { copy.textContent = "نُسخ"; }, () => {});
+      box.append(Masar.el("strong", null, "احفظ هذا الرابط الآن: منه تشاهد المتقدمين لإعلانك وسيرهم. لا نعرضه مرة ثانية، ولا تشاركه مع أحد."), a, copy);
+      status.after(box);
     } catch {
       say("تعذّر الاتصال. تحقق من الإنترنت وجرّب مرة ثانية.", true);
     } finally {
