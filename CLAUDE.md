@@ -39,6 +39,10 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   Deployed to waelsaballyl@gmail.com's Cloudflare account. Run every wrangler command
   with `XDG_CONFIG_HOME=C:/Users/risk_/.masar-wrangler`: the machine's default wrangler
   login belongs to the user's other project (Dagesh, account wael78041) - never touch it.
+  Exclusive postings: `src/board.js` + D1 `masar-board` (`worker/schema.sql`). Employers submit
+  on `docs/employers.html` (work email required, free-mail domains refused); nothing is public
+  until approved on `docs/admin.html` with the `ADMIN_TOKEN` worker secret. jobs.html lists them
+  first ("exclusive"); cv.html?ex=<id> loads one as a pasted description.
   cv.html loads `cv.js?v=N` / `masar.css?v=N`: bump N when either changes, or visitors keep a cached copy.
 
 ## Invariants - each of these was a real bug

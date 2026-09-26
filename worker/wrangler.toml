@@ -13,3 +13,9 @@ ALLOWED_ORIGINS = "https://waelsaballyl.github.io,http://localhost:8765"
 # errors from console.error show in the dashboard under the worker's Logs
 [observability]
 enabled = true
+
+# Exclusive postings and, later, applications. Schema: schema.sql
+[[d1_databases]]
+binding = "DB"
+database_name = "masar-board"
+database_id = "b9d7974f-7726-4a63-a7b2-301a65c585d0"

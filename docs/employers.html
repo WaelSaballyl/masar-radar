@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>انشر إعلاناً — مسار</title>
+<meta name="description" content="انشر إعلان وظيفة أو تدريب تعاوني في البيانات، يصل مباشرة إلى طلاب ومتخصصي البيانات في السعودية والخليج.">
+<meta name="theme-color" content="#0E2624">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/masar.css?v=13">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./">مسار</a>
+    <nav class="nav" aria-label="الأقسام">
+      <a href="jobs.html">الإعلانات</a>
+      <a href="dashboard.html">مؤشر السوق</a>
+      <a href="cv.html">سيرتك</a>
+      <a href="employers.html" aria-current="page">للشركات</a>
+    </nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <h1>انشر إعلانك على مسار</h1>
+      <p class="section-lede">إعلانك يظهر أعلى صفحة الإعلانات بشارة "حصري على مسار"، أمام طلاب ومتخصصي البيانات في السعودية والخليج. نراجع كل إعلان قبل نشره، عادة خلال يوم عمل.</p>
+    </div>
+
+    <form id="post" class="step" novalidate>
+      <fieldset>
+        <legend>الشركة</legend>
+        <div class="grid">
+          <label class="field">اسم الشركة<input name="company" required maxlength="120"></label>
+          <label class="field">موقع الشركة<input name="website" dir="ltr" placeholder="company.com"></label>
+          <label class="field">إيميل العمل للتواصل (لا يُنشر)<input name="contact_email" type="email" required dir="ltr" placeholder="hr@company.com"></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>الوظيفة</legend>
+        <div class="grid">
+          <label class="field">المسمى الوظيفي<input name="title" required maxlength="140" dir="auto" placeholder="Data Analyst Co-op Trainee"></label>
+          <label class="field">المدينة<input name="city" required maxlength="80" placeholder="الرياض"></label>
+          <label class="field">الدولة
+            <select name="country">
+              <option value="SA">السعودية</option><option value="AE">الإمارات</option><option value="QA">قطر</option>
+              <option value="KW">الكويت</option><option value="BH">البحرين</option><option value="OM">عُمان</option>
+            </select>
+          </label>
+          <label class="field">نوع التوظيف
+            <select name="employment">
+              <option value="coop">تدريب تعاوني</option><option value="internship">تدريب</option>
+              <option value="full_time">دوام كامل</option><option value="part_time">دوام جزئي</option><option value="contract">عقد مؤقت</option>
+            </select>
+          </label>
+          <label class="field">مكان العمل
+            <select name="workplace"><option value="onsite">من المقر</option><option value="hybrid">هجين</option><option value="remote">عن بُعد</option></select>
+          </label>
+          <label class="field">المستوى
+            <select name="level">
+              <option value="Intern">تدريب</option><option value="Junior">مبتدئ</option><option value="Mid">متوسط</option>
+              <option value="Senior">خبرة عالية</option><option value="Lead">قيادي</option><option value="Manager">مدير</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">وصف الوظيفة: المهام والمتطلبات (150 حرفاً على الأقل)<textarea name="description" rows="9" required dir="auto"></textarea></label>
+        <div class="grid">
+          <label class="field">المهارات المطلوبة، مفصولة بفواصل<input name="required" required dir="auto" placeholder="SQL, Excel, Power BI"></label>
+          <label class="field">مهارات مفضّلة (اختياري)<input name="preferred" dir="auto" placeholder="Python, Tableau"></label>
+          <label class="field">الراتب أو المكافأة (اختياري)<input name="salary" dir="auto" placeholder="3,000 ريال شهرياً"></label>
+          <label class="field">آخر موعد للتقديم (اختياري، حتى 90 يوماً)<input name="deadline" type="date"></label>
+          <label class="field">رابط التقديم (اختياري)<input name="apply_url" dir="ltr" placeholder="company.com/careers/123"></label>
+        </div>
+        <!-- left empty by people; bots fill every field -->
+        <input name="website_confirm" tabindex="-1" autocomplete="off" aria-hidden="true" class="trap">
+      </fieldset>
+      <div class="make-row">
+        <button class="btn btn-primary" type="submit">أرسل الإعلان للمراجعة</button>
+      </div>
+      <p class="status" id="status" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <footer><span>مسار مشروع مفتوح المصدر:</span> <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener">الشيفرة على GitHub</a></footer>
+</div>
+<script src="assets/core.js?v=13"></script>
+<script src="assets/employers.js?v=13"></script>
+</body>
+</html>

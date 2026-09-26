@@ -11,6 +11,7 @@
 // the profile never states, is removed and reported rather than trusted.
 
 import { audit, covers, mentions, numbersIn, restore, strings, str } from "./audit.js";
+import { board } from "./board.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -30,11 +31,22 @@ export default {
     if (!cors) return reply(403, { error: "origin" });
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: {
-        ...cors, "Access-Control-Allow-Methods": "POST",
-        "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "86400" } });
+        ...cors, "Access-Control-Allow-Methods": "GET, POST",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Max-Age": "86400" } });
+    }
+    const path = new URL(request.url).pathname;
+    // exclusive postings; reading the public list is not rate limited
+    if (path.startsWith("/board/")) {
+      if (request.method === "POST" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      try {
+        const out = await board(request, env, path);
+        return out ? reply(200, out) : reply(404, { error: "path" });
+      } catch (e) {
+        if (!e.code) console.error(e.stack || e);
+        return reply(e.status || 500, { error: e.code || "server" });
+      }
     }
     if (request.method !== "POST") return reply(405, { error: "method" });
-    const path = new URL(request.url).pathname;
     if (path !== "/parse" && path !== "/tailor") return reply(404, { error: "path" });
     if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
 
