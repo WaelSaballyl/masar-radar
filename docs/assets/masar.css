@@ -602,7 +602,7 @@ a.skill:hover { border-color: var(--mint); }
   border-radius: 18px; scrollbar-width: none; }
 .feed::-webkit-scrollbar { display: none; }
 .reel { position: relative; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column;
-  justify-content: flex-end; padding: 96px 20px 56px; padding-right: 88px; overflow: hidden;
+  justify-content: flex-end; padding: 150px 20px 56px; padding-right: 88px; overflow: hidden;
   background: linear-gradient(180deg, var(--surface-2), var(--bg) 70%); border-bottom: 1px solid var(--hairline); }
 .reel.exclusive { background: linear-gradient(180deg, #4A2A2C, var(--bg) 70%); }
 .reel.training { box-shadow: inset 0 4px 0 var(--wine); }
@@ -728,3 +728,19 @@ a.skill:hover { border-color: var(--mint); }
 @media (prefers-reduced-motion: reduce) { .board-filters { transition: none; } }
 .hero-search { margin: 0 0 18px; max-width: 560px; }
 .hero-search .btn { min-height: 44px; padding: 8px 22px; }
+
+/* the reel's top: the hiring company and the student's fit, so the screen is never half empty */
+.reel { justify-content: space-between; }
+.reel-head { display: flex; align-items: center; gap: 14px; }
+.reel-logo { display: grid; place-items: center; width: 64px; height: 64px; flex: none; border-radius: 18px;
+  background: var(--panel); color: #111111; font: 800 30px var(--plex); }
+.reel-org { display: grid; gap: 2px; min-width: 0; }
+.reel-org strong { font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reel-org span { color: var(--muted); font-size: 14px; }
+.reel-fit { margin-inline-start: auto; display: grid; place-items: center; width: 70px; height: 70px; flex: none; border-radius: 50%;
+  background: conic-gradient(var(--text) calc(var(--share) * 1turn), var(--hairline) 0); position: relative; text-align: center; }
+.reel-fit::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--bg); }
+.reel-fit > * { position: relative; line-height: 1.1; }
+.reel-fit strong { font-size: 18px; }
+.reel-fit span { font-size: 9px; color: var(--muted); }
+.reel-title { text-wrap: balance; hyphens: none; overflow-wrap: normal; word-break: keep-all; font-size: clamp(1.3rem, 6.4vw, 1.6rem); }
