@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-25T20:55:03+00:00",
- "active_postings": 217,
- "total_postings": 244,
- "companies": 31,
+ "updated_at": "2026-09-26T08:42:07+00:00",
+ "active_postings": 230,
+ "total_postings": 273,
+ "companies": 35,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,101 +10,101 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 30,
- "gulf_postings": 39,
+ "entry_postings": 34,
+ "gulf_postings": 43,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 30,
+  "postings": 34,
   "stops": [
    {
-    "name": "Excel",
-    "postings": 8,
-    "share": 0.267
-   },
-   {
     "name": "Python",
-    "postings": 8,
-    "share": 0.267
-   },
-   {
-    "name": "Data Modeling",
-    "postings": 7,
-    "share": 0.233
+    "postings": 11,
+    "share": 0.324
    },
    {
     "name": "SQL",
-    "postings": 7,
-    "share": 0.233
+    "postings": 10,
+    "share": 0.294
    },
    {
-    "name": "ETL",
-    "postings": 6,
-    "share": 0.2
+    "name": "Data Modeling",
+    "postings": 8,
+    "share": 0.235
    },
    {
     "name": "Data Governance",
-    "postings": 5,
-    "share": 0.167
+    "postings": 7,
+    "share": 0.206
    },
    {
-    "name": "Google Sheets",
-    "postings": 4,
-    "share": 0.133
+    "name": "ETL",
+    "postings": 7,
+    "share": 0.206
+   },
+   {
+    "name": "Excel",
+    "postings": 7,
+    "share": 0.206
+   },
+   {
+    "name": "Machine Learning",
+    "postings": 5,
+    "share": 0.147
    }
   ]
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 105,
-   "share": 0.484
+   "postings": 108,
+   "share": 0.47
   },
   {
    "name": "SQL",
-   "postings": 96,
-   "share": 0.442
-  },
-  {
-   "name": "Data Modeling",
-   "postings": 67,
-   "share": 0.309
+   "postings": 106,
+   "share": 0.461
   },
   {
    "name": "Data Governance",
-   "postings": 62,
-   "share": 0.286
+   "postings": 71,
+   "share": 0.309
+  },
+  {
+   "name": "Data Modeling",
+   "postings": 71,
+   "share": 0.309
   },
   {
    "name": "ETL",
-   "postings": 55,
-   "share": 0.253
-  },
-  {
-   "name": "A/B Testing",
-   "postings": 38,
-   "share": 0.175
+   "postings": 62,
+   "share": 0.27
   },
   {
    "name": "Machine Learning",
-   "postings": 36,
-   "share": 0.166
+   "postings": 47,
+   "share": 0.204
+  },
+  {
+   "name": "A/B Testing",
+   "postings": 34,
+   "share": 0.148
   },
   {
    "name": "Statistics",
-   "postings": 30,
-   "share": 0.138
+   "postings": 34,
+   "share": 0.148
   },
   {
    "name": "dbt",
-   "postings": 28,
-   "share": 0.129
+   "postings": 32,
+   "share": 0.139
   },
   {
    "name": "BigQuery",
-   "postings": 25,
-   "share": 0.115
+   "postings": 28,
+   "share": 0.122
   }
  ],
  "entry_jobs": [
@@ -141,6 +141,14 @@
    "posted_at": ""
   },
   {
+   "title": "Data Science Internship 2024",
+   "company": "Mozn",
+   "location": "",
+   "url": "https://www.karkidi.com/job-details/77965-data-science-internship-2024-job",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
    "title": "Data Engineering Intern: Build Production Pipelines",
    "company": "تابي",
    "location": "الرياض, SA",
@@ -173,6 +181,14 @@
    "posted_at": ""
   },
   {
+   "title": "Business Analytics Training and Internship",
+   "company": "Refonte Learning",
+   "location": "الرياض, SA",
+   "url": "https://www.getsaudijobs.com/jobs/view/business-analytics-training-internship",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
    "title": "Business Analyst Intern",
    "company": "SoftwareOne",
    "location": "",
@@ -199,27 +215,31 @@
   "Refonte Technologies",
   "Assystem",
   "YO IT Consulting",
-  "Brainlake Advertising LLC",
   "Propel Consult",
-  "Masterworks",
   "ROBUSTA",
   "Basamh Group",
-  "Arabian Private Holdings",
   "Müller's Solutions",
+  "تالنتس سي",
+  "Soar",
+  "AJEX",
+  "Alturki Holding",
+  "Karma Sugar Company For Food Industries",
+  "شركة علم",
+  "Tata Consultancy Services",
+  "Brainlake Advertising LLC",
+  "Masterworks",
+  "Arabian Private Holdings",
   "Meituan",
   "Peroptyx",
   "Aramco",
   "HungerStation",
   "SoftwareOne",
-  "Soar",
   "Riyad Bank",
-  "AJEX",
-  "Alturki Holding",
   "Team Saudi",
-  "Karma Sugar Company For Food Industries",
-  "شركة علم",
   "Confidential Jobs",
-  "Tata Consultancy Services",
-  "تالنتس سي"
+  "INTECH Process Automation",
+  "Refonte Learning",
+  "Mozn",
+  "Hilti Group"
  ]
 }
