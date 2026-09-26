@@ -1,27 +1,30 @@
-/* Masar - visual identity, v2.
-   Graphite ink, Saudi green and a thread of gold: the national colours, set
-   quietly. The route line stays the one bold element: "masar" means path,
-   and the pages draw the skills a student needs as stations on a line.
-   The wordmark is white on the dark theme and charcoal on the light one. */
+/* Masar - visual identity, v3.
+   Monochrome, after the look the owner chose (buff2u.com): charcoal page,
+   light-grey gradient panels with near-black type, black pill buttons, and
+   one quiet burgundy for what is exclusive or training. The wordmark is white
+   on the dark theme and graphite on the light one. The token names are old
+   (--mint is the action colour, --sand the burgundy accent). */
 
 :root {
-  --bg: #0D1113;
-  --surface: #151A1D;
-  --surface-2: #1D2428;
-  --hairline: #283136;
-  --text: #F3F5F4;
-  --muted: #97A3A6;
-  --mint: #2BC48B;
-  --mint-text: #5ED7A8;
-  --on-mint: #04140D;
-  --sand: #D6B36A;
-  --focus: #E8C77E;
+  --bg: #212428;
+  --bar: #1A1C1F;
+  --surface: #2A2D31;
+  --surface-2: #34383D;
+  --hairline: #3E4349;
+  --text: #F2F2F2;
+  --muted: #A7ABB0;
+  --mint: #F2F2F2;
+  --mint-text: #FFFFFF;
+  --on-mint: #1A1C1F;
+  --sand: #D9A3A3;
+  --wine: #7B2D2D;
+  --focus: #FFFFFF;
   --logo: #FFFFFF;
-  --glow: rgb(43 196 139 / .10);
-  /* chart steps: one hue, validated per surface with the dataviz
-     validator (ordinal, all pass) - dark #1C7A57 at 3.32:1 on #151A1D */
-  --req: #2BC48B;
-  --pref: #1C7A57;
+  --panel: linear-gradient(100deg, #BDBDBD 0%, #D5D5D5 45%, #E6E6E6 100%);
+  /* chart steps: neutral grey, validated per surface with the dataviz
+     validator (ordinal, all pass) - dark #8C8C8C at 4.11:1 on #2A2D31 */
+  --req: #EDEDED;
+  --pref: #8C8C8C;
 
   --kufi: "Noto Kufi Arabic", "IBM Plex Sans Arabic", system-ui, sans-serif;
   --plex: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -31,20 +34,20 @@
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #F5F6F4; --surface: #FFFFFF; --surface-2: #ECEFEC; --hairline: #DADFDB;
-    --text: #15191B; --muted: #5A6467; --mint: #0E7F55; --mint-text: #0B6A47;
-    --on-mint: #FFFFFF; --sand: #8C6614; --focus: #9C7418; --logo: #1C2023;
-    --glow: rgb(14 127 85 / .07);
-    --req: #0E7F55; --pref: #58B38E; /* light end 2.54:1 on #FFFFFF */
+    --bg: #F1F1F1; --bar: #FFFFFF; --surface: #FFFFFF; --surface-2: #E9E9E9; --hairline: #D6D6D6;
+    --text: #1C1C1C; --muted: #5E5E5E; --mint: #1C1C1C; --mint-text: #1C1C1C;
+    --on-mint: #FFFFFF; --sand: #7B2D2D; --focus: #1C1C1C; --logo: #2B2B2B;
+    --panel: linear-gradient(100deg, #D2D2D2 0%, #E4E4E4 45%, #F3F3F3 100%);
+    --req: #1C1C1C; --pref: #8C8C8C; /* light end 3.3:1 on #FFFFFF */
     color-scheme: light;
   }
 }
 :root[data-theme="light"] {
-  --bg: #F5F6F4; --surface: #FFFFFF; --surface-2: #ECEFEC; --hairline: #DADFDB;
-  --text: #15191B; --muted: #5A6467; --mint: #0E7F55; --mint-text: #0B6A47;
-  --on-mint: #FFFFFF; --sand: #8C6614; --focus: #9C7418; --logo: #1C2023;
-  --glow: rgb(14 127 85 / .07);
-  --req: #0E7F55; --pref: #58B38E;
+  --bg: #F1F1F1; --bar: #FFFFFF; --surface: #FFFFFF; --surface-2: #E9E9E9; --hairline: #D6D6D6;
+  --text: #1C1C1C; --muted: #5E5E5E; --mint: #1C1C1C; --mint-text: #1C1C1C;
+  --on-mint: #FFFFFF; --sand: #7B2D2D; --focus: #1C1C1C; --logo: #2B2B2B;
+  --panel: linear-gradient(100deg, #D2D2D2 0%, #E4E4E4 45%, #F3F3F3 100%);
+  --req: #1C1C1C; --pref: #8C8C8C;
   color-scheme: light;
 }
 
@@ -68,9 +71,8 @@ a { color: var(--mint-text); text-underline-offset: 3px; }
   position: sticky; top: 0; z-index: 30;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding-block: 16px; margin-inline: -20px; padding-inline: 20px;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
-  border-bottom: 1px solid color-mix(in srgb, var(--hairline) 70%, transparent);
+  background: var(--bar);
+  border-bottom: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 /* the wordmark: the name, and before it a short line ending in a station */
 .wordmark {
@@ -81,8 +83,8 @@ a { color: var(--mint-text); text-underline-offset: 3px; }
 .wordmark::before {
   content: ""; width: 26px; height: 10px; flex: none;
   background:
-    radial-gradient(circle at 5px 5px, var(--bg) 2px, var(--mint) 2.5px 5px, transparent 5.5px),
-    linear-gradient(var(--mint), var(--mint)) 8px 3.5px / 18px 3px no-repeat;
+    radial-gradient(circle at 5px 5px, var(--bar) 2px, var(--logo) 2.5px 5px, transparent 5.5px),
+    linear-gradient(var(--logo), var(--logo)) 8px 3.5px / 18px 3px no-repeat;
 }
 .nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .nav a {
@@ -117,8 +119,8 @@ a { color: var(--mint-text); text-underline-offset: 3px; }
   transition: transform .15s, box-shadow .15s, border-color .15s, filter .15s;
 }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: var(--mint); color: var(--on-mint); box-shadow: 0 6px 20px -8px var(--mint); }
-.btn-primary:hover { filter: brightness(1.07); box-shadow: 0 8px 26px -8px var(--mint); }
+.btn-primary { background: var(--mint); color: var(--on-mint); }
+.btn-primary:hover { filter: brightness(.92); }
 .btn-quiet { color: var(--text); border: 1px solid var(--hairline); background: transparent; }
 .btn-quiet:hover { border-color: var(--mint); }
 .meta { color: var(--muted); font-size: 0.95rem; margin: 0; font-variant-numeric: tabular-nums; }
@@ -608,9 +610,9 @@ a.skill:hover { border-color: var(--mint); }
 .feed::-webkit-scrollbar { display: none; }
 .reel { position: relative; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; display: flex; flex-direction: column;
   justify-content: flex-end; padding: 96px 20px 56px; padding-right: 88px; overflow: hidden;
-  background: radial-gradient(120% 80% at 100% 0%, var(--surface-2), var(--surface) 60%); border-bottom: 1px solid var(--hairline); }
-.reel.exclusive { background: radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--mint) 22%, var(--surface)), var(--surface) 65%); }
-.reel.training { box-shadow: inset 0 4px 0 var(--sand); }
+  background: linear-gradient(180deg, var(--surface-2), var(--bg) 70%); border-bottom: 1px solid var(--hairline); }
+.reel.exclusive { background: linear-gradient(180deg, #4A2A2C, var(--bg) 70%); }
+.reel.training { box-shadow: inset 0 4px 0 var(--wine); }
 .reel-body { display: grid; gap: 10px; }
 .reel-title { font-family: var(--kufi); font-size: 1.6rem; line-height: 1.4; margin: 0; unicode-bidi: plaintext; text-align: start; }
 .reel-who { margin: 0; font-size: 1.05rem; color: var(--muted); }
@@ -648,21 +650,24 @@ a.skill:hover { border-color: var(--mint); }
   box-shadow: 0 -12px 40px rgb(0 0 0 / .4); max-height: 85dvh; overflow-y: auto; }
 @media (prefers-reduced-motion: reduce) { .reel-hint, .reel.applied .reel-stamp, .feed-mode .swipe-log li { animation-duration: .01s; } }
 
-/* ---------- identity v2: surfaces and cards ---------- */
-body { background:
-  radial-gradient(900px 500px at 85% -10%, var(--glow), transparent 70%),
-  var(--bg) fixed; }
-h1, h2, h3 { letter-spacing: 0; }
-.page-head h1 { font-family: var(--kufi); font-weight: 800; }
-.posting, .job, .my-app, .apply, .swipe-setup, .line-panel, .swipe-card {
-  border-color: var(--hairline); border-radius: 18px;
-  transition: border-color .2s, transform .2s;
+/* ---------- identity v3: light panels on a charcoal page ---------- */
+/* A panel re-declares the tokens, so everything inside it (chips, buttons,
+   tags, links) turns dark-on-light without its own rules: black pill buttons,
+   near-black type, burgundy for exclusive and training. */
+.posting, .job, .my-app, .apply, .line-panel, .swipe-card, .manage-link {
+  --text: #1C1C1C; --muted: #4F4F4F; --hairline: #B5B5B5; --surface: #E2E2E2; --surface-2: rgb(0 0 0 / .08);
+  --mint: #1C1C1C; --mint-text: #1C1C1C; --on-mint: #FFFFFF; --sand: #7B2D2D; --focus: #1C1C1C;
+  --req: #1C1C1C; --pref: #8C8C8C;
+  background: var(--panel); color: var(--text); border: 0; border-radius: 28px;
 }
-.posting:hover { border-color: color-mix(in srgb, var(--mint) 45%, var(--hairline)); }
-.posting.exclusive { border-color: color-mix(in srgb, var(--sand) 55%, var(--hairline));
-  background: linear-gradient(160deg, color-mix(in srgb, var(--sand) 7%, var(--surface)), var(--surface) 45%); }
-.badge-exclusive { background: var(--sand); color: #1A1406; letter-spacing: 0; }
-.skill { border: 1px solid transparent; }
+.posting { transition: transform .2s; }
+.posting:hover { transform: translateY(-2px); }
+.posting.exclusive { box-shadow: inset 0 0 0 2px var(--wine); }
+.badge-exclusive { background: var(--wine); color: #FFFFFF; }
+.posting-title, .job-title { color: #2A1515; }
+.skill { background: rgb(0 0 0 / .08); color: var(--text); border: 1px solid transparent; }
+.skill.have { background: #1C1C1C; color: #FFFFFF; border-color: #1C1C1C; }
+.icon-btn { background: transparent; }
 .filters select, .filters input, .step input:not([type=radio]):not([type=file]), .step textarea, .step select {
   border-radius: 12px; }
-::selection { background: color-mix(in srgb, var(--mint) 35%, transparent); }
+::selection { background: rgb(128 128 128 / .4); }
