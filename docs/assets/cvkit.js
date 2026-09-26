@@ -157,6 +157,11 @@
     return parent;
   }
 
-  window.MasarCV = { FIELDS, CONTACT, EMAIL, LINK, PHONE, isPhone, stripContact, joinHyphens, withoutContact,
+  // the receipt for each application, kept in this browser for "my applications"
+  const RECEIPTS = "masar.receipts";
+  const receipts = () => { try { return JSON.parse(Masar.store.get(RECEIPTS) || "[]"); } catch { return []; } };
+  const keepReceipt = (r) => { if (r) Masar.store.set(RECEIPTS, JSON.stringify([...receipts(), r])); };
+
+  window.MasarCV = { receipts, keepReceipt, FIELDS, CONTACT, EMAIL, LINK, PHONE, isPhone, stripContact, joinHyphens, withoutContact,
                      placeLinks, renderCV, toBlocks, fromBlocks };
 })();

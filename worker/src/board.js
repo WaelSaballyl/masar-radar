@@ -4,7 +4,8 @@
 //   GET  /board/postings                 approved, unexpired   -> {postings}
 //   GET  /board/admin?status=pending     admin (Bearer token)  -> {postings}
 //   POST /board/admin/<id>/<approve|reject|relink>
-//   POST /board/apply                    student applies       -> {ok}
+//   POST /board/apply                    student applies       -> {ok, receipt}
+//   POST /board/mine   {receipts}        the student's applications and what the employer did
 //   GET  /board/manage/<id>              employer (Bearer link token) -> {posting, applications}
 //   GET  /board/manage/<id>/<app>        one CV                -> {paper}
 //   POST /board/manage/<id>/<app>/<new|shortlisted|rejected>
@@ -94,17 +95,33 @@ async function apply(input, env) {
   const open = await env.DB.prepare("SELECT 1 FROM postings WHERE id = ? AND status = 'approved' AND expires_at >= ?")
     .bind(a.posting_id, today).first();
   if (!open) throw refuse("closed", 404);
+  // the receipt lets the student follow this application without an account
+  const receipt = newToken();
   try {
     await env.DB.prepare(
-      `INSERT INTO applications (id, posting_id, created_at, name, email, phone, link, matched, required, paper)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO applications (id, posting_id, created_at, name, email, phone, link, matched, required, paper, receipt_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(newId(), a.posting_id, new Date().toISOString(), a.name, a.email, a.phone, a.link,
-      n(input.matched), n(input.required), paper).run();
+      n(input.matched), n(input.required), paper, await sha(receipt)).run();
   } catch (e) {
     if (/UNIQUE/i.test(String(e.message))) throw refuse("applied", 409);
     throw e;
   }
-  return { ok: true };
+  return { ok: true, receipt };
+}
+
+// The student's applications, by the receipts this browser kept. What the
+// employer did is told plainly; a rejection is not dressed up as silence.
+async function mine(input, env) {
+  const receipts = (Array.isArray(input.receipts) ? input.receipts : []).filter((r) => /^[a-f0-9]{48}$/.test(r)).slice(0, 100);
+  if (!receipts.length) return { applications: [] };
+  const hashes = await Promise.all(receipts.map(sha));
+  const { results } = await env.DB.prepare(
+    `SELECT p.id AS posting_id, p.title, p.company, p.city, p.expires_at, a.created_at, a.status, a.viewed_at, a.matched, a.required
+       FROM applications a JOIN postings p ON p.id = a.posting_id
+      WHERE a.receipt_hash IN (${hashes.map(() => "?").join(",")}) ORDER BY a.created_at DESC`,
+  ).bind(...hashes).all();
+  return { applications: results };
 }
 
 async function submit(input, env) {
@@ -161,6 +178,7 @@ export async function board(request, env, path) {
   }
   if (path === "/board/postings" && request.method === "POST") return submit(await body(request), env);
   if (path === "/board/apply" && request.method === "POST") return apply(await body(request), env);
+  if (path === "/board/mine" && request.method === "POST") return mine(await body(request), env);
 
   // the employer's applicants: best match first
   const own = path.match(/^\/board\/manage\/([a-f0-9]{12})(?:\/([a-f0-9]{12}))?(?:\/(new|shortlisted|rejected))?$/);
@@ -179,6 +197,9 @@ export async function board(request, env, path) {
     if (app && !set && request.method === "GET") {
       const row = await env.DB.prepare("SELECT paper FROM applications WHERE id = ? AND posting_id = ?").bind(app, id).first();
       if (!row) throw refuse("path", 404);
+      // the student sees "the company opened your CV"
+      await env.DB.prepare("UPDATE applications SET viewed_at = ? WHERE id = ? AND viewed_at IS NULL")
+        .bind(new Date().toISOString(), app).run();
       return { paper: JSON.parse(row.paper) };
     }
     if (app && set && request.method === "POST") {

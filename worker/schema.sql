@@ -46,3 +46,8 @@ CREATE TABLE IF NOT EXISTS applications (
   UNIQUE (posting_id, email)
 );
 CREATE INDEX IF NOT EXISTS applications_posting ON applications (posting_id, created_at);
+
+-- the student's receipt (only its SHA-256) to follow an application, and when
+-- the employer first opened the CV
+ALTER TABLE applications ADD COLUMN receipt_hash TEXT;
+ALTER TABLE applications ADD COLUMN viewed_at TEXT;

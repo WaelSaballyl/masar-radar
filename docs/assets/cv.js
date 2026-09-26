@@ -346,11 +346,12 @@
     button.disabled = true;
     say("apply-status", "نرسل طلبك…");
     try {
-      await api("/board/apply", { posting_id: exclusive.id, consent: true, name: p.name, email: p.email, phone: p.phone,
+      const { receipt } = await api("/board/apply", { posting_id: exclusive.id, consent: true, name: p.name, email: p.email, phone: p.phone,
         link: p.link, matched: coverage?.matched.length || 0, required: coverage?.required.length || 0,
         paper: MasarCV.toBlocks($("cv-paper")) });
       store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
-      say("apply-status", `وصل طلبك إلى ${exclusive.company}. إن اختارتك الشركة ستتواصل معك على إيميلك.`);
+      MasarCV.keepReceipt(receipt);
+      say("apply-status", `وصل طلبك إلى ${exclusive.company}. تابع حالته في صفحة طلباتي، وإن اختارتك الشركة ستتواصل معك على إيميلك.`);
     } catch (e) {
       if (e.code === "applied") store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
       else button.disabled = false;

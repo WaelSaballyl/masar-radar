@@ -198,8 +198,9 @@
           return;
         }
         renderCV($("scratch"), out.cv, profile, lang);
-        await post("/board/apply", { posting_id: p.id, consent: true, name: profile.name, email: profile.email,
+        const { receipt } = await post("/board/apply", { posting_id: p.id, consent: true, name: profile.name, email: profile.email,
           phone: profile.phone, link: profile.link, matched: matched.length, required: required.length, paper: toBlocks($("scratch")) });
+        MasarCV.keepReceipt(receipt);
         station.className = "station arrived sent";
         log(p, required.length ? `أرسلنا سيرتك. عندك ${matched.length} من ${required.length} مهارات مطلوبة.` : "أرسلنا سيرتك.");
       } catch (e) {
