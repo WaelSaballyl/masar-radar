@@ -12,7 +12,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from . import db
+from . import db, traits
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "data" / "summary.json"
 JOBS_OUT = OUT.parent / "jobs.json"
@@ -146,9 +146,9 @@ def build_jobs() -> dict:
     split = lambda v: [x for x in (v or "").split(",") if x]
     postings = []
     for (jid, title, company, location, url, posted, collected, level, role,
-         countries, regions, mode) in con.execute(
+         countries, regions, mode, description) in con.execute(
         """SELECT id, title, company, location, url, posted_at, collected_at, seniority, role,
-                  countries, regions, work_mode
+                  countries, regions, work_mode, description
              FROM jobs WHERE last_seen >= ? ORDER BY posted_at DESC, id""",
         (cutoff,),
     ):
@@ -159,9 +159,38 @@ def build_jobs() -> dict:
             "posted_at": posted or (collected or "")[:10], "level": level, "role": role,
             "countries": split(countries), "regions": split(regions),
             "mode": mode or "unknown", "skills": skills.get(jid, []),
+            # training or a job, and the years asked for (radar/traits.py)
+            "employment": traits.employment(title, description), "years": traits.years(title, description),
         })
+        # the model's "Intern" on a post that is not training (a research
+        # assistant job) would put it under internships: it is entry level
+        if postings[-1]["level"] == "Intern" and postings[-1]["employment"] == "job":
+            postings[-1]["level"] = "Junior"
     con.close()
     return {"updated_at": latest, "postings": postings}
+
+
+SITE = "https://waelsaballyl.github.io/masar-radar/"
+SITEMAP_OUT = OUT.parent.parent / "sitemap.xml"
+
+
+def build_sitemap(jobs: dict) -> str:
+    """The pages a search engine should know: the fixed pages, plus the
+    postings list filtered the way people search ("SQL jobs", "Saudi Arabia",
+    "internships"). Collected postings get no page of their own here: their
+    text belongs to the site they came from."""
+    from xml.sax.saxutils import escape
+    from urllib.parse import quote
+
+    postings = jobs["postings"]
+    urls = ["", "jobs.html", "dashboard.html", "cv.html", "swipe.html", "employers.html", "privacy.html",
+            "jobs.html?type=training"]
+    urls += [f"jobs.html?where={c}" for c in sorted(GULF) if any(c in p["countries"] for p in postings)]
+    top = Counter(s for p in postings for s, required in p["skills"] if required)
+    urls += [f"jobs.html?q={quote(s)}" for s, n in top.most_common(20) if n >= 3]
+    day = (jobs["updated_at"] or "")[:10]
+    rows = "".join(f"<url><loc>{escape(SITE + u)}</loc>{f'<lastmod>{day}</lastmod>' if day else ''}</url>\n" for u in urls)
+    return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{rows}</urlset>\n'
 
 
 def main() -> None:
@@ -172,6 +201,7 @@ def main() -> None:
     JOBS_OUT.write_text(json.dumps(jobs, ensure_ascii=False, separators=(",", ":")),
                         encoding="utf-8")
     print(f"[done] market index data -> {JOBS_OUT} ({len(jobs['postings'])} postings)")
+    SITEMAP_OUT.write_text(build_sitemap(jobs), encoding="utf-8")
     route = summary.get("route", {})
     print(f"[done] site summary -> {OUT} ({summary.get('active_postings', 0)} active, "
           f"route from {route.get('postings', 0)} {route.get('basis', '')} postings)")

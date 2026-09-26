@@ -121,5 +121,38 @@ window.Masar = (() => {
     return days <= 10 ? `قبل ${days} أيام` : `قبل ${days} يوماً`;
   }
 
-  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme };
+  const LEVELS = { Intern: "تدريب", Junior: "مبتدئ", Mid: "متوسط", Senior: "خبرة عالية", Lead: "قيادي", Manager: "مدير" };
+  const MODES = { remote: "عن بُعد", hybrid: "هجين", onsite: "من المقر" };
+  const KINDS = { coop: "تدريب تعاوني", internship: "تدريب", student: "دوام طلابي", graduate: "برنامج خريجين", job: "وظيفة" };
+  const ROLES = {
+    "Data Analyst": "محلل بيانات", "Data Engineer": "مهندس بيانات", "Data Scientist": "عالم بيانات",
+    "ML Engineer": "مهندس تعلّم آلة", "BI Developer": "مطوّر ذكاء أعمال", "Business Analyst": "محلل أعمال",
+    "Analytics Engineer": "مهندس تحليلات",
+  };
+
+  // skills the student listed in the CV builder (kept in this browser only)
+  let profileText = null;
+  const mine = () => {
+    if (profileText === null) {
+      try {
+        const p = JSON.parse(store.get("masar.profile") || "{}");
+        profileText = [p.skills, p.experience, p.projects, p.certificates].filter(Boolean).join("\n");
+      } catch { profileText = ""; }
+    }
+    return profileText;
+  };
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // a skill must stand alone ("R" is not the r in "Riyadh"); only a single
+  // letter is matched case-sensitively
+  const has = (skill) => new RegExp(`(^|[^\\p{L}\\p{N}+#])${esc(skill).replace(/\s+/g, "\\s*")}(?![\\p{L}\\p{N}+#])`,
+    skill.length === 1 ? "u" : "iu").test(mine());
+  function fit(p) {
+    const req = p.skills.filter((s) => s[1]).map((s) => s[0]);
+    if (!mine() || !req.length) return null;
+    return { have: req.filter(has).length, of: req.length };
+  }
+  const yearsText = (n) => (n === 0 ? "بدون خبرة" : n === 1 ? "خبرة سنة" : n === 2 ? "خبرة سنتين" : `خبرة ${n}+ سنوات`);
+
+  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme,
+           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText };
 })();

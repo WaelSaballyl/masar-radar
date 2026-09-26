@@ -144,5 +144,29 @@ class SiteData(unittest.TestCase):
             self.assertIn(key, postings[0])
 
 
+class TraitsTest(unittest.TestCase):
+    """Training is proven by the title or a named programme, not the model's level."""
+
+    def test_employment(self):
+        from radar.traits import employment
+        self.assertEqual(employment("Data Analyst Co-op"), "coop")
+        self.assertEqual(employment("متدرب تحليل بيانات"), "internship")
+        self.assertEqual(employment("Stage 2027 - Data Scientist"), "internship")
+        self.assertEqual(employment("Werkstudent (m/w/d) Data"), "student")
+        self.assertEqual(employment("أخصائي تدريب"), "job", "a training specialist is a job")
+        self.assertEqual(employment("Late Stage Data Analyst"), "job")
+        self.assertEqual(employment("Data Analyst", "We also offer internships to students."), "job")
+        self.assertEqual(employment("Data Analyst", "This is a paid internship position."), "internship")
+
+    def test_years(self):
+        from radar.traits import years
+        self.assertEqual(years("x", "8-10+ years of experience in data engineering"), 8)
+        self.assertEqual(years("x", "3+ years in data engineering. 1 year of experience with Airflow"), 3)
+        self.assertEqual(years("x", "Minimum of two years of experience"), 2)
+        self.assertEqual(years("x", "خبرة لا تقل عن 3 سنوات"), 3)
+        self.assertEqual(years("x", "No prior experience required"), 0)
+        self.assertIsNone(years("x", "Python and SQL"))
+
+
 if __name__ == "__main__":
     unittest.main()

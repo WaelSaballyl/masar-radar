@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=15">
+<link rel="stylesheet" href="assets/masar.css?v=17">
 </head>
 <body>
 <div class="wrap">
@@ -36,11 +36,37 @@
 
     <form class="filters" id="filters" onsubmit="return false" aria-label="تصفية الإعلانات">
       <label class="field grow">بحث<input type="search" id="q" placeholder="المسمى أو الشركة أو مهارة"></label>
-      <label class="field">المكان
+      <label class="field">الدولة
         <select id="where">
           <option value="">كل الأماكن</option>
-          <option value="gulf">السعودية والخليج</option>
+          <option value="gulf">الخليج كله</option>
+          <option value="SA">السعودية</option>
+          <option value="AE">الإمارات</option>
+          <option value="QA">قطر</option>
+          <option value="KW">الكويت</option>
+          <option value="BH">البحرين</option>
+          <option value="OM">عُمان</option>
           <option value="near">الخليج وعن بُعد</option>
+          <option value="remote">عن بُعد فقط</option>
+        </select>
+      </label>
+      <label class="field">نوع الفرصة
+        <select id="type">
+          <option value="">الكل</option>
+          <option value="training">كل التدريب</option>
+          <option value="coop">تدريب تعاوني</option>
+          <option value="internship">تدريب</option>
+          <option value="student">دوام طلابي</option>
+          <option value="job">وظيفة</option>
+        </select>
+      </label>
+      <label class="field">الخبرة المطلوبة
+        <select id="exp">
+          <option value="">أي خبرة</option>
+          <option value="0">بدون خبرة</option>
+          <option value="2">حتى سنتين</option>
+          <option value="5">من 3 إلى 5 سنوات</option>
+          <option value="6">أكثر من 5 سنوات</option>
         </select>
       </label>
       <label class="field">المستوى
@@ -51,6 +77,10 @@
         </select>
       </label>
       <label class="field">الدور<select id="role"><option value="">كل الأدوار</option></select></label>
+      <label class="field">الترتيب
+        <select id="sort"><option value="new">الأحدث</option><option value="fit">الأقرب لمهاراتي</option></select>
+      </label>
+      <label class="check"><input type="checkbox" id="saved"><span>المحفوظة فقط</span></label>
     </form>
 
     <p class="match-meta" id="meta" aria-live="polite"></p>
@@ -67,7 +97,7 @@
     <span>و</span><a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" rel="noopener">JSearch</a>.
   </footer>
 </div>
-<script src="assets/core.js?v=15"></script>
-<script src="assets/jobs.js?v=15"></script>
+<script src="assets/core.js?v=17"></script>
+<script src="assets/jobs.js?v=17"></script>
 </body>
 </html>

@@ -55,6 +55,15 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   token is returned once on submit, only its SHA-256 is stored; `/board/admin/<id>/relink`
   issues a new one. Shared CV code (contact stripping, renderCV) lives in `assets/cvkit.js`.
   Privacy page: `docs/privacy.html` - keep it true when data handling changes.
+
+Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
+years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
+to `jobs.html?q=Skill`). `radar/traits.py` decides type and years by fixed rules at export:
+training only when the title says so or the text names the programme (the model's "Intern"
+alone is not proof; a non-training "Intern" is exported as Junior). `job.html?id=|?ex=` is
+one posting's page; only exclusive ones carry schema.org JobPosting. Fit and saved postings
+come from the browser (`Masar.fit`, `masar.saved`). `docs/sitemap.xml` is written by
+export_site (submit it in Google Search Console; a project site has no root robots.txt).
   cv.html loads `cv.js?v=N` / `masar.css?v=N`: bump N when either changes, or visitors keep a cached copy.
 
 ## Invariants - each of these was a real bug
