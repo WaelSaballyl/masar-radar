@@ -116,7 +116,15 @@ Identity (v3, 2026-09-27, the owner's pick after buff2u.com): monochrome - charc
 (`#232628`, bar `#181A1B`, logo grey `#E0E0E0`, sampled from buff2u), light-grey gradient panels (`--panel`) with near-black type and
 black pill buttons, one burgundy (`--wine` `#7B2D2D`) for exclusive/training. Panels re-declare
 the tokens, so anything inside turns dark-on-light. Wordmark: the owner's MASAR RADAR artwork in `docs/assets/brand/` (source: Downloads/تصميم شعار Ruff/export), `#E0E0E0` on dark, `#2B2B2B` on light; favicon and og.png from the same set.
-Do not bring back green or gold: the owner rejected them. Token names are old (`--mint` =
+Do not bring back green or gold: the owner rejected them.
+Home page v4 (2026-09-27, after joinhandshake.com): floating pill header, a full-screen
+headline whose words rise in, a light search card that types its own examples, grey/burgundy
+aurora behind it, two rows of live posting cards sliding past (jobs.json + exclusive), company
+logos row, four tool tiles each with a small live demo (swipe tile is the burgundy one), skills
+line, count-up numbers, burgundy employers band, column footer. `core.js` now builds the top
+menu for every page (`Masar.nav`, one list - edit `NAV` there, not the HTML), adds the phone
+tab bar (not on swipe/admin/applicants/embed), and reveals `.reveal` sections on scroll.
+`404.html` uses `<base href="/masar-radar/">` - change it with the domain. Token names are old (`--mint` =
 action colour, `--sand` = burgundy text). Noto Kufi Arabic for headings, IBM Plex Sans Arabic
 for text. The hero draws top skills as stations on a metro line ("masar" =
 path). Arabic counted nouns go through `count()` in masar.js - never hand-write

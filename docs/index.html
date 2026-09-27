@@ -3,38 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>مسار — دليلك للتدريب التعاوني في البيانات</title>
-<meta name="description" content="اعرف المهارات التي تطلبها الشركات من المتدربين في مجال البيانات، من إعلانات حقيقية تُقرأ كل يوم.">
-<meta property="og:title" content="مسار — دليلك للتدريب التعاوني في البيانات">
-<meta property="og:description" content="المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين، محدّثة يومياً.">
+<title>مسار — فرصتك الأولى في التدريب والوظائف</title>
+<meta name="description" content="فرص تدريب تعاوني ووظائف للمبتدئين في السعودية والخليج، تُحدَّث كل يوم. اعرف ما ينقصك لكل فرصة، وفصّل سيرتك عليها، وقدّم بسحبة.">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="مسار">
-<meta property="og:title" content="مسار — دليلك للتدريب التعاوني في البيانات">
-<meta property="og:description" content="اعرف المهارات التي تطلبها الشركات من المتدربين في مجال البيانات، من إعلانات حقيقية تُقرأ كل يوم.">
+<meta property="og:title" content="مسار — فرصتك الأولى في التدريب والوظائف">
+<meta property="og:description" content="فرص تدريب تعاوني ووظائف للمبتدئين في السعودية والخليج، تُحدَّث كل يوم.">
 <meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
 <meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#181A1B">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=39">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/masar.css?v=41">
 </head>
-<body>
+<body class="home">
 <div class="wrap">
 
   <header class="topbar">
     <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
-    <nav class="nav" aria-label="الأقسام" data-i18n-aria="nav_label">
-      <a href="jobs.html" data-i18n="nav_jobs">الإعلانات</a>
-      <a href="#how" data-i18n="nav_how">كيف نبني المؤشر</a>
-      <a href="dashboard.html" data-i18n="nav_market">مؤشر السوق</a>
-      <a href="cv.html" data-i18n="nav_cv">سيرتك</a>
-      <a href="employers.html" data-i18n="nav_emp">للشركات</a>
-    </nav>
+    <nav class="nav" aria-label="الأقسام" data-i18n-aria="nav_label"></nav>
     <div class="tools">
       <button class="tool" id="lang-toggle" type="button" lang="en">EN</button>
       <button class="tool" id="theme-toggle" type="button" data-i18n-aria="theme_label" aria-label="تبديل المظهر">◐</button>
@@ -42,82 +35,162 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div>
-        <h1 data-i18n="hero_title">اعرف ما تطلبه الشركات من المتدرّب قبل أن تقدّم</h1>
-        <p class="lede" data-i18n="hero_lede">نقرأ إعلانات وظائف البيانات كل يوم ونستخرج المهارات التي تطلبها فعلاً. هذا مسار المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين الآن.</p>
-        <form class="searchbar hero-search" action="jobs.html" method="get" role="search">
-          <label class="search-q"><span class="sr-only" data-i18n="search_btn">ابحث</span><input type="search" name="q" data-i18n-ph="search_q" placeholder="المسمى أو المهارة، مثل SQL"></label>
-          <label class="search-where"><span class="sr-only" data-i18n="search_where">كل الأماكن</span>
-            <select name="where"><option value="" data-i18n="search_where">كل الأماكن</option><option value="SA" data-i18n="search_sa" selected>السعودية</option><option value="gulf" data-i18n="search_gulf">الخليج كله</option></select>
+    <section class="stage" aria-labelledby="mega">
+      <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+      <h1 class="mega" id="mega"><span class="mega-line" data-i18n="mega_1">لنجد</span><span class="mega-line" data-i18n="mega_2">فرصتك الأولى</span></h1>
+      <p class="stage-lede" data-i18n="hero_lede">فرص تدريب تعاوني ووظائف للمبتدئين في السعودية والخليج، تُحدَّث كل يوم. نقول لك ما ينقصك لكل فرصة، ونفصّل سيرتك عليها، وتقدّم بسحبة.</p>
+
+      <form class="ask" action="jobs.html" method="get" role="search">
+        <label class="sr-only" for="ask-q" data-i18n="search_btn">ابحث</label>
+        <input id="ask-q" type="search" name="q" autocomplete="off" data-i18n-ph="search_q" placeholder="ابحث بالمسمى أو المهارة">
+        <div class="ask-row">
+          <label class="ask-where"><span class="sr-only" data-i18n="search_where">كل الأماكن</span>
+            <select name="where"><option value="" data-i18n="search_where">كل الأماكن</option><option value="SA" data-i18n="search_sa" selected>السعودية</option><option value="gulf" data-i18n="search_gulf">الخليج كله</option><option value="near" data-i18n="search_near">الخليج وعن بُعد</option></select>
           </label>
-          <button class="btn btn-primary" type="submit" data-i18n="search_btn">ابحث</button>
-        </form>
+          <button class="ask-go" type="submit" data-i18n-aria="search_btn" aria-label="ابحث"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </form>
+
+      <ul class="quick" aria-label="بحث سريع" data-i18n-aria="quick_label">
+        <li><a href="jobs.html?type=coop" data-i18n="q_coop">تدريب تعاوني</a></li>
+        <li><a href="jobs.html?type=training" data-i18n="q_training">كل التدريب</a></li>
+        <li><a href="jobs.html?type=student" data-i18n="q_student">دوام طلابي</a></li>
+        <li><a href="jobs.html?exp=0" data-i18n="q_noexp">بدون خبرة</a></li>
+        <li><a href="jobs.html?where=SA" data-i18n="q_sa">في السعودية</a></li>
+        <li><a href="jobs.html?where=remote" data-i18n="q_remote">عن بُعد</a></li>
+      </ul>
+      <p class="meta" id="hero-meta" aria-live="polite"></p>
+    </section>
+
+    <section class="rail-section" aria-labelledby="rail-title">
+      <div class="rail-head">
+        <h2 id="rail-title" data-i18n="rail_title">مفتوحة الآن</h2>
+        <a class="link-more" href="jobs.html" data-i18n="all_jobs">كل الإعلانات</a>
+      </div>
+      <div class="marquee" id="rail-a"></div>
+      <div class="marquee reverse" id="rail-b"></div>
+    </section>
+
+    <section class="logos-section" id="logos-section" hidden>
+      <h2 class="logos-title" id="companies-title" data-i18n="companies_title">شركات تنشر إعلانات الآن</h2>
+      <div class="marquee slow" id="logos"></div>
+    </section>
+
+    <section class="section reveal" aria-labelledby="tools-title">
+      <h2 class="big-h" id="tools-title" data-i18n="tools_title">من أول بحث إلى أول رد</h2>
+      <p class="section-lede" data-i18n="tools_lede">أربع أدوات تشتغل مع بعض، كلها مجانية، وبياناتك تبقى في جهازك حتى تقرّر أن تقدّم.</p>
+      <div class="bento">
+        <a class="tile tile-cv" href="cv.html">
+          <div class="tile-demo demo-cv" aria-hidden="true">
+            <div class="mini-paper"><b></b><i></i><i class="s"></i><em>Python</em><i></i><em>SQL</em><i class="s"></i><i></i></div>
+            <div class="mini-meter"><span data-i18n="demo_match">المطابقة</span><div><i></i></div></div>
+          </div>
+          <h3 data-i18n="t1_t">سيرة لكل إعلان</h3>
+          <p data-i18n="t1_p">ارفع سيرتك مرة، ونفصّلها على كل إعلان بمهاراتك الحقيقية فقط، بالشكل اللي تقرأه أنظمة الفرز.</p>
+          <span class="tile-go" data-i18n="t1_go">ابنِ سيرتك</span>
+        </a>
+        <a class="tile tile-swipe" href="swipe.html">
+          <div class="tile-demo demo-swipe" aria-hidden="true">
+            <div class="mini-card c3"></div><div class="mini-card c2"></div>
+            <div class="mini-card c1"><b></b><i></i><i class="s"></i><span class="mini-stamp" data-i18n="demo_apply">قدّم</span></div>
+          </div>
+          <h3 data-i18n="t2_t">قدّم بسحبة</h3>
+          <p data-i18n="t2_p">يمين تقدّم، يسار تتخطّى. نرسل سيرتك المفصّلة للشركة، ولك خمس ثوانٍ تتراجع فيها.</p>
+          <span class="tile-go" data-i18n="t2_go">جرّب السحب</span>
+        </a>
+        <a class="tile tile-market" href="dashboard.html">
+          <div class="tile-demo demo-market" aria-hidden="true"><ol id="demo-bars"></ol></div>
+          <h3 data-i18n="t3_t">اعرف ما يطلبه السوق</h3>
+          <p data-i18n="t3_p">المهارات الأكثر طلباً في الإعلانات الحقيقية، مطلوبة أو مفضّلة، لكل دولة ومستوى.</p>
+          <span class="tile-go" data-i18n="t3_go">افتح مؤشر السوق</span>
+        </a>
+        <a class="tile tile-apps" href="applications.html">
+          <div class="tile-demo demo-apps" aria-hidden="true">
+            <ol><li data-i18n="d_sent">أُرسل</li><li data-i18n="d_seen">شافته الشركة</li><li data-i18n="d_short">القائمة المختصرة</li></ol>
+          </div>
+          <h3 data-i18n="t4_t">تابع طلباتك</h3>
+          <p data-i18n="t4_p">متى فتحت الشركة سيرتك، وترتيبك بين المتقدمين، وتذكير واحد إذا تأخّر الرد.</p>
+          <span class="tile-go" data-i18n="t4_go">طلباتي</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section split reveal" aria-labelledby="line-title">
+      <div class="split-copy">
+        <h2 class="big-h" id="line-title" data-i18n="line_title">المهارات اللي تفتح الباب</h2>
+        <p class="section-lede" data-i18n="line_lede">هذا مسار المتدرّب: المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين الآن، محسوبة من إعلانات حقيقية. ابدأ من أول محطة.</p>
         <div class="actions">
-          <a class="btn btn-quiet" href="#coop" data-i18n="cta_coop">تصفّح فرص التدريب</a>
+          <a class="btn btn-primary" href="guide.html" data-i18n="cta_guide">دليل التدريب التعاوني</a>
           <a class="btn btn-quiet" href="dashboard.html" data-i18n="cta_market">افتح مؤشر السوق</a>
-          <a class="btn btn-quiet" href="guide.html" data-i18n="cta_guide">دليل التدريب التعاوني</a>
         </div>
-        <p class="meta" id="hero-meta" aria-live="polite"></p>
       </div>
-
-      <div class="line-panel" aria-labelledby="line-name">
-        <div class="line-sign">
-          <span class="line-badge" id="line-name" data-i18n="line_name">مسار المتدرّب</span>
-        </div>
+      <div class="line-panel">
+        <div class="line-sign"><span class="line-badge" data-i18n="line_name">مسار المتدرّب</span></div>
         <p class="line-caption" id="line-caption"></p>
-        <ol class="route" id="route">
-          <li class="route-note" data-i18n="loading">جارٍ تحميل البيانات…</li>
-        </ol>
+        <ol class="route" id="route"><li class="route-note" data-i18n="loading">جارٍ تحميل البيانات…</li></ol>
       </div>
     </section>
 
-    <section class="section" id="coop">
-      <h2 data-i18n="coop_title">فرص تدريب ووظائف للمبتدئين</h2>
-      <p class="section-lede" id="coop-lede" data-i18n="coop_lede">المصادر الحالية عالمية، ومعظم فرصها عن بُعد أو في أوروبا. نعمل على إضافة مصادر سعودية.</p>
-      <ul class="jobs" id="jobs"></ul>
-      <p class="all-jobs"><a class="btn btn-quiet" href="jobs.html" data-i18n="all_jobs">كل الإعلانات</a></p>
+    <section class="numbers reveal" aria-label="الأرقام اليوم" data-i18n-aria="numbers_label">
+      <div><span class="num" data-key="active_postings">0</span><span data-i18n="n_active">إعلانات مفتوحة</span></div>
+      <div><span class="num" data-key="gulf_postings">0</span><span data-i18n="n_gulf">في السعودية والخليج</span></div>
+      <div><span class="num" data-key="entry_postings">0</span><span data-i18n="n_entry">للتدريب والمبتدئين</span></div>
+      <div><span class="num" data-key="companies">0</span><span data-i18n="n_companies">شركات توظّف</span></div>
     </section>
 
-    <section class="section" id="how">
-      <h2 data-i18n="how_title">كيف نبني المؤشر</h2>
-      <p class="section-lede" data-i18n="how_lede">كل رقم في هذه الصفحة محسوب من إعلانات حقيقية، ويتحدّث تلقائياً كل يوم.</p>
+    <section class="section reveal" id="how" aria-labelledby="how-title">
+      <h2 class="big-h" id="how-title" data-i18n="how_title">كيف نجهّز كل إعلان</h2>
+      <p class="section-lede" data-i18n="how_lede">كل رقم في الموقع محسوب من إعلانات حقيقية، ويتحدّث تلقائياً كل يوم.</p>
       <ol class="route-h">
-        <li class="step"><span class="dot" aria-hidden="true"></span><h3 data-i18n="s1_t">نجمع</h3><p data-i18n="s1_p">نسحب الإعلانات الجديدة كل يوم من أربع منصات توظيف مفتوحة.</p></li>
-        <li class="step"><span class="dot" aria-hidden="true"></span><h3 data-i18n="s2_t">نفلتر</h3><p data-i18n="s2_p">نستبعد ما لا علاقة له بالبيانات، مثل إعلانات الامتثال والمبيعات.</p></li>
+        <li class="step"><span class="dot" aria-hidden="true"></span><h3 data-i18n="s1_t">نجمع</h3><p data-i18n="s1_p">نسحب الإعلانات الجديدة كل يوم من منصات توظيف مفتوحة، ومن الشركات مباشرة.</p></li>
+        <li class="step"><span class="dot" aria-hidden="true"></span><h3 data-i18n="s2_t">نفحص</h3><p data-i18n="s2_p">نحذف المكرر، ونتأكد أن التدريب تدريب فعلاً، ونرفض أي إعلان يطلب رسوماً.</p></li>
         <li class="step"><span class="dot" aria-hidden="true"></span><h3 data-i18n="s3_t">نقرأ</h3><p data-i18n="s3_p">يقرأ نموذج ذكاء اصطناعي كل إعلان ويفرّق بين المهارة المطلوبة والمفضّلة.</p></li>
-        <li class="step"><span class="dot" aria-hidden="true"></span><h3 data-i18n="s4_t">ننشر</h3><p data-i18n="s4_p">يتحدّث المؤشر وهذه الصفحة تلقائياً بعد كل تشغيل.</p></li>
+        <li class="step"><span class="dot" aria-hidden="true"></span><h3 data-i18n="s4_t">ننشر</h3><p data-i18n="s4_p">تظهر الفرصة عندك مع ما ينقصك لها، جاهزة لسيرة مفصّلة وتقديم.</p></li>
       </ol>
     </section>
 
-    <section class="section" id="companies-section">
-      <h2 id="companies-title" data-i18n="companies_title">شركات تنشر إعلانات بيانات الآن</h2>
-      <p class="companies" id="companies"></p>
-    </section>
-
-    <section class="section">
-      <h2 data-i18n="next_title">قادم في مسار</h2>
-      <ul class="upcoming">
-        <li><h3 data-i18n="n1_t">سيرة ذاتية معدّلة لكل فرصة</h3><a class="status" href="cv.html" data-i18n="try_now">جرّبها الآن</a><p data-i18n="n1_p">ترفع سيرتك أو تجيب عن أسئلة قصيرة، ونعدّلها حسب متطلبات الإعلان دون إضافة ما ليس عندك.</p></li>
-        <li><h3 data-i18n="n2_t">مطابقة الفرص مع مهاراتك</h3><span class="status" data-i18n="building">قيد البناء</span><p data-i18n="n2_p">نقارن مهاراتك بالمطلوب في كل إعلان، ونوضّح ما ينقصك قبل أن تقدّم.</p></li>
-        <li><h3 data-i18n="n3_t">التقديم بضغطة</h3><span class="status" data-i18n="building">قيد البناء</span><p data-i18n="n3_p">نجهّز السيرة ورسالة التغطية ونفتح صفحة التقديم، وأنت من يرسل.</p></li>
-      </ul>
+    <section class="hire reveal" aria-labelledby="hire-title">
+      <div>
+        <h2 id="hire-title" data-i18n="hire_title">تبحث عن متدربين؟</h2>
+        <p data-i18n="hire_p">انشر فرصتك مجاناً. نراجعها قبل النشر، وتوصلك سير المتقدمين مرتبة حسب قربهم من متطلباتك.</p>
+      </div>
+      <a class="btn btn-light" href="employers.html" data-i18n="hire_btn">انشر فرصة</a>
     </section>
   </main>
 
-  <footer>
-    <span data-i18n="footer_data">البيانات من الواجهات العامة لـ</span>
-    <a href="https://jobicy.com" rel="noopener">Jobicy</a>،
-    <a href="https://remoteok.com" rel="noopener">Remote OK</a>،
-    <a href="https://www.arbeitnow.com" rel="noopener">Arbeitnow</a>
-    <span data-i18n="and">و</span><a href="https://remotive.com" rel="noopener">Remotive</a>.
-    <br>
-    <span data-i18n="footer_code">مسار مشروع مفتوح المصدر:</span>
-    <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener" data-i18n="footer_repo">الشيفرة على GitHub</a>
+  <footer class="site-foot">
+    <div class="foot-cols">
+      <div>
+        <h2 data-i18n="f_students">للطلاب</h2>
+        <a href="jobs.html" data-i18n="nav_jobs">الإعلانات</a>
+        <a href="swipe.html" data-i18n="nav_swipe">قدّم بالسحب</a>
+        <a href="cv.html" data-i18n="nav_cv">سيرتك</a>
+        <a href="applications.html" data-i18n="nav_apps">طلباتي</a>
+        <a href="guide.html" data-i18n="cta_guide">دليل التدريب التعاوني</a>
+      </div>
+      <div>
+        <h2 data-i18n="f_employers">للشركات</h2>
+        <a href="employers.html" data-i18n="hire_btn">انشر فرصة</a>
+        <a href="dashboard.html" data-i18n="nav_market">مؤشر السوق</a>
+      </div>
+      <div>
+        <h2 data-i18n="f_about">عن مسار</h2>
+        <a href="privacy.html" data-i18n="f_privacy">الخصوصية</a>
+        <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener" data-i18n="footer_repo">الشيفرة على GitHub</a>
+      </div>
+    </div>
+    <p class="foot-src">
+      <span data-i18n="footer_data">البيانات من الواجهات العامة لـ</span>
+      <a href="https://jobicy.com" rel="noopener">Jobicy</a>،
+      <a href="https://remoteok.com" rel="noopener">Remote OK</a>،
+      <a href="https://www.arbeitnow.com" rel="noopener">Arbeitnow</a>،
+      <a href="https://remotive.com" rel="noopener">Remotive</a>
+      <span data-i18n="and">و</span><a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" rel="noopener">JSearch</a>.
+    </p>
   </footer>
 
 </div>
-<script src="assets/core.js?v=34"></script>
-<script src="assets/masar.js?v=37"></script>
+<script src="assets/core.js?v=38"></script>
+<script src="assets/masar.js?v=38"></script>
 </body>
 </html>

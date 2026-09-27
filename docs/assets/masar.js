@@ -1,151 +1,246 @@
-// Masar landing page: language, theme, and the numbers from data/summary.json.
+// Masar landing page: language, the live postings rail, the company logos,
+// the skills route and the numbers, from data/summary.json and jobs.json.
 // Everything taken from the data is written with textContent, never innerHTML.
 (() => {
   "use strict";
 
   const I18N = {
     ar: {
-      brand: "مسار",
       nav_label: "الأقسام",
-      nav_coop: "فرص التدريب",
       nav_jobs: "الإعلانات",
-      nav_emp: "للشركات",
-      all_jobs: "كل الإعلانات",
-      nav_how: "كيف نبني المؤشر",
-      nav_market: "مؤشر السوق",
+      nav_swipe: "قدّم بالسحب",
       nav_cv: "سيرتك",
+      nav_apps: "طلباتي",
+      nav_market: "مؤشر السوق",
+      nav_emp: "للشركات",
       theme_label: "تبديل المظهر",
-      hero_title: "اعرف ما تطلبه الشركات من المتدرّب قبل أن تقدّم",
-      hero_lede: "نقرأ إعلانات وظائف البيانات كل يوم ونستخرج المهارات التي تطلبها فعلاً. هذا مسار المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين الآن.",
-      cta_coop: "تصفّح فرص التدريب",
-      cta_market: "افتح مؤشر السوق",
-      cta_guide: "دليل التدريب التعاوني",
-      search_q: "المسمى أو المهارة، مثل SQL",
+      mega_1: "لنجد",
+      mega_2: "فرصتك الأولى",
+      hero_lede: "فرص تدريب تعاوني ووظائف للمبتدئين في السعودية والخليج، تُحدَّث كل يوم. نقول لك ما ينقصك لكل فرصة، ونفصّل سيرتك عليها، وتقدّم بسحبة.",
+      search_q: "ابحث بالمسمى أو المهارة",
       search_where: "كل الأماكن",
       search_sa: "السعودية",
       search_gulf: "الخليج كله",
+      search_near: "الخليج وعن بُعد",
       search_btn: "ابحث",
+      search_try: "جرّب: ",
+      quick_label: "بحث سريع",
+      q_coop: "تدريب تعاوني", q_training: "كل التدريب", q_student: "دوام طلابي",
+      q_noexp: "بدون خبرة", q_sa: "في السعودية", q_remote: "عن بُعد",
+      hero_meta: "آخر تحديث {date}.",
+      rail_title: "مفتوحة الآن",
+      all_jobs: "كل الإعلانات",
+      companies_title: "شركات تنشر إعلانات الآن",
+      tools_title: "من أول بحث إلى أول رد",
+      tools_lede: "أربع أدوات تشتغل مع بعض، كلها مجانية، وبياناتك تبقى في جهازك حتى تقرّر أن تقدّم.",
+      demo_match: "المطابقة", demo_apply: "قدّم",
+      t1_t: "سيرة لكل إعلان", t1_go: "ابنِ سيرتك",
+      t1_p: "ارفع سيرتك مرة، ونفصّلها على كل إعلان بمهاراتك الحقيقية فقط، بالشكل اللي تقرأه أنظمة الفرز.",
+      t2_t: "قدّم بسحبة", t2_go: "جرّب السحب",
+      t2_p: "يمين تقدّم، يسار تتخطّى. نرسل سيرتك المفصّلة للشركة، ولك خمس ثوانٍ تتراجع فيها.",
+      t3_t: "اعرف ما يطلبه السوق", t3_go: "افتح مؤشر السوق",
+      t3_p: "المهارات الأكثر طلباً في الإعلانات الحقيقية، مطلوبة أو مفضّلة، لكل دولة ومستوى.",
+      t4_t: "تابع طلباتك", t4_go: "طلباتي",
+      t4_p: "متى فتحت الشركة سيرتك، وترتيبك بين المتقدمين، وتذكير واحد إذا تأخّر الرد.",
+      d_sent: "أُرسل", d_seen: "شافته الشركة", d_short: "القائمة المختصرة",
+      line_title: "المهارات اللي تفتح الباب",
+      line_lede: "هذا مسار المتدرّب: المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين الآن، محسوبة من إعلانات حقيقية. ابدأ من أول محطة.",
       line_name: "مسار المتدرّب",
+      cta_guide: "دليل التدريب التعاوني",
+      cta_market: "افتح مؤشر السوق",
       loading: "جارٍ تحميل البيانات…",
       load_failed: "تعذّر تحميل البيانات. حدّث الصفحة بعد قليل.",
       caption_gulf_entry: "نسبة إعلانات التدريب والمبتدئين في السعودية والخليج التي تطلب كل مهارة، من {n}.",
       caption_entry: "نسبة إعلانات التدريب والمبتدئين التي تطلب كل مهارة، من {n}.",
       caption_all: "نسبة الإعلانات النشطة التي تطلب كل مهارة، من {n}.",
-      // no adjective on the count: its gender and case would have to follow
-      // the number ("إعلاناً نشطاً" for 11-99, "إعلانات نشطة" for 3-10)
-      hero_meta: "إعلانات مفتوحة الآن: {active_n}، من {companies}. آخر تحديث {date}.",
-      coop_title: "فرص تدريب ووظائف للمبتدئين",
-      coop_lede: "المصادر الحالية عالمية، ومعظم فرصها عن بُعد أو في أوروبا. نعمل على إضافة مصادر سعودية.",
-      coop_lede_gulf: "فرص تدريب ووظائف للمبتدئين في السعودية والخليج، الأحدث أولاً. تتحدّث كل يوم.",
-      companies_title_gulf: "شركات تنشر إعلانات بيانات في السعودية والخليج الآن",
-      coop_empty: "لا توجد فرص تدريب نشطة في آخر تحديث. ابدأ بالمهارات في مسار المتدرّب أعلاه، وارجع غداً.",
-      level_intern: "تدريب",
-      level_junior: "مبتدئ",
-      open_posting: "افتح الإعلان",
-      how_title: "كيف نبني المؤشر",
-      how_lede: "كل رقم في هذه الصفحة محسوب من إعلانات حقيقية، ويتحدّث تلقائياً كل يوم.",
-      s1_t: "نجمع", s1_p: "نسحب الإعلانات الجديدة كل يوم من أربع منصات توظيف مفتوحة.",
-      s2_t: "نفلتر", s2_p: "نستبعد ما لا علاقة له بالبيانات، مثل إعلانات الامتثال والمبيعات.",
+      numbers_label: "الأرقام اليوم",
+      n_active: "إعلانات مفتوحة", n_gulf: "في السعودية والخليج", n_entry: "للتدريب والمبتدئين", n_companies: "شركات توظّف",
+      how_title: "كيف نجهّز كل إعلان",
+      how_lede: "كل رقم في الموقع محسوب من إعلانات حقيقية، ويتحدّث تلقائياً كل يوم.",
+      s1_t: "نجمع", s1_p: "نسحب الإعلانات الجديدة كل يوم من منصات توظيف مفتوحة، ومن الشركات مباشرة.",
+      s2_t: "نفحص", s2_p: "نحذف المكرر، ونتأكد أن التدريب تدريب فعلاً، ونرفض أي إعلان يطلب رسوماً.",
       s3_t: "نقرأ", s3_p: "يقرأ نموذج ذكاء اصطناعي كل إعلان ويفرّق بين المهارة المطلوبة والمفضّلة.",
-      s4_t: "ننشر", s4_p: "يتحدّث المؤشر وهذه الصفحة تلقائياً بعد كل تشغيل.",
-      companies_title: "شركات تنشر إعلانات بيانات الآن",
-      next_title: "قادم في مسار",
-      building: "قيد البناء",
-      try_now: "جرّبها الآن",
-      n1_t: "سيرة ذاتية معدّلة لكل فرصة",
-      n1_p: "ترفع سيرتك أو تجيب عن أسئلة قصيرة، ونعدّلها حسب متطلبات الإعلان دون إضافة ما ليس عندك.",
-      n2_t: "مطابقة الفرص مع مهاراتك",
-      n2_p: "نقارن مهاراتك بالمطلوب في كل إعلان، ونوضّح ما ينقصك قبل أن تقدّم.",
-      n3_t: "التقديم بضغطة",
-      n3_p: "نجهّز السيرة ورسالة التغطية ونفتح صفحة التقديم، وأنت من يرسل.",
+      s4_t: "ننشر", s4_p: "تظهر الفرصة عندك مع ما ينقصك لها، جاهزة لسيرة مفصّلة وتقديم.",
+      hire_title: "تبحث عن متدربين؟",
+      hire_p: "انشر فرصتك مجاناً. نراجعها قبل النشر، وتوصلك سير المتقدمين مرتبة حسب قربهم من متطلباتك.",
+      hire_btn: "انشر فرصة",
+      f_students: "للطلاب", f_employers: "للشركات", f_about: "عن مسار", f_privacy: "الخصوصية",
       footer_data: "البيانات من الواجهات العامة لـ",
       and: "و",
-      footer_code: "مسار مشروع مفتوح المصدر:",
       footer_repo: "الشيفرة على GitHub",
-      list_sep: "، ",
+      exclusive: "حصري",
     },
     en: {
-      brand: "Masar",
       nav_label: "Sections",
-      nav_coop: "Internships",
       nav_jobs: "Postings",
-      nav_emp: "Employers",
-      all_jobs: "All postings",
-      nav_how: "How it works",
-      nav_market: "Market index",
+      nav_swipe: "Swipe to apply",
       nav_cv: "Your CV",
+      nav_apps: "My applications",
+      nav_market: "Market index",
+      nav_emp: "Employers",
       theme_label: "Switch theme",
-      hero_title: "Know what companies ask of an intern before you apply",
-      hero_lede: "We read data job postings every day and pull out the skills they actually require. This is the route of the most requested skills in internship and junior postings right now.",
-      cta_coop: "Browse internships",
-      cta_market: "Open the market index",
-      cta_guide: "Co-op guide (Arabic)",
-      search_q: "Title or skill, like SQL",
+      mega_1: "Let's find",
+      mega_2: "your first role",
+      hero_lede: "Co-op, internships and entry-level roles in Saudi Arabia and the Gulf, updated daily. See what each one asks that you lack, tailor your CV to it, and apply with a swipe.",
+      search_q: "Search by title or skill",
       search_where: "Anywhere",
       search_sa: "Saudi Arabia",
       search_gulf: "All the Gulf",
+      search_near: "Gulf and remote",
       search_btn: "Search",
+      search_try: "Try: ",
+      quick_label: "Quick search",
+      q_coop: "Co-op", q_training: "All training", q_student: "Part-time for students",
+      q_noexp: "No experience", q_sa: "In Saudi Arabia", q_remote: "Remote",
+      hero_meta: "Updated {date}.",
+      rail_title: "Open now",
+      all_jobs: "All postings",
+      companies_title: "Companies posting now",
+      tools_title: "From first search to first reply",
+      tools_lede: "Four free tools that work together. Your data stays on your device until you choose to apply.",
+      demo_match: "Match", demo_apply: "Apply",
+      t1_t: "A CV for each posting", t1_go: "Build your CV",
+      t1_p: "Upload your CV once. It is tailored to each posting with your real skills only, in the format screening systems read.",
+      t2_t: "Apply with a swipe", t2_go: "Try swiping",
+      t2_p: "Right to apply, left to skip. Your tailored CV goes to the company, with five seconds to undo.",
+      t3_t: "Know what the market asks", t3_go: "Open the market index",
+      t3_p: "The most requested skills in real postings, required or preferred, by country and level.",
+      t4_t: "Track your applications", t4_go: "My applications",
+      t4_p: "When the company opened your CV, where you rank among applicants, and one reminder if the reply is late.",
+      d_sent: "Sent", d_seen: "Viewed", d_short: "Shortlist",
+      line_title: "The skills that open the door",
+      line_lede: "The intern line: the most requested skills in internship and junior postings right now, counted from real postings. Start at the first station.",
       line_name: "Intern line",
+      cta_guide: "Co-op guide (Arabic)",
+      cta_market: "Open the market index",
       loading: "Loading data…",
       load_failed: "The data could not be loaded. Refresh the page in a moment.",
       caption_gulf_entry: "Share of internship and junior postings in Saudi Arabia and the Gulf that require each skill, out of {n}.",
       caption_entry: "Share of internship and junior postings that require each skill, out of {n}.",
       caption_all: "Share of active postings that require each skill, out of {n}.",
-      hero_meta: "Open postings: {active_n}, from {companies}. Updated {date}.",
-      coop_title: "Internships and junior roles",
-      coop_lede: "Current sources are international, and most openings are remote or in Europe. Saudi sources are being added.",
-      coop_lede_gulf: "Internships and junior roles in Saudi Arabia and the Gulf, newest first. Updated daily.",
-      companies_title_gulf: "Companies posting data roles in Saudi Arabia and the Gulf now",
-      coop_empty: "No internships were open in the latest update. Start with the skills on the intern line above, and check back tomorrow.",
-      level_intern: "Internship",
-      level_junior: "Junior",
-      open_posting: "Open posting",
-      how_title: "How the index is built",
-      how_lede: "Every number on this page comes from real postings and refreshes on its own each day.",
-      s1_t: "Collect", s1_p: "New postings are pulled daily from four open job platforms.",
-      s2_t: "Filter", s2_p: "Anything unrelated to data, such as compliance or sales roles, is dropped.",
+      numbers_label: "Today's numbers",
+      n_active: "Open postings", n_gulf: "In Saudi Arabia and the Gulf", n_entry: "Internship and junior", n_companies: "Companies hiring",
+      how_title: "How each posting is prepared",
+      how_lede: "Every number on the site comes from real postings and refreshes on its own each day.",
+      s1_t: "Collect", s1_p: "New postings are pulled daily from open job platforms and straight from companies.",
+      s2_t: "Check", s2_p: "Duplicates go, training is confirmed to be training, and any posting that asks for fees is refused.",
       s3_t: "Read", s3_p: "An AI model reads each posting and separates required skills from nice-to-haves.",
-      s4_t: "Publish", s4_p: "The index and this page update automatically after every run.",
-      companies_title: "Companies posting data roles now",
-      next_title: "Coming to Masar",
-      building: "In progress",
-      try_now: "Try it now",
-      n1_t: "A CV tailored to each opening",
-      n1_p: "Upload your CV or answer a few questions, and it is adjusted to the posting without adding anything you don't have.",
-      n2_t: "Match openings to your skills",
-      n2_p: "Your skills are compared with each posting, so you see what is missing before you apply.",
-      n3_t: "One-click apply",
-      n3_p: "Your CV and cover letter are prepared and the application page opens. You press send.",
+      s4_t: "Publish", s4_p: "The opening reaches you with what you lack for it, ready for a tailored CV and an application.",
+      hire_title: "Looking for interns?",
+      hire_p: "Post your opening for free. It is reviewed before it goes live, and applicants' CVs reach you ranked by how close they are to your requirements.",
+      hire_btn: "Post an opening",
+      f_students: "Students", f_employers: "Employers", f_about: "About Masar", f_privacy: "Privacy",
       footer_data: "Data from the public APIs of",
       and: "and",
-      footer_code: "Masar is open source:",
       footer_repo: "code on GitHub",
-      list_sep: ", ",
+      exclusive: "Exclusive",
     },
   };
 
-  // Formatting and language plumbing live in core.js, shared with the market index.
-  const { el, safeUrl } = Masar;
+  const { el, place } = Masar;
   const L = Masar.i18n(I18N, {
-    ar: "مسار — دليلك للتدريب التعاوني في البيانات",
-    en: "Masar — your guide to data internships",
+    ar: "مسار — فرصتك الأولى في التدريب والوظائف",
+    en: "Masar — your first internship or job",
   });
   const t = (key, vars) => L.t(key, vars);
   const count = (n, noun) => Masar.count(n, noun, L.lang);
   const pct = (share) => Masar.pct(share, L.lang);
-  const date = (iso) => Masar.date(iso, L.lang);
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let data = null;
+  let data = null, postings = [];
   let failed = false;
 
-  // ---------- rendering ----------
+  // ---------- the headline: each word rises into place, once ----------
 
-  function renderStatic() {
-    L.apply();
-    // once Gulf postings exist the list and company names show only them
-    if (data && data.jobs_basis === "gulf") document.getElementById("coop-lede").textContent = t("coop_lede_gulf");
-    if (data && data.companies_basis === "gulf") document.getElementById("companies-title").textContent = t("companies_title_gulf");
+  function splitMega() {
+    document.querySelectorAll(".mega-line").forEach((line, li) => {
+      const words = line.textContent.split(" ");
+      line.replaceChildren(...words.flatMap((w, i) => {
+        const s = el("span", "w", w);
+        s.style.setProperty("--i", li * 2 + i);
+        return i ? [" ", s] : [s];
+      }));
+    });
   }
+
+  // ---------- the search box types its own examples until touched ----------
+
+  const EXAMPLES = ["Data Analyst", "SQL", "Python", "Power BI", "Intern", "Machine Learning", "Excel"];
+  let typing = null;
+  function typeExamples() {
+    const input = document.getElementById("ask-q");
+    clearTimeout(typing);
+    if (still) return;
+    let n = 0, pos = 0, back = false;
+    const tick = () => {
+      if (document.activeElement === input || input.value) { input.placeholder = t("search_q"); return; }
+      const word = EXAMPLES[n % EXAMPLES.length];
+      pos += back ? -1 : 1;
+      input.placeholder = t("search_try") + word.slice(0, pos);
+      let wait = back ? 35 : 85;
+      if (!back && pos === word.length) { back = true; wait = 1600; }
+      else if (back && pos === 0) { back = false; n += 1; wait = 350; }
+      typing = setTimeout(tick, wait);
+    };
+    typing = setTimeout(tick, 1400);
+    input.addEventListener("blur", () => { if (!input.value) typeExamples(); }, { once: true });
+  }
+
+  // ---------- live postings: two rows moving in opposite directions ----------
+
+  const KIND = { coop: "q_coop", internship: "q_training", student: "q_student" };
+  function card(p) {
+    const a = el("a", "rail-card");
+    a.href = p.exclusive ? `job.html?ex=${encodeURIComponent(p.id)}` : `job.html?id=${encodeURIComponent(p.id)}`;
+    const top = el("div", "rail-top");
+    top.append(Masar.logo(p, "co-logo"));
+    const tag = p.exclusive ? el("span", "rail-tag wine", t("exclusive"))
+      : KIND[p.employment] ? el("span", "rail-tag wine", L.lang === "ar" ? Masar.KINDS[p.employment] : t(KIND[p.employment]))
+        : el("span", "rail-tag", Masar.ago(p.posted_at, L.lang));
+    top.append(tag);
+    a.append(top, el("span", "rail-title", p.title), el("span", "rail-co", p.company),
+      el("span", "rail-where", p.location || ""));
+    return a;
+  }
+  function fill(box, items) {
+    box.replaceChildren();
+    if (!items.length) return;
+    const track = el("div", "track");
+    // the row is drawn twice so the loop never shows a seam; the copy is hidden
+    // from screen readers and taken out of the tab order
+    const copy = items.map(card);
+    const twin = items.map(card);
+    twin.forEach((c) => { c.tabIndex = -1; c.setAttribute("aria-hidden", "true"); });
+    track.append(...copy, ...twin);
+    track.style.setProperty("--n", items.length);
+    box.append(track);
+  }
+  function renderRail() {
+    if (!postings.length) return;
+    // training and the Gulf first, then the newest
+    const score = (p) => (p.exclusive ? 4 : 0) + (KIND[p.employment] ? 2 : 0) + (place(p) === "gulf" ? 1 : 0);
+    const ranked = [...postings].sort((a, b) => score(b) - score(a) || (b.posted_at || "").localeCompare(a.posted_at || ""));
+    const pick = ranked.slice(0, 24);
+    fill(document.getElementById("rail-a"), pick.filter((_, i) => i % 2 === 0));
+    fill(document.getElementById("rail-b"), pick.filter((_, i) => i % 2 === 1));
+  }
+
+  function renderLogos() {
+    const seen = new Set();
+    const firms = postings.filter((p) => /^https:\/\//.test(p.logo || "") && !seen.has(p.company) && seen.add(p.company)).slice(0, 20);
+    const box = document.getElementById("logos");
+    if (firms.length < 6) return;
+    document.getElementById("logos-section").hidden = false;
+    const item = (p) => { const s = el("span", "logo-item"); s.append(Masar.logo(p, "co-logo co-logo-lg"), el("span", null, p.company)); return s; };
+    const track = el("div", "track");
+    const twin = firms.map(item);
+    twin.forEach((c) => c.setAttribute("aria-hidden", "true"));
+    track.append(...firms.map(item), ...twin);
+    track.style.setProperty("--n", firms.length);
+    box.replaceChildren(track);
+  }
+
+  // ---------- the skills: route panel and the market tile's bars ----------
 
   function renderRoute() {
     const route = document.getElementById("route");
@@ -153,67 +248,84 @@
     route.replaceChildren();
     if (failed) { route.append(el("li", "route-note", t("load_failed"))); caption.textContent = ""; return; }
     if (!data) { route.append(el("li", "route-note", t("loading"))); return; }
-
     const r = data.route;
     caption.textContent = t(`caption_${r.basis}`, { n: count(r.postings, "posting") });
     r.stops.forEach((s, i) => {
       const li = el("li", "stop");
       li.style.setProperty("--i", i);
-      li.append(el("span", "dot"), el("span", "stop-name", s.name), el("span", "stop-share", pct(s.share)));
-      li.querySelector(".dot").setAttribute("aria-hidden", "true");
+      const dot = el("span", "dot");
+      dot.setAttribute("aria-hidden", "true");
+      li.append(dot, el("span", "stop-name", s.name), el("span", "stop-share", pct(s.share)));
       route.append(li);
     });
   }
 
-  function renderMeta() {
-    const meta = document.getElementById("hero-meta");
-    if (!data) { meta.textContent = ""; return; }
-    meta.textContent = t("hero_meta", {
-      active_n: data.active_postings,
-      companies: count(data.companies, "company"),
-      date: date(data.updated_at),
-    });
-  }
-
-  function renderJobs() {
-    const list = document.getElementById("jobs");
-    list.replaceChildren();
+  function renderBars() {
+    const ol = document.getElementById("demo-bars");
+    ol.replaceChildren();
     if (!data) return;
-    if (!data.entry_jobs.length) { list.append(el("li", "empty", t("coop_empty"))); return; }
-    data.entry_jobs.forEach((j) => {
-      const li = el("li", "job");
-      const who = el("div");
-      who.append(el("span", "job-title", j.title), el("span", "job-company", j.company));
-      const level = j.level === "Intern" ? "intern" : "junior";
-      li.append(who, el("span", "job-where", j.location || "—"),
-                el("span", `level level-${level}`, t(`level_${level}`)));
-      const href = safeUrl(j.url);
-      if (href) {
-        const a = el("a", null, t("open_posting"));
-        a.href = href; a.rel = "noopener"; a.target = "_blank";
-        li.append(a);
-      } else {
-        li.append(el("span"));
-      }
-      list.append(li);
+    const top = data.top_skills.slice(0, 5);
+    const max = Math.max(...top.map((s) => s.share));
+    top.forEach((s, i) => {
+      const li = el("li");
+      li.style.setProperty("--w", s.share / max);
+      li.style.setProperty("--i", i);
+      li.append(el("span", null, s.name), el("i"), el("b", null, pct(s.share)));
+      ol.append(li);
     });
   }
 
-  function renderCompanies() {
-    const p = document.getElementById("companies");
-    p.textContent = data ? data.company_names.join(t("list_sep")) : "";
+  // ---------- numbers count up the first time they are seen ----------
+
+  let counted = false;
+  function renderNumbers() {
+    const nums = document.querySelectorAll(".num");
+    if (!data) return;
+    const set = (n, v) => { n.textContent = String(v); };
+    if (counted || still) { nums.forEach((n) => set(n, data[n.dataset.key] ?? 0)); return; }
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      counted = true;
+      const start = performance.now();
+      const step = (now) => {
+        const k = Math.min(1, (now - start) / 1200), ease = 1 - (1 - k) ** 3;
+        nums.forEach((n) => set(n, Math.round((data[n.dataset.key] ?? 0) * ease)));
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }, { threshold: 0.4 });
+    io.observe(document.querySelector(".numbers"));
   }
 
-  function render() { renderStatic(); renderMeta(); renderRoute(); renderJobs(); renderCompanies(); }
+  function renderMeta() {
+    document.getElementById("hero-meta").textContent = data ? t("hero_meta", { date: Masar.date(data.updated_at, L.lang) }) : "";
+  }
 
-  // ---------- controls ----------
+  function render() {
+    L.apply();
+    Masar.nav(L.lang);
+    splitMega();
+    typeExamples();
+    renderMeta(); renderRoute(); renderBars(); renderNumbers(); renderRail(); renderLogos();
+  }
 
   document.getElementById("lang-toggle").addEventListener("click", () => { L.toggle(); render(); });
   Masar.initTheme();
-
   render();
+
   fetch("data/summary.json", { cache: "no-cache" })
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
-    .then((d) => { data = d; render(); })
-    .catch(() => { failed = true; render(); });
+    .then((d) => { data = d; renderMeta(); renderRoute(); renderBars(); renderNumbers(); })
+    .catch(() => { failed = true; renderRoute(); });
+
+  // exclusive postings come from the worker; the page works without them
+  const API = document.querySelector('meta[name="masar-api"]').content;
+  const exclusive = fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings.map((p) => ({
+    id: p.id, title: p.title, company: p.company, location: p.city, posted_at: (p.created_at || "").slice(0, 10),
+    countries: [p.country], regions: [], mode: p.workplace, employment: p.employment, exclusive: true,
+    logo: Masar.siteIcon(p.website),
+  }))).catch(() => []);
+  Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()).catch(() => ({ postings: [] })), exclusive])
+    .then(([d, ex]) => { postings = [...ex, ...d.postings]; renderRail(); renderLogos(); });
 })();
