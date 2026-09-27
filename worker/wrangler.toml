@@ -9,6 +9,10 @@ compatibility_date = "2025-01-01"
 [vars]
 # The site calls the worker from these origins only; anything else gets 403.
 ALLOWED_ORIGINS = "https://waelsaballyl.github.io,http://localhost:8765"
+# Google sign-in (student accounts): the OAuth web client in Google Cloud project
+# "masar" (masar-509920) on waelsaballyl@gmail.com. Public by design - it is sent
+# to every browser; the client secret is not used and not stored anywhere.
+GOOGLE_CLIENT_ID = "444959210306-4p6qenba8lspsc5bmipglj1scifar3ql.apps.googleusercontent.com"
 
 # errors from console.error show in the dashboard under the worker's Logs
 [observability]

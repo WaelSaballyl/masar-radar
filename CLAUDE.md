@@ -60,7 +60,8 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
 
 Student accounts (optional): `account.html` signs in with Google Identity Services only - no
 passwords, so no reset flow (email login comes after the domain + Resend). `src/auth.js` checks
-Google's ID token itself (RS256 against Google's JWKS, aud = `GOOGLE_CLIENT_ID` worker secret,
+Google's ID token itself (RS256 against Google's JWKS, aud = `GOOGLE_CLIENT_ID` in wrangler.toml vars - public; Google Cloud project "masar" (masar-509920) on
+waelsaballyl@gmail.com, published to production, origins github.io + localhost:8765; the client secret is unused,
 issuer, expiry, verified email; tests in test.mjs), stores users/sessions/user_data in D1 (session
 token hashed, 60 days). `core.js` syncs the keys in `SYNC` (profile, cvs, receipts, saved, applied,
 skipped): every `Masar.store.set` of one marks the browser dirty and pushes after 1.5 s; the worker
