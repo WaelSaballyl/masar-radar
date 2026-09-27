@@ -121,7 +121,7 @@ Home page v4 (2026-09-27, after joinhandshake.com): floating pill header, a full
 headline whose words rise in, a light search card that types its own examples, grey/burgundy
 aurora behind it, two rows of live posting cards sliding past (jobs.json + exclusive), company
 logos row, four tool tiles each with a small live demo (swipe tile is the burgundy one), skills
-line, count-up numbers, burgundy employers band, column footer. `core.js` now builds the top
+line, count-up numbers, burgundy employers band, column footer, and the name MASAR across the full width at the bottom of every page (Montserrat 800, the wordmark's letters, added by core.js). `core.js` now builds the top
 menu for every page (`Masar.nav`, one list - edit `NAV` there, not the HTML), adds the phone
 tab bar (not on swipe/admin/applicants/embed), and reveals `.reveal` sections on scroll.
 `404.html` uses `<base href="/masar-radar/">` - change it with the domain. Token names are old (`--mint` =

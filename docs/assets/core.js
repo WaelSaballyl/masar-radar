@@ -257,6 +257,27 @@ window.Masar = (() => {
     html.classList.add("has-tabbar");
   }
 
+  // The name across the whole width at the bottom of every page, in the
+  // wordmark's letters (Montserrat); each letter rises in when it is reached.
+  if (!noTabs && document.querySelector(".topbar")) {
+    const font = document.createElement("link");
+    font.rel = "stylesheet";
+    font.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap";
+    document.head.append(font);
+    const mark = el("div", "foot-mark reveal");
+    mark.setAttribute("aria-hidden", "true");
+    [..."MASAR"].forEach((c, i) => { const s = el("span", null, c); s.style.setProperty("--i", i); mark.append(s); });
+    const radar = el("div", "foot-radar", "• RADAR •");
+    radar.setAttribute("aria-hidden", "true");
+    const legal = el("p", "foot-legal");
+    const link = (href, text) => { const a = el("a", null, text); a.href = href; return a; };
+    legal.append(el("span", null, `© ${new Date().getFullYear()} مسار`), link("privacy.html", "الخصوصية"),
+      link("guide.html", "دليل التدريب التعاوني"), link("employers.html", "للشركات"));
+    const box = el("div", "foot-brand");
+    box.append(mark, radar, legal);
+    document.body.append(box);
+  }
+
   // Sections marked .reveal rise into place the first time they are seen.
   // Without script, or with reduced motion, they are simply there.
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
