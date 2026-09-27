@@ -10,6 +10,13 @@
   const $ = (id) => document.getElementById(id);
   const API = document.querySelector('meta[name="masar-api"]').content;
   const params = new URLSearchParams(location.search);
+  // shown beside the postings list: no page chrome, and links open in the whole window
+  if (params.has("embed")) {
+    document.documentElement.classList.add("embed");
+    const base = document.createElement("base");
+    base.target = "_top";
+    document.head.append(base);
+  }
   const id = params.get("id"), ex = params.get("ex");
   const list = (s) => (s || "").split(",").map((x) => x.trim()).filter(Boolean);
   const KIND = { coop: "coop", internship: "internship" };
@@ -101,6 +108,18 @@
       box.append(chips);
     };
     skills(1, "المهارات المطلوبة");
+    const missing = mine() ? p.skills.filter((s) => s[1] && !has(s[0])).map((s) => s[0]) : [];
+    if (missing.length) {
+      const gap = el("p", "nudge");
+      gap.append("ينقصك: ");
+      missing.forEach((s, i) => {
+        const a = el("a", null, s);
+        a.href = Masar.learnUrl(s); a.target = "_blank"; a.rel = "noopener";
+        gap.append(i ? "، " : "", a);
+      });
+      gap.append(". كل رابط يفتح دورات لهذه المهارة.");
+      box.append(gap);
+    }
     skills(0, "مهارات مفضّلة");
 
     if (p.description) {

@@ -801,3 +801,35 @@ a.skill:hover { border-color: var(--mint); }
 .install-bar { position: fixed; bottom: 16px; inset-inline-start: 16px; z-index: 50; display: flex; gap: 8px; align-items: center;
   padding: 8px; border-radius: 999px; background: var(--bar); border: 1px solid var(--hairline); box-shadow: 0 10px 30px rgb(0 0 0 / .4); }
 .feed-mode .install-bar { display: none; }
+
+.nudges { display: grid; gap: 8px; }
+.nudges:empty { display: none; }
+.nudge { margin: 0; padding: 10px 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--hairline); font-size: 15px; }
+.job .nudge { background: rgb(0 0 0 / .06); border-color: transparent; }
+.badge-new { border-radius: 999px; padding: 1px 10px; font-size: .85em; font-weight: 600; background: var(--wine); color: #FFFFFF; }
+
+/* the postings list with a posting open beside it (wide screens) */
+.board-body.has-detail { grid-template-columns: 230px minmax(0, 1fr) minmax(380px, 38%); }
+.board-body.has-detail .postings { grid-template-columns: 1fr; }
+.board-detail { position: sticky; top: 92px; height: calc(100vh - 110px); display: grid; grid-template-rows: auto 1fr; gap: 8px; }
+.board-detail iframe { width: 100%; height: 100%; border: 0; border-radius: 24px; background: var(--bg); }
+.detail-close { justify-self: end; }
+.posting.selected { box-shadow: 0 0 0 3px var(--text); }
+html.embed .topbar, html.embed footer, html.embed .crumbs, html.embed .install-bar { display: none !important; }
+html.embed body { background: var(--bg); }
+html.embed .wrap { padding-inline: 0; }
+html.embed .job { margin-top: 0; }
+@media (max-width: 1099px) { .board-detail { display: none !important; } }
+html.embed .job-title { font-size: 1.35rem; }
+
+/* the co-op guide */
+.guide section { margin-bottom: 34px; }
+.guide-bars { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 8px; }
+.guide-bars li { display: grid; grid-template-columns: 140px 1fr 48px; align-items: center; gap: 12px; }
+.guide-bars a { color: var(--text); font-weight: 600; direction: ltr; text-align: start; unicode-bidi: plaintext; }
+.guide-bar { height: 12px; border-radius: 999px; background: linear-gradient(90deg, var(--req), var(--req)) 0 0 / calc(var(--share) * 100%) 100% no-repeat, var(--surface-2); }
+[dir="rtl"] .guide-bar { background-position: 100% 0; }
+.guide-n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.guide-places { display: grid; gap: 6px; }
+.guide details { padding: 12px 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--hairline); margin-bottom: 8px; }
+.guide summary { cursor: pointer; font-weight: 600; }
