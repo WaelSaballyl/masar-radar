@@ -267,6 +267,7 @@
     const body = el("div", "reel-body");
     const tags = el("div", "posting-top");
     if (p.exclusive) tags.append(el("span", "badge-exclusive", "حصري على مسار"));
+    if (p.verified) tags.append(Masar.verifiedBadge());
     if (KINDS[p.kind] && p.kind !== "job") tags.append(el("span", "tag tag-training", KINDS[p.kind]));
     if (p.years != null) tags.append(el("span", "tag", yearsText(p.years)));
     if (MODES[p.mode]) tags.append(el("span", "tag", MODES[p.mode]));

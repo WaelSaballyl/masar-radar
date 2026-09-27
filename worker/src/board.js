@@ -18,7 +18,7 @@ const WORKPLACE = ["onsite", "hybrid", "remote"];
 const EMPLOYMENT = ["full_time", "part_time", "internship", "coop", "contract"];
 const LEVEL = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager"];
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM"];
-const PUBLIC = "id, company, website, title, city, country, workplace, employment, level, description, required, preferred, salary, apply_url, created_at, expires_at";
+const PUBLIC = "id, company, website, title, city, country, workplace, employment, level, description, required, preferred, salary, apply_url, created_at, expires_at, verified";
 
 const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const skills = (v) => text(v, 600).split(/[,،\n]/).map((s) => s.trim()).filter(Boolean).slice(0, 20).join(", ");
@@ -54,13 +54,16 @@ const SCAM = /رسوم|رسم تسجيل|تحويل مبلغ|ايداع|إيدا
 const DATA = /data|بيانات|analy|تحليل|\bbi\b|business intelligence|ذكاء الأعمال|sql|python|power ?bi|tableau|excel|dashboard|machine learning|تعلم الآلة|statistic|إحصاء|report/i;
 const host = (s) => { try { return new URL(s).hostname.replace(/^www\./, ""); } catch { return ""; } };
 
+// the contact email is on the company site's own domain (hr@acme.sa for acme.sa)
+export const sameDomain = (mail, site) => !!mail && !!site && (mail === site || mail.endsWith(`.${site}`) || site.endsWith(`.${mail}`));
+
 export function screen(p, duplicate = false) {
   const red = [], yellow = [];
   const all = `${p.title}\n${p.description}\n${p.salary}\n${p.apply_url}`;
   if (SCAM.test(all)) red.push("طلب رسوم أو بيانات شخصية أو تواصل عبر واتساب/تيليجرام");
   const site = host(p.website), mail = p.contact_email.split("@")[1] || "";
   if (!site) yellow.push("لا يوجد موقع للشركة");
-  else if (mail !== site && !mail.endsWith(`.${site}`) && !site.endsWith(`.${mail}`)) yellow.push(`دومين الإيميل (${mail}) لا يطابق الموقع (${site})`);
+  else if (!sameDomain(mail, site)) yellow.push(`دومين الإيميل (${mail}) لا يطابق الموقع (${site})`);
   if (!DATA.test(`${p.title} ${p.required}`)) yellow.push("الوظيفة لا تبدو وظيفة بيانات");
   const pay = Math.max(0, ...(p.salary.replace(/[,٬]/g, "").match(/\d+/g) || []).map(Number));
   if (["internship", "coop"].includes(p.employment) && pay > 15000) yellow.push("مكافأة تدريب عالية بشكل غير معتاد");
@@ -159,11 +162,12 @@ async function submit(input, env) {
   const id = newId(), manage = newToken();
   await env.DB.prepare(
     `INSERT INTO postings (id, status, created_at, reviewed_at, expires_at, company, website, contact_email, title, city,
-       country, workplace, employment, level, description, required, preferred, salary, apply_url, risk, reasons, manage_hash)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       country, workplace, employment, level, description, required, preferred, salary, apply_url, risk, reasons, manage_hash, verified)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(id, status, now.toISOString(), status === "pending" ? null : now.toISOString(), expires.toISOString().slice(0, 10),
     p.company, p.website, p.contact_email, p.title, p.city, p.country, p.workplace, p.employment, p.level,
-    p.description, p.required, p.preferred, p.salary, p.apply_url, risk, reasons.join("\n"), await sha(manage)).run();
+    p.description, p.required, p.preferred, p.salary, p.apply_url, risk, reasons.join("\n"), await sha(manage),
+    sameDomain(p.contact_email.split("@")[1] || "", host(p.website)) ? 1 : 0).run();
   // the same answer whatever the verdict: a rejected scammer learns nothing
   return { id, manage };
 }

@@ -783,3 +783,21 @@ a.skill:hover { border-color: var(--mint); }
 .feed-mode .feed { top: 98px; height: calc(100dvh - 98px); }
 .feed-mode.demo .feed { top: 128px; height: calc(100dvh - 128px); }
 .feed-mode .reel { padding-top: 26px; }
+
+.badge-verified { border-radius: 999px; padding: 1px 10px; font-size: .85em; font-weight: 600; background: #161616; color: #E0E0E0; }
+/* employers: facts, then the three steps */
+.pitch { display: grid; gap: 22px; margin-bottom: 32px; }
+.pitch-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.fact { display: grid; gap: 4px; padding: 18px 20px; border-radius: 24px; background: var(--panel); color: #111111; }
+.fact strong { font: 800 1.7rem/1.2 var(--plex); direction: ltr; text-align: start; unicode-bidi: plaintext; }
+.fact span { font-size: 14px; color: #3F3F3F; }
+.pitch-steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pitch-steps li { counter-increment: step; display: grid; gap: 6px; align-content: start; padding: 18px 20px; border-radius: 24px;
+  background: var(--surface); border: 1px solid var(--hairline); }
+.pitch-steps li::before { content: counter(step); display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--mint); color: var(--on-mint); font-weight: 700; }
+.pitch-steps span { color: var(--muted); font-size: 15px; }
+@media (max-width: 720px) { .pitch-facts, .pitch-steps { grid-template-columns: 1fr; } }
+.install-bar { position: fixed; bottom: 16px; inset-inline-start: 16px; z-index: 50; display: flex; gap: 8px; align-items: center;
+  padding: 8px; border-radius: 999px; background: var(--bar); border: 1px solid var(--hairline); box-shadow: 0 10px 30px rgb(0 0 0 / .4); }
+.feed-mode .install-bar { display: none; }

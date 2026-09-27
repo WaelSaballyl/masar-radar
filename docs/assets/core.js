@@ -168,12 +168,37 @@ window.Masar = (() => {
     box.append(img);
     return box;
   }
+  // an employer whose contact email is on its own site's domain
+  const verifiedBadge = () => {
+    const b = el("span", "badge-verified", "✓ موثّقة");
+    b.title = "إيميل الشركة من نفس دومين موقعها";
+    return b;
+  };
   // an exclusive posting's logo: the icon of the company's own site
   const siteIcon = (website) => {
     try { return `https://www.google.com/s2/favicons?domain=${new URL(website).hostname}&sz=128`; } catch { return ""; }
   };
   const yearsText = (n) => (n === 0 ? "بدون خبرة" : n === 1 ? "خبرة سنة" : n === 2 ? "خبرة سنتين" : `خبرة ${n}+ سنوات`);
 
+  // Installable as an app: the service worker on the live site only (a local
+  // preview would otherwise serve cached files), and an install button where
+  // the browser offers one (Android Chrome; iPhone uses Share > Add to Home).
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+  window.addEventListener("beforeinstallprompt", (e) => {
+    if (store.get("masar.install") === "no") return;
+    e.preventDefault();
+    const bar = el("div", "install-bar");
+    const yes = el("button", "btn btn-primary btn-small", "ثبّت مسار على جوالك");
+    const no = el("button", "icon-btn", "لاحقاً");
+    yes.type = no.type = "button";
+    yes.onclick = () => { e.prompt(); bar.remove(); };
+    no.onclick = () => { store.set("masar.install", "no"); bar.remove(); };
+    bar.append(yes, no);
+    document.body.append(bar);
+  }, { once: true });
+
   return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme,
-           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon };
+           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge };
 })();
