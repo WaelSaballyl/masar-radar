@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=33">
+<link rel="stylesheet" href="assets/masar.css?v=37">
 </head>
 <body>
 <div class="wrap">
@@ -41,7 +41,7 @@
   <main>
     <div class="page-head">
       <h1>إعلانات وظائف البيانات</h1>
-      <p class="section-lede">كل الإعلانات المفتوحة الآن، السعودية والخليج أولاً ثم ما يمكن العمل فيه عن بُعد، والأحدث أولاً في كل قسم. تحت كل إعلان المهارات التي يطلبها. على الإعلانات الحصرية تقدر تقدّم من هنا، أو <a href="swipe.html">بالسحب بطاقة بطاقة</a>، وتتابع ردود الشركات في <a href="applications.html">طلباتي</a>.</p>
+      <p class="section-lede">كل الإعلانات المفتوحة الآن، السعودية والخليج أولاً ثم ما يمكن العمل فيه عن بُعد، والأحدث أولاً في كل قسم. تحت كل إعلان المهارات التي يطلبها. على الإعلانات الحصرية تقدر تقدّم من هنا، أو <a href="swipe.html">بالسحب بطاقة بطاقة</a>، وتتابع ردود الشركات في <a href="applications.html">طلباتي</a>. جديد على التعاوني؟ ابدأ من <a href="guide.html">الدليل</a>.</p>
     </div>
 
     <form class="board" id="filters" onsubmit="return false" aria-label="البحث في الإعلانات">
@@ -100,11 +100,16 @@
           <button class="btn btn-quiet btn-small" type="button" id="reset">امسح الفلاتر</button>
         </aside>
         <section class="board-list">
+          <div class="nudges" id="nudges"></div>
           <div class="chips" id="chips" aria-label="الفلاتر المختارة"></div>
           <p class="match-meta" id="meta" aria-live="polite"></p>
           <div id="groups"></div>
           <button class="more" type="button" id="more" hidden></button>
         </section>
+        <aside class="board-detail" id="detail" hidden aria-label="تفاصيل الإعلان">
+          <button class="icon-btn detail-close" type="button" id="detail-close">أغلق ×</button>
+          <iframe id="detail-frame" title="تفاصيل الإعلان"></iframe>
+        </aside>
       </div>
     </form>
   </main>
@@ -118,7 +123,7 @@
     <span>و</span><a href="https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch" rel="noopener">JSearch</a>.
   </footer>
 </div>
-<script src="assets/core.js?v=33"></script>
-<script src="assets/jobs.js?v=33"></script>
+<script src="assets/core.js?v=34"></script>
+<script src="assets/jobs.js?v=35"></script>
 </body>
 </html>

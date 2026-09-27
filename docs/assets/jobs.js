@@ -21,6 +21,16 @@
   const MID_UP = ["Mid", "Senior", "Lead", "Manager"];
 
   let postings = [];
+  // "new" means posted after the last day the student came, and stays new
+  // through reloads on the same day
+  let lastVisit = "";
+  try {
+    const today = new Date().toISOString().slice(0, 10), last = Masar.store.get("masar.visit") || "";
+    if (last && last !== today) Masar.store.set("masar.visitPrev", last);
+    Masar.store.set("masar.visit", today);
+    lastVisit = Masar.store.get("masar.visitPrev") || "";
+  } catch { /* storage blocked */ }
+  const isNew = (p) => lastVisit && (p.posted_at || "") > lastVisit;
   let shown = PAGE;
   Masar.initTheme();
 
@@ -54,6 +64,7 @@
     if (LEVELS[p.level] && !(p.level === "Intern" && p.kind !== "job")) top.append(el("span", `level level-${ENTRY.includes(p.level) ? p.level.toLowerCase() : "other"}`, LEVELS[p.level]));
     if (p.years != null) top.append(el("span", "tag", YEARS(p.years)));
     if (MODES[p.mode]) top.append(el("span", "tag", MODES[p.mode]));
+    if (isNew(p)) top.append(el("span", "badge-new", "جديد"));
     top.append(el("span", "posting-age", ago(p.posted_at, "ar")));
 
     const title = el("h3", "posting-title");
@@ -234,9 +245,38 @@
     const roles = [...new Set(postings.map((p) => p.role).filter((r) => ROLES[r]))];
     roles.forEach((r) => { const o = el("option", null, ROLES[r]); o.value = r; $("role").append(o); });
     if (given.get("role")) $("role").value = given.get("role");
+    nudges();
     chips();
     render();
   }).catch(() => { $("meta").textContent = "تعذّر تحميل الإعلانات. حدّث الصفحة بعد قليل."; });
+
+  // Two nudges above the results: what is new since the last visit, and the
+  // one skill that would complete the most postings for this student.
+  function nudges() {
+    const box = $("nudges");
+    box.replaceChildren();
+    const fresh = postings.filter(isNew).length;
+    if (fresh) {
+      const n = el("p", "nudge");
+      n.append("منذ زيارتك الأخيرة نُشر ", el("strong", null, count(fresh, "posting")), "، وعليها شارة \"جديد\".");
+      box.append(n);
+    }
+    if (!mine()) return;
+    const one = new Map();
+    postings.forEach((p) => {
+      const missing = p.skills.filter((s) => s[1] && !has(s[0])).map((s) => s[0]);
+      if (missing.length === 1 && p.skills.filter((s) => s[1]).length >= 2) one.set(missing[0], (one.get(missing[0]) || 0) + 1);
+    });
+    const [skill, n] = [...one.entries()].sort((a, b) => b[1] - a[1])[0] || [];
+    if (!skill || n < 2) return;
+    const tip = el("p", "nudge");
+    const learn = el("a", null, "ابحث عن دورة");
+    learn.href = Masar.learnUrl(skill); learn.target = "_blank"; learn.rel = "noopener";
+    const see = el("a", null, "اعرضها");
+    see.href = `jobs.html?q=${encodeURIComponent(skill)}`;
+    tip.append("ينقصك مهارة واحدة في ", el("strong", null, count(n, "posting")), ": ", el("strong", null, skill), ". ", learn, " أو ", see, ".");
+    box.append(tip);
+  }
 
   // the chosen filters above the results, each with its own x, and one reset
   const DEFAULTS = { q: "", where: "", type: "", exp: "", level: "", role: "", sort: "new" };
@@ -287,5 +327,24 @@
   chips();
 
   $("filters").addEventListener("input", changed);
+
+  // Wide screens: a posting opens beside the list, as on the big job boards;
+  // narrow ones follow the link to its own page.
+  const WIDE = matchMedia("(min-width: 1100px)");
+  $("groups").addEventListener("click", (e) => {
+    const a = e.target.closest(".posting-title a");
+    if (!a || !WIDE.matches || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    document.querySelectorAll(".posting.selected").forEach((x) => x.classList.remove("selected"));
+    a.closest(".posting").classList.add("selected");
+    $("detail-frame").src = `${a.getAttribute("href")}&embed=1`;
+    $("detail").hidden = false;
+    document.querySelector(".board-body").classList.add("has-detail");
+  });
+  $("detail-close").addEventListener("click", () => {
+    $("detail").hidden = true;
+    document.querySelector(".board-body").classList.remove("has-detail");
+    document.querySelectorAll(".posting.selected").forEach((x) => x.classList.remove("selected"));
+  });
   $("more").addEventListener("click", () => { shown += PAGE; render(); });
 })();

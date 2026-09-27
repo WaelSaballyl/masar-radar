@@ -168,6 +168,8 @@ window.Masar = (() => {
     box.append(img);
     return box;
   }
+  // a place to learn a skill: a course search, never a paid placement
+  const learnUrl = (skill) => `https://www.coursera.org/search?query=${encodeURIComponent(skill)}`;
   // an employer whose contact email is on its own site's domain
   const verifiedBadge = () => {
     const b = el("span", "badge-verified", "✓ موثّقة");
@@ -200,5 +202,5 @@ window.Masar = (() => {
   }, { once: true });
 
   return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme,
-           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge };
+           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, learnUrl };
 })();
