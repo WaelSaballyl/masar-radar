@@ -1119,3 +1119,23 @@ html.motion .reveal.in { opacity: 1; transform: none; }
 .line-panel .route { display: block; min-height: 0; margin: 0; padding: 0; }
 .line-panel .route::before { inset-inline: auto; inset-inline-start: 11px; inset-block: 22px; top: 22px; width: 6px; height: auto; opacity: 1; }
 .big-h { max-width: 24ch; }
+
+/* ---------- the name across the bottom of every page (core.js) ---------- */
+.foot-brand { padding: 48px 0 24px; border-top: 1px solid var(--hairline); overflow: hidden; }
+.foot-mark { container-type: inline-size; direction: ltr; text-align: center; overflow: hidden;
+  font-family: "Montserrat", var(--plex); font-weight: 800; color: var(--logo); line-height: .78;
+  padding: .04em 12px 0; user-select: none; }
+.foot-mark span { display: inline-block; font-size: 25.5cqi; letter-spacing: -.01em; }
+html.motion .foot-mark.reveal { opacity: 1; transform: none; }
+html.motion .foot-mark span { transform: translateY(105%); transition: transform 1s cubic-bezier(.2, .8, .2, 1); transition-delay: calc(var(--i) * .08s); }
+html.motion .foot-mark.in span { transform: none; }
+.foot-legal { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: space-between; margin: 20px auto 0;
+  max-width: 1120px; padding-inline: 20px; color: var(--muted); font-size: .88rem; }
+.foot-legal a { color: var(--muted); text-decoration: none; }
+.foot-legal a:hover { color: var(--text); }
+.foot-legal span { margin-inline-end: auto; }
+.home .site-foot { padding-bottom: 8px; }
+/* "---- • RADAR • ----" under the name, as in the wordmark */
+.foot-radar { display: flex; align-items: center; gap: 18px; direction: ltr; margin: 14px 12px 0; color: var(--logo);
+  font-family: "Montserrat", var(--plex); font-weight: 800; font-size: clamp(.8rem, 1.6vw, 1.3rem); letter-spacing: .6em; }
+.foot-radar::before, .foot-radar::after { content: ""; flex: 1; height: 2px; background: currentColor; }
