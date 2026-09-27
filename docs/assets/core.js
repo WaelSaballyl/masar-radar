@@ -201,6 +201,72 @@ window.Masar = (() => {
     document.body.append(bar);
   }, { once: true });
 
-  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme,
+  // One menu for every page, so no page forgets a section. The home page
+  // calls nav(lang) again when its language changes.
+  const NAV = [
+    ["jobs.html", "الإعلانات", "Postings"],
+    ["swipe.html", "قدّم بالسحب", "Swipe to apply"],
+    ["cv.html", "سيرتك", "Your CV"],
+    ["applications.html", "طلباتي", "My applications"],
+    ["dashboard.html", "مؤشر السوق", "Market index"],
+    ["employers.html", "للشركات", "Employers"],
+  ];
+  const here = location.pathname.split("/").pop() || "index.html";
+  function nav(lang = "ar") {
+    const box = document.querySelector(".topbar .nav");
+    if (!box) return;
+    box.replaceChildren(...NAV.map(([href, ar, en]) => {
+      const a = el("a", null, lang === "en" ? en : ar);
+      a.href = href;
+      if (href === here) a.setAttribute("aria-current", "page");
+      return a;
+    }));
+  }
+  nav();
+
+  // Phones get the main sections as a bar under the thumb, like an app. Not on
+  // the swipe feed (it fills the screen), the employer and admin pages, or a
+  // posting shown inside the board.
+  const ICON = {
+    home: "M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z",
+    jobs: "M4 7h16v12H4zM9 7V5h6v2M4 12h16",
+    swipe: "M7 4h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM10 12l2 2 3-4",
+    cv: "M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5",
+    apps: "M5 5h14M5 12h14M5 19h9M17 17l2 2 3-4",
+  };
+  const TABS = [["./", "home", "الرئيسية"], ["jobs.html", "jobs", "الإعلانات"], ["swipe.html", "swipe", "سحب"],
+                ["cv.html", "cv", "سيرتك"], ["applications.html", "apps", "طلباتي"]];
+  const noTabs = ["swipe.html", "admin.html", "applicants.html"].includes(here) || /[?&]embed=/.test(location.search);
+  if (!noTabs && document.querySelector(".topbar")) {
+    const bar = el("nav", "tabbar");
+    bar.setAttribute("aria-label", "التنقل السريع");
+    TABS.forEach(([href, icon, label]) => {
+      const a = el("a");
+      a.href = href;
+      if (href === here || (href === "./" && here === "index.html")) a.setAttribute("aria-current", "page");
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.setAttribute("aria-hidden", "true");
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", ICON[icon]);
+      svg.append(path);
+      a.append(svg, el("span", null, label));
+      bar.append(a);
+    });
+    document.body.append(bar);
+    html.classList.add("has-tabbar");
+  }
+
+  // Sections marked .reveal rise into place the first time they are seen.
+  // Without script, or with reduced motion, they are simply there.
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+    html.classList.add("motion");
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }), { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach((n) => io.observe(n));
+  }
+
+  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme, nav,
            LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, learnUrl };
 })();
