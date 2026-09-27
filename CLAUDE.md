@@ -58,6 +58,17 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
   Each apply returns a receipt (hash stored) kept in `masar.receipts`; `applications.html` ("my
   applications") posts them to `/board/mine` for status, first-viewed time and shortlist.
 
+Student accounts (optional): `account.html` signs in with Google Identity Services only - no
+passwords, so no reset flow (email login comes after the domain + Resend). `src/auth.js` checks
+Google's ID token itself (RS256 against Google's JWKS, aud = `GOOGLE_CLIENT_ID` worker secret,
+issuer, expiry, verified email; tests in test.mjs), stores users/sessions/user_data in D1 (session
+token hashed, 60 days). `core.js` syncs the keys in `SYNC` (profile, cvs, receipts, saved, applied,
+skipped): every `Masar.store.set` of one marks the browser dirty and pushes after 1.5 s; the worker
+refuses a write not based on its latest `rev` (409 + its copy), the browser merges (lists joined,
+local profile wins unless empty) and retries. Keep the worker's `SYNC_KEYS` and core's `SYNC` equal.
+Only a first sign-in or a 409 merges; otherwise the local copy is sent as is, so clearing sticks.
+Header shows "دخول" or the initial (`Masar.accountButton`).
+
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
 to `jobs.html?q=Skill`). `radar/traits.py` decides type and years by fixed rules at export:

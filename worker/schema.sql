@@ -57,3 +57,29 @@ ALTER TABLE postings ADD COLUMN verified INTEGER NOT NULL DEFAULT 0;
 
 -- the student asked the employer, once, a week after applying, to look at the application
 ALTER TABLE applications ADD COLUMN nudged_at TEXT;
+
+-- Student accounts (src/auth.js): Google sign-in, no passwords. Only a hash of
+-- each session token is kept. user_data holds the browser's synced keys as one
+-- JSON object; rev rises by one per write so two devices cannot overwrite each other.
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  google_sub TEXT UNIQUE NOT NULL,
+  email TEXT NOT NULL,
+  name TEXT,
+  picture TEXT,
+  created_at TEXT NOT NULL,
+  last_login TEXT
+);
+CREATE TABLE IF NOT EXISTS sessions (
+  token_hash TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_user ON sessions (user_id);
+CREATE TABLE IF NOT EXISTS user_data (
+  user_id TEXT PRIMARY KEY,
+  data TEXT NOT NULL,
+  rev INTEGER NOT NULL,
+  updated_at TEXT NOT NULL
+);

@@ -1139,3 +1139,32 @@ html.motion .foot-mark.in span { transform: none; }
 .foot-radar { display: flex; align-items: center; gap: 18px; direction: ltr; margin: 14px 12px 0; color: var(--logo);
   font-family: "Montserrat", var(--plex); font-weight: 800; font-size: clamp(.8rem, 1.6vw, 1.3rem); letter-spacing: .6em; }
 .foot-radar::before, .foot-radar::after { content: ""; flex: 1; height: 2px; background: currentColor; }
+
+/* ---------- accounts ---------- */
+.account-btn { display: inline-grid; place-items: center; text-decoration: none; font-weight: 600; }
+.account-btn.in { width: 40px; min-width: 40px; padding: 0; border-radius: 50%; background: var(--mint); color: var(--on-mint); border-color: var(--mint); }
+.account { max-width: 680px; margin-inline: auto; padding-block: 48px 72px; }
+.account-card { --text: #111111; --muted: #3F3F3F; --hairline: #B5B5B5; --surface: #E2E2E2; --mint: #161616; --mint-text: #111111;
+  --on-mint: #E0E0E0; --focus: #1C1C1C; background: var(--panel); color: var(--text); border-radius: 32px; padding: clamp(24px, 5vw, 44px); }
+.account-card a { color: var(--text); }
+.account-card h1 { font-family: var(--kufi); font-weight: 800; font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.4; margin: 0 0 8px; }
+.google-btn { min-height: 44px; margin: 8px 0 4px; }
+.account-facts { list-style: none; padding: 0; margin: 22px 0 16px; display: grid; gap: 12px; }
+.account-facts li { padding: 14px 16px; border-radius: 18px; background: rgb(0 0 0 / .06); }
+.account-who { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.account-who h1 { margin: 0; unicode-bidi: plaintext; }
+.account-who p { margin: 0; direction: ltr; text-align: right; }
+.account-avatar { flex: none; width: 64px; height: 64px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+  background: #161616; color: #E0E0E0; font-family: var(--kufi); font-weight: 800; font-size: 1.6rem; }
+.account-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sync-state { color: var(--muted); margin: 0 0 18px; }
+.account-links, .account-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.danger { margin-top: 18px; border-top: 1px solid var(--hairline); padding-top: 14px; }
+.danger summary { cursor: pointer; color: var(--wine); font-weight: 600; }
+.danger p { color: var(--muted); }
+.btn-danger { background: var(--wine); color: #FFFFFF; }
+.account .status { min-height: 1.6em; color: var(--muted); margin: 8px 0 0; }
+.account .status.bad { color: var(--wine); }
+.synced-bar { position: fixed; z-index: 45; top: 84px; inset-inline: 16px; max-width: 520px; margin-inline: auto; display: flex;
+  align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; border-radius: 20px;
+  background: var(--surface); border: 1px solid var(--hairline); box-shadow: 0 10px 30px rgb(0 0 0 / .3); }

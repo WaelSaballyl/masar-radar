@@ -12,6 +12,7 @@
 
 import { audit, covers, mentions, numbersIn, restore, strings, str } from "./audit.js";
 import { board } from "./board.js";
+import { auth } from "./auth.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -35,6 +36,17 @@ export default {
         "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Max-Age": "86400" } });
     }
     const path = new URL(request.url).pathname;
+    // student accounts; only signing in is rate limited, a signed-in device syncs freely
+    if (path.startsWith("/auth/")) {
+      if (path === "/auth/google" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      try {
+        const out = await auth(request, env, path);
+        return out ? reply(200, out) : reply(404, { error: "path" });
+      } catch (e) {
+        if (!e.code) console.error(e.stack || e);
+        return reply(e.status || 500, { error: e.code || "server", ...e.extra });
+      }
+    }
     // exclusive postings; reading the public list is not rate limited
     if (path.startsWith("/board/")) {
       if (request.method === "POST" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
