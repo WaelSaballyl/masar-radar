@@ -21,6 +21,7 @@
     const top = el("div", "posting-top");
     top.append(el("span", `tag app-${a.status}`, STATUS[a.status]));
     if (a.required) top.append(el("span", "level level-intern", `يطابق ${a.matched} من ${a.required} مهارات مطلوبة`));
+    if (a.nudged_at) top.append(el("span", "badge-new", "ذكّرك بطلبه"));
     top.append(el("span", "posting-age", Masar.ago(a.created_at.slice(0, 10), "ar")));
     const name = el("h3", "posting-title", a.name);
     name.dir = "auto";

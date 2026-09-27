@@ -38,10 +38,34 @@
     else if (!a.viewed_at) note = "لم تفتح الشركة سيرتك بعد.";
     if (note) li.append(el("p", `app-note${a.status === "rejected" ? " muted" : ""}`, note));
     if (a.required) li.append(el("p", "muted", `قدّمت وعندك ${a.matched} من ${a.required} مهارات مطلوبة.`));
+    // where the student stands: shown from three applicants up, rounded to tens
+    if (a.applicants >= 3) {
+      const top = Math.max(10, Math.ceil(((a.ahead + 1) / a.applicants) * 10) * 10);
+      li.append(el("p", "rank", top < 100 ? `أنت ضمن أقرب ${top}٪ من ${a.applicants} متقدمين لمتطلبات الإعلان.`
+        : `تقدّم ${a.applicants} على هذا الإعلان، وعند أغلبهم مهارات مطلوبة أكثر منك.`));
+    }
+    // a week without an answer: one reminder to the employer
+    const week = Date.now() - new Date(a.created_at).getTime() >= 7 * 86_400_000;
+    if (a.nudged_at) li.append(el("p", "muted", "ذكّرت الشركة بطلبك."));
+    else if (week && !["shortlisted", "rejected"].includes(a.status) && receiptOf[a.hash]) {
+      const b = el("button", "btn btn-quiet btn-small", "ذكّر الشركة بطلبك");
+      b.type = "button";
+      b.onclick = async () => {
+        b.disabled = true;
+        const r = await fetch(`${API}/board/nudge`, { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ receipt: receiptOf[a.hash] }) }).catch(() => null);
+        b.replaceWith(el("p", "muted", r && r.ok ? "ذكّرنا الشركة بطلبك. يظهر لها ذلك في صفحة المتقدمين." : "تعذّر التذكير الآن."));
+      };
+      const why = el("p", "muted", "مرّ أسبوع بلا رد. تستطيع تذكير الشركة مرة واحدة.");
+      li.append(why, b);
+    }
     return li;
   }
 
   const receipts = MasarCV.receipts();
+  // the worker answers with each receipt's hash; this maps it back
+  const receiptOf = {};
+  const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
   if (!receipts.length) {
     $("meta").textContent = "";
     const a = el("a", null, "الإعلانات الحصرية");
@@ -51,7 +75,8 @@
   }
   fetch(`${API}/board/mine`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ receipts }) })
     .then((r) => r.json())
-    .then(({ applications }) => {
+    .then(async ({ applications }) => {
+      for (const r of receipts) receiptOf[hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(r)))] = r;
       const picked = applications.filter((a) => a.status === "shortlisted").length;
       $("meta").textContent = Masar.count(applications.length, "application", "ar")
         + (!picked ? "." : applications.length === 1 ? "، وهو في القائمة المختصرة."

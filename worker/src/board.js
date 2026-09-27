@@ -120,11 +120,30 @@ async function mine(input, env) {
   if (!receipts.length) return { applications: [] };
   const hashes = await Promise.all(receipts.map(sha));
   const { results } = await env.DB.prepare(
-    `SELECT p.id AS posting_id, p.title, p.company, p.city, p.expires_at, a.created_at, a.status, a.viewed_at, a.matched, a.required
+    // where the student stands among this posting's applicants: counts only, nobody else's data
+    `SELECT p.id AS posting_id, p.title, p.company, p.city, p.expires_at, a.created_at, a.status, a.viewed_at, a.nudged_at,
+            a.matched, a.required, a.receipt_hash AS hash,
+            (SELECT COUNT(*) FROM applications b WHERE b.posting_id = a.posting_id) AS applicants,
+            (SELECT COUNT(*) FROM applications b WHERE b.posting_id = a.posting_id
+               AND b.matched * 1.0 / max(b.required, 1) > a.matched * 1.0 / max(a.required, 1)) AS ahead
        FROM applications a JOIN postings p ON p.id = a.posting_id
       WHERE a.receipt_hash IN (${hashes.map(() => "?").join(",")}) ORDER BY a.created_at DESC`,
   ).bind(...hashes).all();
   return { applications: results };
+}
+
+// A week after applying with no answer, the student may remind the employer,
+// once; the applicants page marks the application.
+async function nudge(input, env) {
+  const receipt = text(input.receipt, 48);
+  if (!/^[a-f0-9]{48}$/.test(receipt)) throw bad("receipt");
+  const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
+  const { meta } = await env.DB.prepare(
+    `UPDATE applications SET nudged_at = ? WHERE receipt_hash = ? AND nudged_at IS NULL AND created_at <= ?
+       AND status NOT IN ('shortlisted', 'rejected')`,
+  ).bind(new Date().toISOString(), await sha(receipt), weekAgo).run();
+  if (!meta.changes) throw refuse("nudge", 409);
+  return { ok: true };
 }
 
 async function submit(input, env) {
@@ -183,6 +202,7 @@ export async function board(request, env, path) {
   if (path === "/board/postings" && request.method === "POST") return submit(await body(request), env);
   if (path === "/board/apply" && request.method === "POST") return apply(await body(request), env);
   if (path === "/board/mine" && request.method === "POST") return mine(await body(request), env);
+  if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request), env);
 
   // the employer's applicants: best match first
   const own = path.match(/^\/board\/manage\/([a-f0-9]{12})(?:\/([a-f0-9]{12}))?(?:\/(new|shortlisted|rejected))?$/);
@@ -192,7 +212,7 @@ export async function board(request, env, path) {
     if (!app && request.method === "GET") {
       const posting = await env.DB.prepare("SELECT id, title, company, city, status, expires_at FROM postings WHERE id = ?").bind(id).first();
       const { results } = await env.DB.prepare(
-        `SELECT id, created_at, status, name, email, phone, link, matched, required FROM applications WHERE posting_id = ?
+        `SELECT id, created_at, status, name, email, phone, link, matched, required, nudged_at FROM applications WHERE posting_id = ?
          ORDER BY (matched * 1.0 / max(required, 1)) DESC, created_at LIMIT 500`,
       ).bind(id).all();
       // a rejected posting reads as "in review": its sender learns nothing
