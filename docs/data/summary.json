@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-09-25T20:55:03+00:00",
- "active_postings": 217,
- "total_postings": 244,
- "companies": 31,
+ "updated_at": "2026-09-27T09:22:12+00:00",
+ "active_postings": 198,
+ "total_postings": 304,
+ "companies": 40,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,101 +10,101 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 30,
- "gulf_postings": 39,
+ "entry_postings": 27,
+ "gulf_postings": 50,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 30,
+  "postings": 27,
   "stops": [
    {
-    "name": "Excel",
-    "postings": 8,
-    "share": 0.267
+    "name": "SQL",
+    "postings": 10,
+    "share": 0.37
+   },
+   {
+    "name": "ETL",
+    "postings": 9,
+    "share": 0.333
    },
    {
     "name": "Python",
-    "postings": 8,
-    "share": 0.267
+    "postings": 9,
+    "share": 0.333
+   },
+   {
+    "name": "Data Governance",
+    "postings": 7,
+    "share": 0.259
    },
    {
     "name": "Data Modeling",
     "postings": 7,
-    "share": 0.233
+    "share": 0.259
    },
    {
-    "name": "SQL",
-    "postings": 7,
-    "share": 0.233
-   },
-   {
-    "name": "ETL",
+    "name": "Excel",
     "postings": 6,
-    "share": 0.2
+    "share": 0.222
    },
    {
-    "name": "Data Governance",
-    "postings": 5,
-    "share": 0.167
-   },
-   {
-    "name": "Google Sheets",
+    "name": "Machine Learning",
     "postings": 4,
-    "share": 0.133
+    "share": 0.148
    }
   ]
  },
  "top_skills": [
   {
-   "name": "Python",
-   "postings": 105,
-   "share": 0.484
-  },
-  {
    "name": "SQL",
    "postings": 96,
-   "share": 0.442
+   "share": 0.485
   },
   {
-   "name": "Data Modeling",
-   "postings": 67,
-   "share": 0.309
+   "name": "Python",
+   "postings": 85,
+   "share": 0.429
   },
   {
    "name": "Data Governance",
-   "postings": 62,
-   "share": 0.286
+   "postings": 67,
+   "share": 0.338
+  },
+  {
+   "name": "Data Modeling",
+   "postings": 65,
+   "share": 0.328
   },
   {
    "name": "ETL",
-   "postings": 55,
-   "share": 0.253
-  },
-  {
-   "name": "A/B Testing",
-   "postings": 38,
-   "share": 0.175
+   "postings": 64,
+   "share": 0.323
   },
   {
    "name": "Machine Learning",
-   "postings": 36,
-   "share": 0.166
+   "postings": 40,
+   "share": 0.202
   },
   {
    "name": "Statistics",
    "postings": 30,
-   "share": 0.138
+   "share": 0.152
+  },
+  {
+   "name": "A/B Testing",
+   "postings": 28,
+   "share": 0.141
   },
   {
    "name": "dbt",
-   "postings": 28,
-   "share": 0.129
+   "postings": 27,
+   "share": 0.136
   },
   {
-   "name": "BigQuery",
+   "name": "Snowflake",
    "postings": 25,
-   "share": 0.115
+   "share": 0.126
   }
  ],
  "entry_jobs": [
@@ -127,8 +127,8 @@
   {
    "title": "Intern Data Engineer - Path to Junior Analytics Engineer",
    "company": "تابي",
-   "location": "الرياض, SA",
-   "url": "https://sa.jobrapido.com/jobpreview/4163882074480050176",
+   "location": "",
+   "url": "https://www.jobleads.com/sa/job/intern-data-engineer-path-to-junior-analytics-engineer--saudi-arabia--ef9f3d7acc41d141a26443fdd03b80f79",
    "level": "Intern",
    "posted_at": ""
   },
@@ -137,6 +137,14 @@
    "company": "Alturki Holding",
    "location": "الدمام, SA",
    "url": "https://www.jobleads.com/sa/job/finance-co-op-intern-reporting-data-analysis--dammam--e66566a9b066f7aecdf559a9ad084d27c",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
+   "title": "Data Science Internship 2024",
+   "company": "Mozn",
+   "location": "",
+   "url": "https://www.karkidi.com/job-details/77965-data-science-internship-2024-job",
    "level": "Intern",
    "posted_at": ""
   },
@@ -173,6 +181,14 @@
    "posted_at": ""
   },
   {
+   "title": "Business Analytics Training and Internship",
+   "company": "Refonte Learning",
+   "location": "الرياض, SA",
+   "url": "https://www.getsaudijobs.com/jobs/view/business-analytics-training-internship",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
    "title": "Business Analyst Intern",
    "company": "SoftwareOne",
    "location": "",
@@ -193,33 +209,42 @@
   "Jobgether",
   "تابي",
   "الصافي دانون",
+  "Brainlake Advertising LLC",
   "Nexttec Technology Outsourcing",
+  "Team Saudi",
   "Carrefour KSA",
   "Salla",
-  "Refonte Technologies",
   "Assystem",
   "YO IT Consulting",
-  "Brainlake Advertising LLC",
-  "Propel Consult",
-  "Masterworks",
   "ROBUSTA",
+  "Müller's Solutions",
+  "Soar",
+  "Alturki Holding",
+  "Tata Consultancy Services",
+  "Masterworks",
+  "INTECH Process Automation",
+  "Peroptyx",
+  "Refonte Learning",
+  "Hilti Group",
+  "Propel Consult",
   "Basamh Group",
   "Arabian Private Holdings",
-  "Müller's Solutions",
   "Meituan",
   "تالنتس سي",
-  "Peroptyx",
+  "Refonte Technologies",
   "Aramco",
   "HungerStation",
   "SoftwareOne",
-  "Soar",
   "Riyad Bank",
   "AJEX",
-  "Alturki Holding",
-  "Team Saudi",
   "Karma Sugar Company For Food Industries",
+  "Mozn",
   "شركة علم",
   "Confidential Jobs",
-  "Tata Consultancy Services"
+  "Linnk Group",
+  "MAKAN for Parking Solutions",
+  "Master Works",
+  "Devsinc, LLC",
+  "Qiddiya Investment Company"
  ]
 }
