@@ -130,6 +130,18 @@ assert.equal(screen(post({ salary: "25000" })).risk, "yellow");
 assert.equal(screen(post({ description: "Call 0551234567 now" })).risk, "yellow");
 assert.equal(screen(post(), true).risk, "yellow");
 
+// interview questions come back trimmed; an empty answer is an error, not an empty list
+reply = { questions: [{ q: "How would you clean sales data in SQL?", why: "SQL basics", tip: "Talk about your Retail Co internship." }, { q: "" }] };
+r = await call("/interview", { profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." },
+  job: { title: "Data Analyst", company: "X", required: ["SQL"] } });
+out = await r.json();
+assert.equal(r.status, 200);
+assert.equal(out.questions.length, 1);
+reply = { questions: [] };
+r = await call("/interview", { profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." },
+  job: { title: "Data Analyst", company: "X", required: ["SQL"] } });
+assert.equal(r.status, 502);
+
 import { sameDomain } from "./src/board.js";
 assert.ok(sameDomain("acme.sa", "acme.sa"));
 assert.ok(sameDomain("careers.acme.sa", "acme.sa"));

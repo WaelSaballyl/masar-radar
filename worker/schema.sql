@@ -54,3 +54,6 @@ ALTER TABLE applications ADD COLUMN viewed_at TEXT;
 
 -- 1 when the contact email is on the company site's own domain (shown as a badge)
 ALTER TABLE postings ADD COLUMN verified INTEGER NOT NULL DEFAULT 0;
+
+-- the student asked the employer, once, a week after applying, to look at the application
+ALTER TABLE applications ADD COLUMN nudged_at TEXT;

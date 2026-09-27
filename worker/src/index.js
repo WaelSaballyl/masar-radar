@@ -47,7 +47,7 @@ export default {
       }
     }
     if (request.method !== "POST") return reply(405, { error: "method" });
-    if (path !== "/parse" && path !== "/tailor") return reply(404, { error: "path" });
+    if (!["/parse", "/tailor", "/interview"].includes(path)) return reply(404, { error: "path" });
     if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
 
     const raw = await request.text();
@@ -56,7 +56,8 @@ export default {
     try { input = JSON.parse(raw); } catch { return reply(400, { error: "json" }); }
 
     try {
-      return reply(200, path === "/parse" ? await parse(input, env) : await tailor(input, env));
+      const handle = { "/parse": parse, "/tailor": tailor, "/interview": interview }[path];
+      return reply(200, await handle(input, env));
     } catch (e) {
       if (!e.code) console.error(e.stack || e); // a bug here, not an upstream answer
       return reply(e.status || 502, { error: e.code || "upstream" });
@@ -135,7 +136,8 @@ ${text}`);
   } };
 }
 
-async function tailor(input, env) {
+// the student's profile (no contact fields) and the posting, as both /tailor and /interview read them
+function inputs(input) {
   const p = input?.profile || {};
   const profile = {
     university: str(p.university, 160), degree: str(p.degree, 120), major: str(p.major, 120),
@@ -153,6 +155,36 @@ async function tailor(input, env) {
   const posting = pasted
     ? pasted
     : `${str(job.title, 200)} at ${str(job.company, 120)}\nRequired skills: ${listed.required.join(", ")}\nPreferred skills: ${listed.preferred.join(", ")}`;
+  return { profile, source, job, listed, pasted, lang, posting };
+}
+
+// Likely interview questions for this posting, each with a pointer to what in
+// the student's own profile answers it. Where the profile has nothing, the tip
+// says so and suggests how to prepare, rather than inventing an experience.
+async function interview(input, env) {
+  const { source, lang, posting } = inputs(input);
+  const out = await gemini(env, `You are preparing a student for a job interview. Return JSON only:
+{"questions":[{"q":"the question","why":"what the interviewer is checking, one sentence","tip":"how THIS student can answer, pointing to a specific item in PROFILE; or, if PROFILE has nothing for it, say so plainly and suggest one concrete way to prepare"}]}
+
+Rules:
+- 8 questions: 4 technical ones about the skills and tasks the POSTING names, 2 about the student's own projects or experience in PROFILE, 2 behavioural (teamwork, a problem, learning something fast).
+- Never claim the student did or knows something PROFILE does not state. Refer to their items by name.
+- No generic filler ("be confident", "research the company") unless tied to something specific.
+- Write everything in ${lang}. Skill and tool names stay as written.
+
+POSTING:
+${posting}
+
+PROFILE:
+${source}`);
+  const questions = (Array.isArray(out?.questions) ? out.questions : []).slice(0, 10)
+    .map((x) => ({ q: str(x?.q, 400), why: str(x?.why, 400), tip: str(x?.tip, 800) })).filter((x) => x.q);
+  if (!questions.length) throw fail(502, "bad_json");
+  return { questions };
+}
+
+async function tailor(input, env) {
+  const { profile, source, job, listed, pasted, lang, posting } = inputs(input);
 
   const cv = await gemini(env, `You are tailoring a student's CV to one job posting. Return JSON only.
 

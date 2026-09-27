@@ -56,7 +56,9 @@ DESCRIPTION_CHARS = 12000
 #      or degree subjects as skills - radar.evaluate found both on v4
 #   6  same prompt, re-read on the main model: v5's run fell back to the
 #      lighter one for every batch after the first
-PROMPT_VERSION = 6
+#   7  same prompt again: v6 also fell back (a 503 at the start outlasted the
+#      retries); the first batch now waits up to ~2 min for the main model
+PROMPT_VERSION = 7
 
 REGIONS = ["Worldwide", "Europe", "Middle East", "North America",
            "Latin America", "Asia-Pacific", "Africa"]
@@ -159,6 +161,7 @@ def _key() -> str:
 # tier's per-minute limit. Both clear on their own, usually within a minute.
 TRANSIENT = {429, 500, 503, 504}
 RETRIES = 3          # attempts per model before falling back to the next one
+PATIENT_RETRIES = 5  # the run's first batch on the main model: 8+16+32+60 s of waiting
 BACKOFF = 8.0        # seconds, doubled per attempt unless the API names a delay
 MAX_WAIT = 60.0      # never stall a CI run longer than this on one hint
 # Stop after this many batches fail in a row. On a bad day at the API, pressing
@@ -233,15 +236,18 @@ def _explain(e: urllib.error.HTTPError) -> tuple[str, float | None]:
     return message[:160], wait
 
 
-def call(batch: list[dict], models: list[str], timeout: int = 90) -> tuple[list[dict], str]:
+def call(batch: list[dict], models: list[str], timeout: int = 90,
+         attempts: int = RETRIES) -> tuple[list[dict], str]:
     """Send one batch. Retries transient errors, then falls back to the next model.
 
+    `attempts` applies to the first model only; fallbacks get RETRIES.
     Returns (postings, model that answered).
     """
     body = _request_body(batch)
     last = "no model attempted"
     for model in models:
-        for attempt in range(RETRIES):
+        tries = attempts if model == models[0] else RETRIES
+        for attempt in range(tries):
             try:
                 payload = _post(model, body, timeout)
                 text = payload["candidates"][0]["content"]["parts"][0]["text"]
@@ -253,11 +259,11 @@ def call(batch: list[dict], models: list[str], timeout: int = 90) -> tuple[list[
                     raise KeyRejected(last) from e
                 if e.code not in TRANSIENT:
                     break  # 400/404 will not change on retry; try the next model
-                if attempt < RETRIES - 1:
+                if attempt < tries - 1:
                     time.sleep(min(hint or BACKOFF * 2 ** attempt, MAX_WAIT))
             except (urllib.error.URLError, TimeoutError) as e:
                 last = f"{model}: {type(e).__name__} {e}"
-                if attempt < RETRIES - 1:
+                if attempt < tries - 1:
                     time.sleep(BACKOFF * 2 ** attempt)
             except (KeyError, IndexError, ValueError) as e:
                 # A reply we cannot read. Asking the same model again tends to
@@ -417,7 +423,10 @@ def run(apply: bool, limit: int | None = None) -> dict:
             models, switched_at = list(first_choice), None
             print(f"[ok] ai: trying {models[0]} first again")
         try:
-            results, model = call(batch, models)
+            # the first batch waits longest for the main model: a busy spell at
+            # the start is what sent v5 and v6 to the lighter one (a 503 that
+            # outlasted three tries, ~24 s); later batches keep the short wait
+            results, model = call(batch, models, attempts=PATIENT_RETRIES if stats["batches"] == 1 else RETRIES)
         except KeyRejected as e:
             print(f"[error] ai: {e} - stopping")
             stats["failed"] += len(batch)

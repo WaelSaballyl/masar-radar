@@ -309,6 +309,11 @@
       renderCV($("cv-paper"), out.cv, p, lang);
       coverage = out.coverage;
       showApply();
+      lastJob = job;
+      $("prep").hidden = false;
+      $("prep-list").replaceChildren();
+      say("prep-status", "");
+      keepVersion(job, lang);
       $("result").hidden = false;
       say("make-status", "");
       $("result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
@@ -318,6 +323,77 @@
       button.disabled = false;
     }
   });
+
+  // ---------- interview prep ----------
+
+  let lastJob = null;
+  $("prep-make").addEventListener("click", async () => {
+    const button = $("prep-make");
+    if (!lastJob) return;
+    button.disabled = true;
+    say("prep-status", "نجهّز الأسئلة. قد يستغرق ذلك نصف دقيقة.");
+    try {
+      const lang = document.querySelector('input[name="lang"]:checked').value;
+      const { questions } = await api("/interview", { profile: withoutContact(readProfile()), job: lastJob, lang });
+      $("prep-list").replaceChildren(...questions.map((x) => {
+        const li = el("li");
+        const q = el("strong", null, x.q);
+        q.dir = "auto";
+        const why = el("p", "muted", x.why);
+        const tip = el("p", "prep-tip", x.tip);
+        why.dir = tip.dir = "auto";
+        li.append(q, why, tip);
+        return li;
+      }));
+      say("prep-status", "");
+    } catch (e) {
+      say("prep-status", ERR[e.code] || ERR.other, true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  // ---------- earlier CVs, kept in this browser ----------
+
+  const VERSIONS = "masar.cvs";
+  const versions = () => { try { return JSON.parse(store.get(VERSIONS) || "[]"); } catch { return []; } };
+  function keepVersion(job, lang) {
+    const label = job.title ? `${job.title}، ${job.company}` : ($("job-text").value.split("\n")[0] || "وصف ملصوق").slice(0, 90);
+    const entry = { at: new Date().toISOString(), label, lang, paper: MasarCV.toBlocks($("cv-paper")) };
+    // the same posting keeps only its newest CV; at most 15 in all
+    const rest = versions().filter((v) => v.label !== label);
+    try { store.set(VERSIONS, JSON.stringify([entry, ...rest].slice(0, 15))); } catch { /* storage full */ }
+    showVersions();
+  }
+  function showVersions() {
+    const all = versions();
+    $("versions").hidden = !all.length;
+    $("version-list").replaceChildren(...all.map((v, i) => {
+      const li = el("li");
+      const name = el("span", "version-name", v.label);
+      name.dir = "auto";
+      const open = el("button", "icon-btn", "افتح");
+      const drop = el("button", "icon-btn", "احذف");
+      open.type = drop.type = "button";
+      open.onclick = () => {
+        const paper = $("cv-paper");
+        paper.replaceChildren();
+        MasarCV.fromBlocks(paper, v.paper);
+        paper.lang = v.lang;
+        paper.dir = v.lang === "ar" ? "rtl" : "ltr";
+        $("coverage").replaceChildren(el("p", "coverage-for", `سيرة محفوظة لإعلان: ${v.label}.`));
+        $("removed").hidden = true;
+        $("apply").hidden = true;
+        $("prep").hidden = true;
+        $("result").hidden = false;
+        $("result").scrollIntoView({ behavior: "smooth" });
+      };
+      drop.onclick = () => { store.set(VERSIONS, JSON.stringify(versions().filter((_, j) => j !== i))); showVersions(); };
+      li.append(name, el("span", "muted", Masar.ago(v.at.slice(0, 10), "ar")), open, drop);
+      return li;
+    }));
+  }
+  showVersions();
 
   // ---------- applying to an exclusive posting ----------
 
