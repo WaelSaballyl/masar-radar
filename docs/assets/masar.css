@@ -1168,3 +1168,20 @@ html.motion .foot-mark.in span { transform: none; }
 .synced-bar { position: fixed; z-index: 45; top: 84px; inset-inline: 16px; max-width: 520px; margin-inline: auto; display: flex;
   align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; border-radius: 20px;
   background: var(--surface); border: 1px solid var(--hairline); box-shadow: 0 10px 30px rgb(0 0 0 / .3); }
+
+/* account page v2: centred card over the same aurora as the home page. The
+   Google button is an iframe with a light page inside; on our dark-scheme page
+   Chrome paints it an opaque white box unless its colour scheme matches. */
+.account { position: relative; isolation: isolate; max-width: 760px; padding-block: 56px 80px; }
+.account .aurora { inset: -120px calc(50% - 50vw) 0; }
+.account-card { box-shadow: 0 30px 80px rgb(0 0 0 / .35); }
+#signed-out { text-align: center; }
+#signed-out h1 { font-size: clamp(2rem, 5vw, 3rem); }
+#signed-out .section-lede { margin-inline: auto; max-width: 48ch; }
+.google-btn { color-scheme: light; display: flex; justify-content: center; margin: 24px 0 6px; min-height: 44px; }
+.google-btn iframe { color-scheme: light; }
+.account-facts { grid-template-columns: 1fr 1fr; text-align: start; margin-top: 28px; }
+.account-facts li { display: grid; gap: 4px; padding: 16px 18px; border-radius: 20px; }
+.account-facts strong { font-family: var(--kufi); font-weight: 700; font-size: 1rem; }
+.account-facts span { color: var(--muted); font-size: .92rem; line-height: 1.7; }
+@media (max-width: 560px) { .account-facts { grid-template-columns: 1fr; } }
