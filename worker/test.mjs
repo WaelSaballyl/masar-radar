@@ -148,4 +148,32 @@ assert.ok(sameDomain("careers.acme.sa", "acme.sa"));
 assert.ok(!sameDomain("gmail.com", "acme.sa"));
 assert.ok(!sameDomain("notacme.sa", "acme.sa"), "a longer name is not a subdomain");
 
+// ---- accounts: Google's ID token is checked, never trusted ----
+import { verifyGoogle, clean } from "./src/auth.js";
+{
+  const pair = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048,
+    publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, true, ["sign", "verify"]);
+  const jwk = { ...(await crypto.subtle.exportKey("jwk", pair.publicKey)), kid: "k1", alg: "RS256", use: "sig" };
+  globalThis.fetch = async () => new Response(JSON.stringify({ keys: [jwk] }));
+  const enc = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+  const sign = async (claims, kid = "k1") => {
+    const head = enc({ alg: "RS256", kid, typ: "JWT" }), body = enc(claims);
+    const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", pair.privateKey, new TextEncoder().encode(`${head}.${body}`));
+    return `${head}.${body}.${Buffer.from(sig).toString("base64url")}`;
+  };
+  const good = { iss: "https://accounts.google.com", aud: "client-1", sub: "123", email: "s@uni.edu.sa",
+    email_verified: true, exp: Math.floor(Date.now() / 1000) + 600 };
+  assert.equal((await verifyGoogle(await sign(good), "client-1")).sub, "123");
+  const refused = async (token, id = "client-1") => assert.equal(await verifyGoogle(token, id).catch((e) => e.status), 401);
+  await refused(await sign(good), "another-app");
+  await refused(await sign({ ...good, exp: Math.floor(Date.now() / 1000) - 5 }));
+  await refused(await sign({ ...good, email_verified: false }));
+  await refused(await sign({ ...good, iss: "https://evil.example" }));
+  await refused(await sign(good, "unknown-key"));
+  const t = (await sign(good)).split(".");
+  await refused(`${t[0]}.${enc({ ...good, sub: "999" })}.${t[2]}`); // claims changed after signing
+  await refused("not-a-token");
+  assert.deepEqual(clean({ "masar.saved": "[1]", "masar.session": "x", "masar.profile": { a: 1 } }), { "masar.saved": "[1]" });
+}
+
 console.log("worker tests passed");

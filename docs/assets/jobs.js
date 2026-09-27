@@ -224,6 +224,7 @@
   }
   const given = new URLSearchParams(location.search);
   FILTERS.forEach((k) => { if (given.get(k)) $(k).value = given.get(k); });
+  if (given.get("saved") === "1") $("saved").checked = true;
 
   // Exclusive postings live in the worker's database, not in jobs.json; the
   // collected list still shows if the worker cannot be reached.

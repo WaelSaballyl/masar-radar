@@ -6,7 +6,7 @@ window.Masar = (() => {
 
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch { /* private mode */ } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* private mode */ } changed(k); },
   };
 
   // Arabic counted nouns take a different form for 1, 2, 3-10, 11-99 and the
@@ -201,6 +201,115 @@ window.Masar = (() => {
     document.body.append(bar);
   }, { once: true });
 
+  // ---------- accounts: optional; a signed-in browser keeps its data in sync ----------
+  // Google proves who the student is (account.html); the worker returns a
+  // session token kept here. The keys below then go to the worker on every
+  // change and come back on every other device. Without an account nothing
+  // leaves the browser, as before.
+  const API = document.querySelector('meta[name="masar-api"]')?.content || "https://masar-cv.masar-cv.workers.dev";
+  const SYNC = ["masar.profile", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped"];
+  const readJson = (k, d) => { try { return JSON.parse(store.get(k) || d); } catch { return JSON.parse(d); } };
+  const account = {
+    api: API,
+    get token() { return store.get("masar.session") || ""; },
+    get user() { return readJson("masar.user", "null"); },
+    async call(path, body) {
+      const r = await fetch(API + path, {
+        method: body ? "POST" : "GET",
+        headers: { Authorization: `Bearer ${this.token}`, ...(body ? { "Content-Type": "application/json" } : {}) },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const out = await r.json().catch(() => ({}));
+      if (r.status === 401) { this.forget(); throw Object.assign(new Error("session"), { status: 401 }); }
+      return { status: r.status, ...out };
+    },
+    signedIn(token, user) {
+      localStorage.setItem("masar.session", token);
+      localStorage.setItem("masar.user", JSON.stringify(user));
+      localStorage.setItem("masar.syncRev", "0");
+      localStorage.setItem("masar.syncDirty", "1"); // this device's data joins the account's
+      return sync();
+    },
+    forget() { ["masar.session", "masar.user", "masar.syncRev", "masar.syncDirty"].forEach((k) => localStorage.removeItem(k)); },
+    sync: () => sync(),
+  };
+
+  let pushTimer = null;
+  function changed(k) {
+    if (!SYNC.includes(k) || !account.token) return;
+    try { localStorage.setItem("masar.syncDirty", "1"); } catch { /* private mode */ }
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => sync().catch(() => {}), 1500);
+  }
+  const local = () => Object.fromEntries(SYNC.map((k) => [k, store.get(k)]).filter(([, v]) => v != null));
+
+  // Two copies of the same key: lists are joined (an application saved on the
+  // phone and one on the laptop both stay), the profile on this device wins
+  // unless it is empty.
+  function merge(mine, theirs) {
+    const out = { ...theirs };
+    for (const [k, v] of Object.entries(mine)) {
+      if (!(k in theirs)) { out[k] = v; continue; }
+      let a, b;
+      try { a = JSON.parse(v); b = JSON.parse(theirs[k]); } catch { out[k] = v; continue; }
+      if (Array.isArray(a) && Array.isArray(b)) {
+        const seen = new Set();
+        out[k] = JSON.stringify([...a, ...b].filter((x) => { const s = JSON.stringify(x); return !seen.has(s) && seen.add(s); }));
+      } else if (a && typeof a === "object" && Object.values(a).some((x) => x)) out[k] = v;
+    }
+    return out;
+  }
+
+  // Brings the account's copy here, and this device's changes there.
+  let syncing = null;
+  function sync() {
+    if (!account.token) return Promise.resolve();
+    if (syncing) return syncing;
+    syncing = (async () => {
+      const server = await account.call("/auth/data");
+      let rev = server.rev || 0, data = server.data || {};
+      const dirty = localStorage.getItem("masar.syncDirty") === "1";
+      const before = JSON.stringify(local());
+      const seen = Number(localStorage.getItem("masar.syncRev") || 0);
+      // nothing new on either side
+      if (!dirty && rev <= seen) return;
+      // only this device changed: its copy is sent as it is, so something
+      // cleared here (the profile, a saved posting) stays cleared
+      if (dirty && rev === seen && seen > 0) data = local();
+      else if (dirty) data = merge(local(), data);
+      // what arrives is written straight to storage, not through store.set,
+      // so it does not count as a new change to send back
+      for (const k of SYNC) {
+        if (k in data) localStorage.setItem(k, data[k]);
+      }
+      if (dirty) {
+        for (let tries = 0; tries < 3; tries += 1) {
+          const out = await account.call("/auth/data", { data: local(), base: rev });
+          if (out.status === 200) { rev = out.rev; break; }
+          if (out.status !== 409) throw new Error("sync");
+          rev = out.rev;
+          const merged = merge(local(), out.data || {});
+          for (const k of SYNC) if (k in merged) localStorage.setItem(k, merged[k]);
+        }
+        localStorage.setItem("masar.syncDirty", "0");
+      }
+      localStorage.setItem("masar.syncRev", String(rev));
+      if (JSON.stringify(local()) !== before) arrived();
+    })().finally(() => { syncing = null; });
+    return syncing;
+  }
+  // data from another device reached this page after it was drawn
+  function arrived() {
+    if (document.querySelector(".synced-bar")) return;
+    const bar = el("div", "synced-bar");
+    const go = el("button", "btn btn-primary btn-small", "حدّث الصفحة");
+    go.type = "button";
+    go.onclick = () => location.reload();
+    bar.append(el("span", null, "وصلت بياناتك من جهازك الآخر."), go);
+    document.body.append(bar);
+  }
+  if (account.token) sync().catch(() => {});
+
   // One menu for every page, so no page forgets a section. The home page
   // calls nav(lang) again when its language changes.
   const NAV = [
@@ -223,6 +332,20 @@ window.Masar = (() => {
     }));
   }
   nav();
+
+  // the account button: "دخول" when signed out, the student's initial when in
+  function accountButton() {
+    const tools = document.querySelector(".topbar .tools");
+    if (!tools) return;
+    let a = tools.querySelector(".account-btn");
+    if (!a) { a = el("a", "tool account-btn"); a.href = "account.html"; tools.prepend(a); }
+    const u = account.user;
+    a.classList.toggle("in", !!u);
+    a.textContent = u ? (u.name || u.email || "?").trim().charAt(0).toUpperCase() : "دخول";
+    a.setAttribute("aria-label", u ? `حسابك: ${u.name || u.email}` : "تسجيل الدخول");
+    if (here === "account.html") a.setAttribute("aria-current", "page");
+  }
+  accountButton();
 
   // Phones get the main sections as a bar under the thumb, like an app. Not on
   // the swipe feed (it fills the screen), the employer and admin pages, or a
@@ -288,6 +411,6 @@ window.Masar = (() => {
     document.querySelectorAll(".reveal").forEach((n) => io.observe(n));
   }
 
-  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme, nav,
+  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
            LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, learnUrl };
 })();

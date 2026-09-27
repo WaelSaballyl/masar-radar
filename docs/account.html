@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>حسابك — مسار</title>
+<meta name="description" content="سجّل بحساب قوقل لتبقى سيرتك وطلباتك ومحفوظاتك معك على كل أجهزتك.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<meta name="theme-color" content="#181A1B">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/masar.css?v=44">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام"></nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main class="account">
+    <section class="account-card" id="signed-out" hidden>
+      <h1>حسابك في مسار</h1>
+      <p class="section-lede">سجّل مرة، وتبقى سيرتك وطلباتك والإعلانات المحفوظة معك على الجوال واللابتوب. التسجيل اختياري، والموقع كله يشتغل بدونه.</p>
+      <div id="google-btn" class="google-btn"></div>
+      <p class="status" id="status" role="status"></p>
+      <ul class="account-facts">
+        <li><strong>بلا كلمة مرور.</strong> قوقل يؤكد هويتك، ولا نرى كلمة مرورك ولا نحفظ أي كلمة مرور.</li>
+        <li><strong>ما نحفظه:</strong> اسمك وإيميلك من قوقل، ونسخة من بياناتك في مسار: ملفك وسيرك وإيصالات طلباتك والإعلانات المحفوظة.</li>
+        <li><strong>ما لا نفعله:</strong> لا نرسل بياناتك لأي شركة إلا حين تقدّم أنت، ولا نبيعها، ولا نرسل لك إعلانات.</li>
+        <li><strong>تحذف متى شئت:</strong> زر واحد يحذف حسابك وكل ما حُفظ له.</li>
+      </ul>
+      <p class="muted">بالتسجيل توافق على ما في <a href="privacy.html">صفحة الخصوصية</a>.</p>
+    </section>
+
+    <section class="account-card" id="signed-in" hidden>
+      <div class="account-who">
+        <span class="account-avatar" id="avatar" aria-hidden="true"></span>
+        <div>
+          <h1 id="who-name"></h1>
+          <p class="muted" id="who-email"></p>
+        </div>
+      </div>
+      <p class="sync-state" id="sync-state" role="status"></p>
+      <div class="account-links">
+        <a class="btn btn-quiet" href="cv.html">سيرتك</a>
+        <a class="btn btn-quiet" href="applications.html">طلباتي</a>
+        <a class="btn btn-quiet" href="jobs.html?saved=1">المحفوظة</a>
+      </div>
+      <div class="account-actions">
+        <button class="btn btn-primary" type="button" id="sync-now">زامن الآن</button>
+        <button class="btn btn-quiet" type="button" id="sign-out">تسجيل الخروج</button>
+      </div>
+      <details class="danger">
+        <summary>حذف الحساب</summary>
+        <p>يحذف حسابك وكل نسخة محفوظة لبياناتك عندنا. ما في هذا المتصفح يبقى فيه حتى تمسحه. الطلبات التي أرسلتها تبقى عند الشركات.</p>
+        <button class="btn btn-danger" type="button" id="delete">احذف حسابي وبياناتي</button>
+      </details>
+    </section>
+  </main>
+</div>
+<script src="assets/core.js?v=42"></script>
+<script src="assets/account.js?v=1"></script>
+</body>
+</html>
