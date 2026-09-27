@@ -70,6 +70,23 @@
           additional: "معلومات إضافية", link: "الرابط", verify: "للتحقق", sep: "، " },
   };
 
+  // Recruiters' advice the page applies itself, the same every time:
+  // a GPA below three quarters of its scale (3/4, 3.75/5) is left off; the
+  // scale counts only when written, or when the value is over 4 (out of 5).
+  const showGpa = (g) => {
+    const m = String(g || "").match(/(\d+(?:\.\d+)?)\s*(?:\/|من|out of)\s*(\d+(?:\.\d+)?)/i) || String(g || "").match(/(\d+(?:\.\d+)?)/);
+    if (!m) return !!g;
+    const v = Number(m[1]), scale = Number(m[2]) || (v > 4 ? 5 : 0);
+    return !scale || v / scale >= 0.75;
+  };
+  // education shows the graduation year only; a future one is "Expected"
+  const gradYear = (period, lang) => {
+    const years = String(period || "").match(/(19|20)\d\d/g);
+    if (!years) return period || "";
+    const y = years[years.length - 1];
+    return Number(y) > new Date().getFullYear() ? (lang === "ar" ? `التخرج المتوقع ${y}` : `Expected ${y}`) : y;
+  };
+
   function renderCV(paper, cv, p, lang) {
     const h = HEAD[lang];
     paper.lang = lang;
@@ -112,7 +129,7 @@
       // "B.Sc. Software Engineering" already names the major
       item([(x.major && x.degree.toLowerCase().includes(x.major.toLowerCase()) ? x.degree
               : [x.degree, x.major].filter(Boolean).join(h.sep)), x.school].filter(Boolean).join(h.sep),
-           x.dates || p.graduation, x.gpa ? [`${h.gpa}: ${x.gpa}`] : [])));
+           gradYear(x.dates || p.graduation, lang), showGpa(x.gpa) ? [`${h.gpa}: ${x.gpa}`] : [])));
     section(h.experience, cv.experience.filter((x) => x.title || x.bullets.length)
       .map((x) => item([x.title, x.org, x.location].filter(Boolean).join(h.sep), x.dates, x.bullets)));
     const { byProject, byCert, unplaced } = placeLinks(cv, p.worklinks || "");
@@ -162,6 +179,6 @@
   const receipts = () => { try { return JSON.parse(Masar.store.get(RECEIPTS) || "[]"); } catch { return []; } };
   const keepReceipt = (r) => { if (r) Masar.store.set(RECEIPTS, JSON.stringify([...receipts(), r])); };
 
-  window.MasarCV = { receipts, keepReceipt, FIELDS, CONTACT, EMAIL, LINK, PHONE, isPhone, stripContact, joinHyphens, withoutContact,
+  window.MasarCV = { receipts, keepReceipt, showGpa, FIELDS, CONTACT, EMAIL, LINK, PHONE, isPhone, stripContact, joinHyphens, withoutContact,
                      placeLinks, renderCV, toBlocks, fromBlocks };
 })();

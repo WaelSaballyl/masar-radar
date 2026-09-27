@@ -192,21 +192,24 @@ Hard rules:
 - Use only facts found in PROFILE. Never add a skill, tool, employer, title, date, number or achievement that PROFILE does not state. If the posting wants something PROFILE lacks, leave it out.
 - You may rephrase, reorder, merge or drop the student's own points, and use the posting's wording for things the student really did.
 - Tie a skill to a job or project only where PROFILE says it was used there. Keep qualifiers such as "basic" or "in progress".
-- No stock phrases ("eager to leverage", "passionate", "results-driven"); say what the student did.
+- No stock phrases ("eager to leverage", "passionate", "results-driven", "looking for an opportunity", "fast learner", "able to work under pressure", "team player", "hard-working"); recruiters skip them. Say what the student did instead.
 - No level words the student did not use ("proficient", "expert", "strong", "advanced"), and no activity PROFILE does not name: knowing SQL is not "writing SQL queries".
-- Keep every date range, location, work arrangement (remote, part-time), metric and qualifier PROFILE states; a study period stays the whole period, not just its last year. Keep a point that carries a number or a result (what the work led to) unless an item has more than 4.
+- Keep every date range, location, work arrangement (remote, part-time), metric and qualifier PROFILE states. Keep a point that carries a number or a result (what the work led to) unless an item has more than 5.
+- Write a point as what the student achieved, not a routine duty, when PROFILE gives the result ("Reviewed 120+ invoices a day" beats "Responsible for invoices"). Never invent the result or the number.
+- education dates: the graduation year only ("2027"); if the study is still in progress, "Expected 2027".
 - Experience and projects newest first, as on a normal CV; work in progress is the newest.
 - dates holds dates only; "part time", "remote" and the like go in location.
 - Never name the employer of the POSTING. If the posting is for another field than PROFILE, still write an honest CV of what the student has; do not stretch facts to fit.
-- Bullets start with an action verb, at most 4 per item, most relevant first.
+- Bullets start with an action verb, 3 to 5 per item when PROFILE has them, most relevant first.
 - Write in ${lang}. Keep tool and skill names in their usual Latin spelling.
 - Fix spelling, grammar, capitalisation and spacing ("power bi" -> "Power BI", "excel" -> "Excel"); that changes no fact.
 - Drop pointers such as "see GitHub" or "link below"; the page adds the links itself.
-- languages: each with the level PROFILE gives it, e.g. "English (good, IELTS 6)".
-- summary: 2-3 sentences aimed at this posting, only from PROFILE. If PROFILE states availability, work authorisation or iqama, or readiness to relocate, the last sentence carries all of them as written.
+- languages: the mother tongue as "Arabic (Native)". For any other language keep only a test and its score if PROFILE has one ("English (IELTS 6.5)", "English (STEP 85)"); drop self-rated levels such as good, very good, intermediate or fluent, and write just the language name. Every language PROFILE lists stays in the list: "English very good" becomes "English", never nothing.
+- summary: 2-3 sentences aimed at this posting, only from PROFILE: the field the student targets, what they bring to the employer, and the evidence for it from their experience or projects. If PROFILE states availability, work authorisation or iqama, or readiness to relocate, the last sentence carries all of them as written.
 - headline: if PROFILE states a headline or target role, use it as written; otherwise the student's role and 3-4 core skills, e.g. "Data Analyst | Excel, Power BI, SQL".
 - experience: org is the organisation name only; its city or region goes in location, together with the work arrangement.
-- skills: every technical skill PROFILE lists, with its qualifier ("Tableau (course only)"), most relevant to the posting first; only soft skills and things like typing speed may be left out. With more than 8, group them as "Group: a, b, c", one string per group. Soft skills and licences do not go here.
+- skills: every technical skill PROFILE lists, with its qualifier ("Tableau (course only)"), most relevant to the posting first. Always in groups, one string each, in this order: "Technical: tools and languages", "Specialised: field skills such as data cleaning, reporting, dashboard design", "Soft skills: ..." - soft skills only when PROFILE lists them, and never invented. Skip an empty group. Licences do not go here.
+- certificates: newest first, each as "Name | Provider | hours | year" with the parts PROFILE gives; leave out the hours when under 10.
 - additional: work authorisation or iqama, driving licence, availability, relocation, coursework and similar facts from PROFILE, one per string.
 - job_required, job_preferred: arrays of short names of the tools and technical skills the POSTING asks for (required / nice to have), e.g. ["Microsoft 365", "network troubleshooting"]. Every posting names some; never leave job_required empty. Not degrees, enrolment, languages or years of experience.
 

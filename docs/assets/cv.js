@@ -307,6 +307,7 @@
       renderCoverage(out.coverage, job);
       renderRemoved(out.removed);
       renderCV($("cv-paper"), out.cv, p, lang);
+      renderTips(out.cv, p, job, lang);
       coverage = out.coverage;
       showApply();
       lastJob = job;
@@ -323,6 +324,37 @@
       button.disabled = false;
     }
   });
+
+  // ---------- before you send: recruiters' advice checked against this CV ----------
+  // Each tip names something the student can fix in their own facts; none of
+  // it is invented into the CV.
+  function renderTips(cv, p, job, lang) {
+    const tips = [];
+    const bare = cv.experience.flatMap((x) => x.bullets).filter((b) => !/\d/.test(b)).length;
+    if (bare) tips.push(`${bare === 1 ? "نقطة واحدة" : `${bare} نقاط`} في خبراتك بلا رقم. إذا عندك رقم حقيقي (كم تقرير، كم فرع، كم ساعة وفّرت) أضفه في الخطوة الأولى؛ إنجاز واحد برقم أقوى من عشر مهام.`);
+    if (/جيد|متوسط|ممتاز|good|intermediate|fluent|basic/i.test(p.languages) && !/ielts|toefl|step|ايلتس|آيلتس|توفل|ستيب/i.test(p.languages)) {
+      tips.push("بدل تقييم لغتك بنفسك، اذكر اختباراً معتمداً ودرجته (IELTS أو TOEFL أو STEP) إذا عندك. لم نكتب في السيرة مستوى قدّرته أنت.");
+    }
+    if (p.gpa && !MasarCV.showGpa(p.gpa)) tips.push("لم نعرض معدلك لأنه أقل من ثلاثة أرباع المقياس، ونصيحة مختصي التوظيف ألا يُذكر حينها.");
+    if (!/linkedin\.com/i.test(p.link || "")) tips.push("أضف رابط حسابك في LinkedIn في الخطوة الأولى؛ صار واجهتك المهنية ويرفع فرص ترشيحك.");
+    if (lang === "ar") tips.push("أنظمة فرز السير (ATS) تقرأ الإنجليزية أفضل. جهّز نسخة إنجليزية لأي تقديم عبر موقع أو إيميل.");
+    const role = job.title || ($("job-text").value.split("\n")[0] || "").split(/ [-–] /)[0].trim();
+    const box = $("tips-list");
+    box.replaceChildren(...tips.map((t) => el("li", null, t)));
+    if (role && p.name) {
+      // HR searches the inbox by job title: the subject should carry it
+      const subject = `${role} - ${p.name}`;
+      const li = el("li");
+      const code = el("code", null, subject);
+      code.dir = "auto";
+      const copy = el("button", "icon-btn", "انسخ");
+      copy.type = "button";
+      copy.onclick = () => navigator.clipboard.writeText(subject).then(() => { copy.textContent = "نُسخ"; }, () => {});
+      li.append("إذا قدّمت بالإيميل، اجعل العنوان المسمى الوظيفي واسمك، لأن الموارد البشرية تبحث بالمسمى: ", code, " ", copy);
+      box.append(li);
+    }
+    $("tips").hidden = !box.children.length;
+  }
 
   // ---------- interview prep ----------
 
