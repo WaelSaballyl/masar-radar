@@ -51,3 +51,6 @@ CREATE INDEX IF NOT EXISTS applications_posting ON applications (posting_id, cre
 -- the employer first opened the CV
 ALTER TABLE applications ADD COLUMN receipt_hash TEXT;
 ALTER TABLE applications ADD COLUMN viewed_at TEXT;
+
+-- 1 when the contact email is on the company site's own domain (shown as a badge)
+ALTER TABLE postings ADD COLUMN verified INTEGER NOT NULL DEFAULT 0;

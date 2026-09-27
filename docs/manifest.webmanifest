@@ -1,0 +1,21 @@
+{
+  "name": "مسار - وظائف وتدريب البيانات",
+  "short_name": "مسار",
+  "description": "إعلانات وظائف وتدريب البيانات في السعودية والخليج، وسيرة معدّلة لكل إعلان.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#232628",
+  "theme_color": "#181A1B",
+  "icons": [
+    { "src": "assets/brand/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "assets/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "الإعلانات", "url": "jobs.html" },
+    { "name": "قدّم بالسحب", "url": "swipe.html" },
+    { "name": "طلباتي", "url": "applications.html" }
+  ]
+}

@@ -130,4 +130,10 @@ assert.equal(screen(post({ salary: "25000" })).risk, "yellow");
 assert.equal(screen(post({ description: "Call 0551234567 now" })).risk, "yellow");
 assert.equal(screen(post(), true).risk, "yellow");
 
+import { sameDomain } from "./src/board.js";
+assert.ok(sameDomain("acme.sa", "acme.sa"));
+assert.ok(sameDomain("careers.acme.sa", "acme.sa"));
+assert.ok(!sameDomain("gmail.com", "acme.sa"));
+assert.ok(!sameDomain("notacme.sa", "acme.sa"), "a longer name is not a subdomain");
+
 console.log("worker tests passed");

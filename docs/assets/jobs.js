@@ -49,6 +49,7 @@
     const li = el("li", p.exclusive ? "posting exclusive" : "posting");
     const top = el("div", "posting-top");
     if (p.exclusive) top.append(el("span", "badge-exclusive", "حصري على مسار"));
+    if (p.verified) top.append(Masar.verifiedBadge());
     if (KINDS[p.kind] && p.kind !== "job") top.append(el("span", "tag tag-training", KINDS[p.kind]));
     if (LEVELS[p.level] && !(p.level === "Intern" && p.kind !== "job")) top.append(el("span", `level level-${ENTRY.includes(p.level) ? p.level.toLowerCase() : "other"}`, LEVELS[p.level]));
     if (p.years != null) top.append(el("span", "tag", YEARS(p.years)));
@@ -223,7 +224,7 @@
     posted_at: (p.created_at || "").slice(0, 10), role: "", countries: [p.country], regions: [], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])],
     kind: KIND[p.employment] || "job", years: null, deadline: p.expires_at, exclusive: true, group: "exclusive",
-    logo: Masar.siteIcon(p.website),
+    logo: Masar.siteIcon(p.website), verified: !!p.verified,
   }))).catch(() => []);
 
   Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()), exclusive]).then(([d, ex]) => {

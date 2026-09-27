@@ -13,6 +13,16 @@
     "field:required": "أضف مهارة مطلوبة واحدة على الأقل.",
     rate: "أرسلت طلبات كثيرة في وقت قصير. جرّب بعد ساعة.",
   };
+  // numbers from the postings we track, never invented ones
+  fetch("data/summary.json", { cache: "no-cache" }).then((r) => r.json()).then((s) => {
+    const top = (s.top_skills || []).slice(0, 3).map((x) => x.skill || x[0] || x.name).filter(Boolean);
+    const fact = (n, label) => { const d = Masar.el("div", "fact"); d.append(Masar.el("strong", null, n), Masar.el("span", null, label)); return d; };
+    document.getElementById("facts").append(
+      fact(String(s.gulf_postings || 0), "إعلان بيانات مفتوح في الخليج نتابعه الآن"),
+      fact(String(s.entry_postings || 0), "إعلان تدريب ومبتدئين"),
+      fact(top.join("، ") || "SQL", "أكثر المهارات طلباً"),
+    );
+  }).catch(() => {});
   const say = (t, bad) => { status.textContent = t; status.classList.toggle("bad", !!bad); };
 
   form.addEventListener("submit", async (e) => {
