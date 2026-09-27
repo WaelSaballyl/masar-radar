@@ -6,15 +6,15 @@
 <title>حسابك — مسار</title>
 <meta name="description" content="سجّل بحساب قوقل لتبقى سيرتك وطلباتك ومحفوظاتك معك على كل أجهزتك.">
 <meta name="robots" content="noindex">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
 <meta name="theme-color" content="#181A1B">
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=45">
+<link rel="stylesheet" href="assets/masar.css?v=46">
 </head>
 <body>
 <div class="wrap">
@@ -54,9 +54,52 @@
         <a class="btn btn-quiet" href="applications.html">طلباتي</a>
         <a class="btn btn-quiet" href="jobs.html?saved=1">المحفوظة</a>
       </div>
+      <form class="me" id="me" novalidate>
+        <h2>ملفك</h2>
+        <p class="muted small">نفس معلومات صانع السيرة: ما تعدّله هنا يظهر هناك، ويصل لأجهزتك الأخرى. يُحفظ تلقائياً.</p>
+        <div class="grid">
+          <label class="field">الاسم<input name="name" data-src="profile" autocomplete="name"></label>
+          <label class="field">الجوال<input name="phone" data-src="profile" type="tel" dir="ltr" autocomplete="tel"></label>
+          <label class="field">الدولة
+            <select name="country" data-src="me">
+              <option value="">اختر</option>
+              <option value="SA">السعودية</option><option value="AE">الإمارات</option><option value="QA">قطر</option>
+              <option value="KW">الكويت</option><option value="BH">البحرين</option><option value="OM">عُمان</option>
+              <option value="other">دولة أخرى</option>
+            </select>
+          </label>
+          <label class="field">المدينة<input name="city" data-src="profile" autocomplete="address-level2"></label>
+          <label class="field">الجامعة<input name="university" data-src="profile"></label>
+          <label class="field">التخصص<input name="major" data-src="profile"></label>
+          <label class="field">الدرجة<input name="degree" data-src="profile" placeholder="بكالوريوس"></label>
+          <label class="field">سنوات الدراسة<input name="graduation" data-src="profile" dir="ltr" placeholder="2022 - 2026"></label>
+          <label class="field">المعدل<input name="gpa" data-src="profile" dir="ltr" placeholder="4.2 / 5"></label>
+          <label class="field">روابط حساباتك<input name="link" data-src="profile" dir="ltr" placeholder="linkedin.com/in/…"></label>
+          <label class="field">المسمى الذي تستهدفه<input name="target" data-src="me" placeholder="محلل بيانات"></label>
+          <label class="field">تبحث عن
+            <select name="seeking" data-src="me">
+              <option value="">أي فرصة</option><option value="coop">تدريب تعاوني</option><option value="internship">تدريب</option>
+              <option value="student">دوام طلابي</option><option value="job">وظيفة</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">المهارات، مفصولة بفواصل<textarea name="skills" data-src="profile" rows="2" dir="auto" placeholder="Excel, SQL, Power BI"></textarea></label>
+        <label class="check"><input type="checkbox" name="relocate" data-src="me"><span>مستعد أنتقل لمدينة أخرى</span></label>
+        <p class="status" id="me-status" role="status"></p>
+      </form>
+
+      <div class="cv-state">
+        <div>
+          <h2>سيرتك</h2>
+          <p class="muted" id="cv-state"></p>
+        </div>
+        <a class="btn btn-primary" href="cv.html">ارفع سيرتك أو عدّلها</a>
+      </div>
+
       <div class="account-actions">
         <button class="btn btn-primary" type="button" id="sync-now">زامن الآن</button>
         <button class="btn btn-quiet" type="button" id="sign-out">تسجيل الخروج</button>
+        <a class="btn btn-quiet" href="support.html">الدعم الفني</a>
       </div>
       <details class="danger">
         <summary>حذف الحساب</summary>
@@ -66,7 +109,7 @@
     </section>
   </main>
 </div>
-<script src="assets/core.js?v=42"></script>
-<script src="assets/account.js?v=2"></script>
+<script src="assets/core.js?v=43"></script>
+<script src="assets/account.js?v=3"></script>
 </body>
 </html>

@@ -305,6 +305,7 @@
   function render() {
     L.apply();
     Masar.nav(L.lang);
+    Masar.accountButton(L.lang);
     splitMega();
     typeExamples();
     renderMeta(); renderRoute(); renderBars(); renderNumbers(); renderRail(); renderLogos();

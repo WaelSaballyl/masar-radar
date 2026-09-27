@@ -69,6 +69,12 @@ refuses a write not based on its latest `rev` (409 + its copy), the browser merg
 local profile wins unless empty) and retries. Keep the worker's `SYNC_KEYS` and core's `SYNC` equal.
 Only a first sign-in or a 409 merges; otherwise the local copy is sent as is, so clearing sticks.
 Header shows "دخول" or the initial (`Masar.accountButton`).
+The account page edits the profile in place: CV fields go to `masar.profile` (the builder's
+FIELDS only - cv.js rewrites that key with its own fields), the rest (country, target role,
+seeking, relocate) to `masar.me`. Support (`support.html`, `src/support.js`, D1
+support_tickets/support_messages): a visitor opens a conversation (name, email, topic), keeps its
+token in `masar.tickets` (synced), and the page polls every 10 s while a chat is open; the team
+answers from admin.html with ADMIN_TOKEN. Email replies wait for the domain + Resend.
 
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link

@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>مراجعة الإعلانات — مسار</title>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
 <meta name="theme-color" content="#181A1B">
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
-<link rel="stylesheet" href="assets/masar.css?v=45">
+<link rel="stylesheet" href="assets/masar.css?v=46">
 </head>
 <body>
 <div class="wrap">
@@ -28,9 +28,33 @@
     </form>
     <p class="match-meta" id="meta" aria-live="polite"></p>
     <ul class="postings" id="list"></ul>
+
+    <section class="support-admin" aria-labelledby="sup-title">
+      <div class="page-head"><h2 id="sup-title">الدعم الفني</h2></div>
+      <div class="filters">
+        <label class="field">المحادثات
+          <select id="sup-state"><option value="open">المفتوحة</option><option value="closed">المغلقة</option></select>
+        </label>
+        <button class="btn btn-primary btn-small" type="button" id="sup-load">اعرض</button>
+      </div>
+      <p class="match-meta" id="sup-meta" aria-live="polite"></p>
+      <ul class="tickets" id="sup-list"></ul>
+      <div class="chat-card" id="sup-chat" hidden>
+        <p class="chat-topic" id="sup-who"></p>
+        <ol class="bubbles" id="sup-bubbles"></ol>
+        <form class="chat-send" id="sup-send">
+          <label class="sr-only" for="sup-text">ردّك</label>
+          <textarea id="sup-text" rows="3" dir="auto" placeholder="اكتب ردّك…"></textarea>
+          <button class="btn btn-primary" type="submit">أرسل</button>
+        </form>
+        <div class="form-actions">
+          <button class="btn btn-quiet btn-small" type="button" id="sup-close">أرسل وأغلق المحادثة</button>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
-<script src="assets/core.js?v=42"></script>
-<script src="assets/admin.js?v=18"></script>
+<script src="assets/core.js?v=43"></script>
+<script src="assets/admin.js?v=19"></script>
 </body>
 </html>

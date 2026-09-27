@@ -17,7 +17,7 @@ const ISSUERS = ["accounts.google.com", "https://accounts.google.com"];
 const SESSION_DAYS = 60;
 const MAX_DATA = 900_000;
 // the only keys a device may store; anything else in a push is dropped
-export const SYNC_KEYS = ["masar.profile", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped"];
+export const SYNC_KEYS = ["masar.profile", "masar.me", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped", "masar.tickets"];
 
 const refuse = (code, status) => Object.assign(new Error(code), { status, code });
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");

@@ -13,6 +13,7 @@
 import { audit, covers, mentions, numbersIn, restore, strings, str } from "./audit.js";
 import { board } from "./board.js";
 import { auth } from "./auth.js";
+import { support } from "./support.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -33,7 +34,7 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: {
         ...cors, "Access-Control-Allow-Methods": "GET, POST",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Max-Age": "86400" } });
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Masar-Session", "Access-Control-Max-Age": "86400" } });
     }
     const path = new URL(request.url).pathname;
     // student accounts; only signing in is rate limited, a signed-in device syncs freely
@@ -45,6 +46,16 @@ export default {
       } catch (e) {
         if (!e.code) console.error(e.stack || e);
         return reply(e.status || 500, { error: e.code || "server", ...e.extra });
+      }
+    }
+    // support conversations; opening one and writing in it are rate limited
+    if (path.startsWith("/support/")) {
+      try {
+        const out = await support(request, env, path, () => limited(request.headers.get("CF-Connecting-IP") || "?"));
+        return out ? reply(200, out) : reply(404, { error: "path" });
+      } catch (e) {
+        if (!e.code) console.error(e.stack || e);
+        return reply(e.status || 500, { error: e.code || "server" });
       }
     }
     // exclusive postings; reading the public list is not rate limited

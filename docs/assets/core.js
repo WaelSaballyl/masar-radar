@@ -207,7 +207,7 @@ window.Masar = (() => {
   // change and come back on every other device. Without an account nothing
   // leaves the browser, as before.
   const API = document.querySelector('meta[name="masar-api"]')?.content || "https://masar-cv.masar-cv.workers.dev";
-  const SYNC = ["masar.profile", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped"];
+  const SYNC = ["masar.profile", "masar.me", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped", "masar.tickets"];
   const readJson = (k, d) => { try { return JSON.parse(store.get(k) || d); } catch { return JSON.parse(d); } };
   const account = {
     api: API,
@@ -334,15 +334,16 @@ window.Masar = (() => {
   nav();
 
   // the account button: "دخول" when signed out, the student's initial when in
-  function accountButton() {
+  function accountButton(lang = store.get("masar.lang") === "en" && document.getElementById("lang-toggle") ? "en" : "ar") {
     const tools = document.querySelector(".topbar .tools");
     if (!tools) return;
     let a = tools.querySelector(".account-btn");
     if (!a) { a = el("a", "tool account-btn"); a.href = "account.html"; tools.prepend(a); }
     const u = account.user;
     a.classList.toggle("in", !!u);
-    a.textContent = u ? (u.name || u.email || "?").trim().charAt(0).toUpperCase() : "دخول";
-    a.setAttribute("aria-label", u ? `حسابك: ${u.name || u.email}` : "تسجيل الدخول");
+    const en = lang === "en";
+    a.textContent = u ? (u.name || u.email || "?").trim().charAt(0).toUpperCase() : en ? "Sign in" : "دخول";
+    a.setAttribute("aria-label", u ? `${en ? "Your account" : "حسابك"}: ${u.name || u.email}` : en ? "Sign in" : "تسجيل الدخول");
     if (here === "account.html") a.setAttribute("aria-current", "page");
   }
   accountButton();
@@ -357,13 +358,15 @@ window.Masar = (() => {
     cv: "M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5",
     apps: "M5 5h14M5 12h14M5 19h9M17 17l2 2 3-4",
   };
-  const TABS = [["./", "home", "الرئيسية"], ["jobs.html", "jobs", "الإعلانات"], ["swipe.html", "swipe", "سحب"],
-                ["cv.html", "cv", "سيرتك"], ["applications.html", "apps", "طلباتي"]];
+  const TABS = [["./", "home", "الرئيسية", "Home"], ["jobs.html", "jobs", "الإعلانات", "Postings"], ["swipe.html", "swipe", "سحب", "Swipe"],
+                ["cv.html", "cv", "سيرتك", "CV"], ["applications.html", "apps", "طلباتي", "Applied"]];
+  const english = () => store.get("masar.lang") === "en" && !!document.getElementById("lang-toggle");
   const noTabs = ["swipe.html", "admin.html", "applicants.html"].includes(here) || /[?&]embed=/.test(location.search);
   if (!noTabs && document.querySelector(".topbar")) {
     const bar = el("nav", "tabbar");
     bar.setAttribute("aria-label", "التنقل السريع");
-    TABS.forEach(([href, icon, label]) => {
+    TABS.forEach(([href, icon, ar, en]) => {
+      const label = english() ? en : ar;
       const a = el("a");
       a.href = href;
       if (href === here || (href === "./" && here === "index.html")) a.setAttribute("aria-current", "page");
@@ -395,7 +398,7 @@ window.Masar = (() => {
     const legal = el("p", "foot-legal");
     const link = (href, text) => { const a = el("a", null, text); a.href = href; return a; };
     legal.append(el("span", null, `© ${new Date().getFullYear()} مسار`), link("privacy.html", "الخصوصية"),
-      link("guide.html", "دليل التدريب التعاوني"), link("employers.html", "للشركات"));
+      link("guide.html", "دليل التدريب التعاوني"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"));
     const box = el("div", "foot-brand");
     box.append(mark, radar, legal);
     document.body.append(box);
