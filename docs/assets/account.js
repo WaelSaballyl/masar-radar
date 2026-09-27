@@ -31,7 +31,45 @@
       img.src = u.picture;
     }
     syncState("متزامن. أي تغيير هنا يصل لأجهزتك الأخرى خلال ثوانٍ.");
+    fillMe();
   }
+
+  // ---------- the profile: CV fields in masar.profile, the rest in masar.me ----------
+  // masar.me holds what the CV builder has no field for (country, target role),
+  // since the builder rewrites masar.profile with its own fields only.
+  const read = (k) => { try { return JSON.parse(Masar.store.get(k) || "{}") || {}; } catch { return {}; } };
+  const form = $("me");
+  function fillMe() {
+    const src = { profile: read("masar.profile"), me: read("masar.me") };
+    [...form.elements].forEach((f) => {
+      if (!f.name || !f.dataset.src) return;
+      const v = src[f.dataset.src][f.name];
+      if (f.type === "checkbox") f.checked = !!v;
+      else f.value = typeof v === "string" ? v : "";
+    });
+    const cvs = (() => { try { return JSON.parse(Masar.store.get("masar.cvs") || "[]"); } catch { return []; } })();
+    const p = src.profile;
+    $("cv-state").textContent = cvs.length
+      ? `السير المحفوظة: ${cvs.length}. آخرها لإعلان ${cvs[0].label || ""}.`
+      : p.experience || p.skills ? "معلوماتك موجودة. جهّز منها سيرة لأي إعلان." : "لم ترفع سيرتك بعد. ارفعها مرة وتُقرأ تلقائياً.";
+  }
+  let saveTimer = null;
+  form.addEventListener("input", () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const profile = read("masar.profile"), me = read("masar.me");
+      [...form.elements].forEach((f) => {
+        if (!f.name || !f.dataset.src) return;
+        const target = f.dataset.src === "me" ? me : profile;
+        target[f.name] = f.type === "checkbox" ? f.checked : f.value.trim();
+      });
+      Masar.store.set("masar.profile", JSON.stringify(profile));
+      Masar.store.set("masar.me", JSON.stringify(me));
+      $("me-status").textContent = "حُفظ.";
+      setTimeout(() => { $("me-status").textContent = ""; }, 1500);
+    }, 400);
+  });
+  form.addEventListener("submit", (e) => e.preventDefault());
   const syncState = (text) => { $("sync-state").textContent = text; };
 
   // Google's script is loaded only on this page, and only when signed out

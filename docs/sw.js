@@ -2,8 +2,8 @@
 // connection. Pages and data go to the network first (they change daily) and
 // fall back to the last copy; versioned assets (?v=N) and brand images never
 // change under the same URL, so they come from the cache first.
-const CACHE = "masar-v1";
-const SHELL = ["./", "jobs.html", "swipe.html", "cv.html", "applications.html", "assets/brand/icon-512.png"];
+const CACHE = "masar-v2";
+const SHELL = ["./", "jobs.html", "swipe.html", "cv.html", "applications.html", "assets/brand/icon-512.png?v=2"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

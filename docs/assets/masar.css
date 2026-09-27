@@ -1185,3 +1185,54 @@ html.motion .foot-mark.in span { transform: none; }
 .account-facts strong { font-family: var(--kufi); font-weight: 700; font-size: 1rem; }
 .account-facts span { color: var(--muted); font-size: .92rem; line-height: 1.7; }
 @media (max-width: 560px) { .account-facts { grid-template-columns: 1fr; } }
+
+/* ---------- profile on the account page ---------- */
+.me, .cv-state { margin: 22px 0; padding-top: 20px; border-top: 1px solid var(--hairline); }
+.me h2, .cv-state h2 { font-family: var(--kufi); font-weight: 700; font-size: 1.2rem; margin: 0 0 4px; }
+.me .grid { margin: 14px 0; }
+.me input, .me select, .me textarea { font: inherit; font-size: .95rem; color: var(--text); background: rgb(255 255 255 / .55); width: 100%;
+  border: 1px solid var(--hairline); border-radius: 12px; padding: 9px 12px; min-height: 42px; }
+.me textarea { resize: vertical; }
+.me .check { margin-top: 10px; }
+.cv-state { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.cv-state p { margin: 0; }
+.small { font-size: .88rem; }
+
+/* ---------- support: conversations like a chat ---------- */
+.support { padding-bottom: 72px; }
+.support-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: start; }
+.chat-card { --text: #111111; --muted: #3F3F3F; --hairline: #B5B5B5; --surface: #E2E2E2; --mint: #161616; --mint-text: #111111;
+  --on-mint: #E0E0E0; --focus: #1C1C1C; background: var(--panel); color: var(--text); border-radius: 28px; padding: 22px; }
+.chat-card a { color: var(--text); }
+.chat-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.chat-head h2 { font-family: var(--kufi); font-weight: 700; font-size: 1.2rem; margin: 0; }
+.chat-card input, .chat-card select, .chat-card textarea { font: inherit; font-size: .95rem; color: var(--text); background: rgb(255 255 255 / .6);
+  width: 100%; border: 1px solid var(--hairline); border-radius: 12px; padding: 9px 12px; min-height: 42px; }
+.ticket-form { display: grid; gap: 12px; }
+.form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.chat-card .status { min-height: 1.5em; margin: 0; color: var(--wine); }
+.tickets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ticket-row { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; font: inherit; color: var(--text);
+  text-align: start; background: rgb(0 0 0 / .06); border: 0; border-radius: 16px; padding: 14px 16px; cursor: pointer; }
+.ticket-row:hover { background: rgb(0 0 0 / .1); }
+.support-admin .ticket-row { background: var(--surface); color: var(--text); }
+.link-back { font: inherit; color: var(--text); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.chat-topic { font-weight: 600; margin: 10px 0; }
+.bubbles { list-style: none; margin: 0 0 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+  max-height: 52vh; overflow-y: auto; background: rgb(0 0 0 / .05); border-radius: 18px; }
+.bubble { max-width: 82%; padding: 10px 14px; border-radius: 18px; display: grid; gap: 2px; }
+.bubble p { margin: 0; white-space: pre-wrap; unicode-bidi: plaintext; }
+.bubble-who { font-size: .78rem; font-weight: 600; opacity: .75; }
+.bubble time { font-size: .72rem; opacity: .6; }
+.from-me { align-self: flex-start; background: #161616; color: #F2F2F2; border-start-start-radius: 6px; }
+.from-team { align-self: flex-end; background: #FFFFFF; color: #111111; border-start-end-radius: 6px; }
+.bubble-note { align-self: center; font-size: .85rem; color: var(--muted); text-align: center; }
+.chat-send { display: flex; gap: 10px; align-items: flex-end; }
+.chat-send textarea { resize: none; }
+.faq h2 { font-family: var(--kufi); font-weight: 700; font-size: 1.2rem; margin: 6px 0 12px; }
+.faq details { border-bottom: 1px solid var(--hairline); padding: 12px 2px; }
+.faq summary { cursor: pointer; font-weight: 600; }
+.faq p { color: var(--muted); margin: 8px 0 0; }
+.support-admin { margin-top: 48px; }
+.support-admin .chat-card { margin-top: 14px; }
+@media (max-width: 880px) { .support-grid { grid-template-columns: 1fr; } }

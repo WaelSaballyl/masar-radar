@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الدعم الفني — مسار</title>
+<meta name="description" content="أسئلة شائعة عن مسار، ومحادثة مباشرة مع فريق الدعم.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
+<meta name="theme-color" content="#181A1B">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/masar.css?v=46">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام"></nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main class="support">
+    <div class="page-head">
+      <h1>الدعم الفني</h1>
+      <p class="section-lede">اكتب لنا مشكلتك أو سؤالك، ونرد عليك هنا في نفس المحادثة. اترك الصفحة مفتوحة وتظهر ردودنا مباشرة، أو ارجع لها لاحقاً من نفس الجهاز أو من حسابك.</p>
+    </div>
+
+    <div class="support-grid">
+      <section class="chat-card" aria-labelledby="chat-title">
+        <div class="chat-head">
+          <h2 id="chat-title">محادثاتك</h2>
+          <button class="btn btn-quiet btn-small" type="button" id="new-chat" hidden>محادثة جديدة</button>
+        </div>
+
+        <ul class="tickets" id="tickets"></ul>
+
+        <form class="ticket-form" id="ticket-form" hidden novalidate>
+          <div class="grid">
+            <label class="field">اسمك<input name="name" autocomplete="name" required maxlength="80"></label>
+            <label class="field">إيميلك<input name="email" type="email" autocomplete="email" dir="ltr" required maxlength="120"></label>
+          </div>
+          <label class="field">الموضوع
+            <select name="topic">
+              <option value="account">حسابي وتسجيل الدخول</option>
+              <option value="cv">صانع السيرة</option>
+              <option value="apply">التقديم وطلباتي</option>
+              <option value="employer">أنا شركة</option>
+              <option value="bug">شي ما يشتغل</option>
+              <option value="other">غير ذلك</option>
+            </select>
+          </label>
+          <label class="field">رسالتك<textarea name="text" rows="5" dir="auto" required maxlength="4000" placeholder="اشرح ما حدث، وفي أي صفحة، وماذا كنت تتوقع."></textarea></label>
+          <p class="muted small">لا تكتب كلمات مرور أو أرقام هويات أو بطاقات. نستخدم إيميلك للرد على هذه المحادثة فقط.</p>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">أرسل</button>
+            <button class="btn btn-quiet" type="button" id="cancel-new" hidden>رجوع</button>
+          </div>
+          <p class="status" id="form-status" role="status"></p>
+        </form>
+
+        <div class="chat" id="chat" hidden>
+          <button class="link-back" type="button" id="back">كل المحادثات</button>
+          <p class="chat-topic" id="chat-topic"></p>
+          <ol class="bubbles" id="bubbles" aria-live="polite"></ol>
+          <form class="chat-send" id="chat-send">
+            <label class="sr-only" for="chat-text">رسالتك</label>
+            <textarea id="chat-text" rows="2" dir="auto" maxlength="4000" placeholder="اكتب رسالة…"></textarea>
+            <button class="btn btn-primary" type="submit">أرسل</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="faq" aria-labelledby="faq-title">
+        <h2 id="faq-title">أسئلة شائعة</h2>
+        <details><summary>هل أحتاج حساباً لأستخدم مسار؟</summary><p>لا. كل شيء يشتغل بدون حساب، وبياناتك تبقى في متصفحك. الحساب فقط لتبقى سيرتك وطلباتك معك على الجوال واللابتوب. <a href="account.html">صفحة الحساب</a>.</p></details>
+        <details><summary>كيف أحذف حسابي وبياناتي؟</summary><p>من <a href="account.html">صفحة حسابك</a>، افتح "حذف الحساب" واضغط الزر. يُحذف كل ما حُفظ لك عندنا فوراً.</p></details>
+        <details><summary>صانع السيرة لم يقرأ ملفي</summary><p>نقرأ ملفات PDF وWord (docx). إذا كانت سيرتك صورة أو ملف PDF ممسوحاً ضوئياً، الصق نصها في المربع بدل رفع الملف.</p></details>
+        <details><summary>كيف أعرف أن الشركة شافت طلبي؟</summary><p>في <a href="applications.html">طلباتي</a> يظهر متى فتحت الشركة سيرتك، وترتيبك بين المتقدمين. وإذا مرّ أسبوع بلا رد تستطيع تذكيرها مرة واحدة.</p></details>
+        <details><summary>اختفى إعلان كنت حافظه</summary><p>الإعلانات تُغلق حين تنتهي مدتها أو تُحذف من مصدرها. نحدّث القائمة كل يوم.</p></details>
+        <details><summary>أنا شركة، كيف أنشر فرصة؟</summary><p>من <a href="employers.html">صفحة الشركات</a>، بإيميل العمل. نراجع الإعلان قبل نشره، ويصلك رابط خاص لتشاهد المتقدمين.</p></details>
+        <details><summary>وجدت إعلاناً مشبوهاً</summary><p>لا تدفع أي رسوم ولا ترسل صورة هويتك. افتح محادثة هنا واختر "غير ذلك" وأرسل لنا رابط الإعلان.</p></details>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="assets/core.js?v=43"></script>
+<script src="assets/support.js?v=1"></script>
+</body>
+</html>

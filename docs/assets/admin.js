@@ -49,4 +49,61 @@
     $("meta").textContent = r.data.postings.length ? Masar.count(r.data.postings.length, "posting", "ar") : "لا توجد إعلانات هنا.";
     $("list").replaceChildren(...r.data.postings.map(card));
   });
+
+  // ---------- support conversations ----------
+  const TOPIC = { account: "الحساب", cv: "صانع السيرة", apply: "التقديم", employer: "شركة", bug: "مشكلة تقنية", other: "غير ذلك" };
+  const send = (path, body) => fetch(`${API}${path}`, {
+    method: "POST", headers: { Authorization: `Bearer ${$("token").value.trim()}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).then((r) => r.ok);
+  const when = (iso) => new Date(iso).toLocaleString("ar-SA-u-nu-latn", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  let current = null;
+
+  async function tickets() {
+    $("sup-chat").hidden = true;
+    $("sup-meta").textContent = "…";
+    const r = await call(`/support/admin?status=${$("sup-state").value}`);
+    if (!r.ok) { $("sup-meta").textContent = r.status === 401 ? "اكتب رمز الإدارة فوق أولاً." : "تعذّر التحميل."; return; }
+    const waiting = r.data.tickets.filter((t) => t.last_author === "visitor").length;
+    $("sup-meta").textContent = r.data.tickets.length ? `المحادثات: ${r.data.tickets.length}، تنتظر ردّك: ${waiting}` : "لا توجد محادثات هنا.";
+    $("sup-list").replaceChildren(...r.data.tickets.map((t) => {
+      const li = el("li");
+      const b = el("button", "ticket-row");
+      b.type = "button";
+      b.append(el("strong", null, `${t.name}، ${TOPIC[t.topic] || t.topic}`),
+        el("span", t.last_author === "visitor" ? "badge-new" : "muted", t.last_author === "visitor" ? "ينتظر ردّك" : when(t.updated_at)));
+      b.onclick = () => thread(t.id);
+      li.append(b);
+      return li;
+    }));
+  }
+
+  async function thread(id) {
+    current = id;
+    const r = await call(`/support/admin/${id}`);
+    if (!r.ok) return;
+    const { ticket, messages } = r.data;
+    $("sup-who").textContent = `${ticket.name}  |  ${ticket.email}  |  ${TOPIC[ticket.topic] || ticket.topic}`;
+    $("sup-bubbles").replaceChildren(...messages.map((m) => {
+      const li = el("li", `bubble ${m.author === "team" ? "from-me" : "from-team"}`);
+      const p = el("p", null, m.text);
+      p.dir = "auto";
+      li.append(el("span", "bubble-who", m.author === "team" ? "فريق مسار" : ticket.name), p, el("time", null, when(m.created_at)));
+      return li;
+    }));
+    $("sup-chat").hidden = false;
+    $("sup-text").focus();
+  }
+
+  async function reply(close) {
+    const text = $("sup-text").value.trim();
+    if (!current || (!text && !close)) return;
+    if (await send(`/support/admin/${current}`, { text, close })) {
+      $("sup-text").value = "";
+      if (close) tickets(); else thread(current);
+    }
+  }
+  $("sup-load").onclick = tickets;
+  $("sup-send").addEventListener("submit", (e) => { e.preventDefault(); reply(false); });
+  $("sup-close").onclick = () => reply(true);
 })();

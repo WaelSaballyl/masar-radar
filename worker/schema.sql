@@ -83,3 +83,25 @@ CREATE TABLE IF NOT EXISTS user_data (
   rev INTEGER NOT NULL,
   updated_at TEXT NOT NULL
 );
+
+-- Support conversations (src/support.js): the visitor holds the ticket token,
+-- only its hash is kept; user_id is set when a signed-in student opened it.
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id TEXT PRIMARY KEY,
+  token_hash TEXT NOT NULL,
+  user_id TEXT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  topic TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS support_status ON support_tickets (status, updated_at);
+CREATE TABLE IF NOT EXISTS support_messages (
+  ticket_id TEXT NOT NULL,
+  author TEXT NOT NULL,
+  text TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS support_thread ON support_messages (ticket_id, created_at);
