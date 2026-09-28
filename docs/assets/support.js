@@ -133,5 +133,27 @@
   $("cancel-new").onclick = list;
   $("back").onclick = () => { shown = -1; list(); };
 
+  // ---------- the assistant: instant answers from what the site does ----------
+  $("ask-bot").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const q = $("ask-q").value.trim();
+    if (q.length < 3) return;
+    const b = e.target.querySelector("[type=submit]");
+    b.disabled = true;
+    $("bot-answer").hidden = false;
+    $("bot-text").textContent = "…";
+    const r = await call("/support/ask", null, { q }).catch(() => null);
+    b.disabled = false;
+    $("bot-text").textContent = r && r.ok ? r.data.answer
+      : r && r.status === 429 ? ERR.rate : "المساعد مشغول الآن. اكتب للفريق وسنرد عليك.";
+  });
+  $("bot-human").onclick = () => {
+    prefill();
+    const f = $("ticket-form");
+    if (!f.elements.text.value) f.elements.text.value = $("ask-q").value.trim();
+    view("form");
+    f.elements.text.focus();
+  };
+
   list();
 })();

@@ -1293,3 +1293,9 @@ html.motion .foot-mark.in span { transform: none; }
 .li-out h3 { font-family: var(--kufi); font-size: 1rem; margin: 18px 0 6px; }
 .li-text { white-space: pre-wrap; background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; padding: 12px 14px; margin: 0 0 8px; unicode-bidi: plaintext; }
 .li-out ul { margin: 0; padding-inline-start: 20px; color: var(--muted); }
+
+/* the support assistant */
+.ask-bot { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--hairline); }
+.ask-bot-row { display: flex; gap: 8px; }
+.bot-answer { margin-top: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; color: #111111; }
+.bot-answer p { margin: 0 0 10px; white-space: pre-wrap; }

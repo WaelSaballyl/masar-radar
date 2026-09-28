@@ -54,6 +54,14 @@ export default {
       try { return reply(200, (await stats(request, env, path)) || { error: "path" }); }
       catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
     }
+    // the support assistant answers from the facts below, rate limited like the CV tools
+    if (path === "/support/ask" && request.method === "POST") {
+      if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      const raw = await request.text();
+      if (raw.length > 3000) return reply(413, { error: "size" });
+      try { return reply(200, await ask(JSON.parse(raw), env)); }
+      catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 502, { error: e.code || "upstream" }); }
+    }
     // support conversations; opening one and writing in it are rate limited
     if (path.startsWith("/support/")) {
       try {
@@ -210,6 +218,42 @@ ${source}`);
     .map((x) => ({ q: str(x?.q, 400), why: str(x?.why, 400), tip: str(x?.tip, 800) })).filter((x) => x.q);
   if (!questions.length) throw fail(502, "bad_json");
   return { questions };
+}
+
+// What the support assistant may say about Masar. It answers from these facts
+// only; anything else goes to the team through a support conversation.
+const FACTS = `Masar (مسار) is a free site for students and new graduates in Saudi Arabia and the Gulf.
+- Postings: internships, co-op (تدريب تعاوني), part-time for students and entry-level jobs in data, software and IT, accounting and finance, engineering, marketing and HR. Collected daily from open job platforms and Google Jobs for Saudi Arabia; each links to its source. Exclusive postings come straight from companies and are reviewed before they go live. Postings page: jobs.html, with filters for field, country, type, experience and level, and a "saved" filter.
+- Masar never asks for fees. A posting that asks for money, an ID copy or contact on WhatsApp/Telegram is a scam: report it through support.
+- CV builder (cv.html): upload a PDF or Word CV (a scanned image cannot be read - paste the text instead) or fill the form; it tailors the CV to a posting using only the student's own facts, removes what they lack, and shows what the posting asks that they do not have. Save as PDF, earlier CVs are kept, interview questions, LinkedIn headline and About.
+- Apply: on exclusive postings students apply from the CV page or by swiping on swipe.html (right to apply, left to skip, 5 seconds to undo). Contact details go to the company only after the student ticks consent. One application per email per posting.
+- My applications (applications.html): whether the company opened the CV, shortlist, rank among applicants, one reminder to the company after 7 days without a reply.
+- Accounts are optional (account.html): sign in with Google only, no password, so there is no password to reset. Signing in keeps the profile, CVs, applications and saved postings in sync across devices. The profile can be edited there. "Delete my account" in account.html deletes everything stored for it.
+- Without an account everything stays in the browser; clearing site data removes it.
+- Employers post for free on employers.html with a work email on their own domain; they see applicants on a private link.
+- The site can be installed as an app from the browser menu.
+- Email replies from support are not available yet; answers appear on the support page.
+- Privacy: privacy.html. Terms: terms.html.`;
+
+async function ask(input, env) {
+  const q = str(input?.q, 600);
+  if (q.length < 3) throw fail(400, "field:text");
+  const out = await gemini(env, `You answer questions about the Masar website for its support page. Return JSON only:
+{"answer":"","confident":true}
+
+Rules:
+- Answer only from FACTS. If FACTS do not cover the question, or it is about the person's own account, a bug, a specific posting or company, or anything needing a human, set confident false and say briefly that the team will help through a support conversation.
+- Reply in the language of the question (Arabic in a friendly Gulf-neutral tone, or English). 1-4 short sentences. Name the page to open when one fits (for example "صفحة حسابك"), without URLs.
+- Never ask for passwords, ID numbers or card numbers. Never promise a job.
+
+FACTS:
+${FACTS}
+
+QUESTION:
+${q}`);
+  const answer = str(out?.answer, 1200);
+  if (!answer) throw fail(502, "bad_json");
+  return { answer, confident: out?.confident !== false };
 }
 
 // A LinkedIn headline and About section from the student's own profile. No
