@@ -385,6 +385,34 @@
     }
   });
 
+  // ---------- LinkedIn headline and About, from the profile alone ----------
+  $("li-make").addEventListener("click", async () => {
+    const button = $("li-make");
+    button.disabled = true;
+    say("li-status", "نكتب ملفك. قد يستغرق ذلك نصف دقيقة.");
+    try {
+      const lang = document.querySelector('input[name="lang"]:checked')?.value || "en";
+      const out = await api("/linkedin", { profile: withoutContact(readProfile()), lang });
+      $("li-headline").textContent = out.headline;
+      $("li-about").textContent = out.about;
+      $("li-skills").textContent = out.skills.join(", ");
+      $("li-tips").replaceChildren(...out.tips.map((t) => el("li", null, t)));
+      $("li-out").hidden = false;
+      say("li-status", "");
+    } catch (e) {
+      say("li-status", ERR[e.code] || ERR.other, true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+  document.querySelectorAll(".li-copy").forEach((b) => {
+    b.onclick = async () => {
+      try { await navigator.clipboard.writeText($(b.dataset.copy).textContent); b.textContent = "نُسخ"; }
+      catch { b.textContent = "انسخه يدوياً"; }
+      setTimeout(() => { b.textContent = "انسخ"; }, 1500);
+    };
+  });
+
   // ---------- earlier CVs, kept in this browser ----------
 
   const VERSIONS = "masar.cvs";

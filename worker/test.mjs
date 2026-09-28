@@ -144,6 +144,17 @@ r = await call("/interview", { profile: { skills: "SQL, Excel", experience: "Int
   job: { title: "Data Analyst", company: "X", required: ["SQL"] } });
 assert.equal(r.status, 502);
 
+// LinkedIn text needs no posting; an answer without a headline is an error
+reply = { headline: "Data Analyst | Excel, SQL", about: "I study IS at KSU.", skills: ["SQL", "Excel"], tips: ["أضف شهادتك"] };
+r = await call("/linkedin", { profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." } });
+out = await r.json();
+assert.equal(r.status, 200);
+assert.equal(out.headline, "Data Analyst | Excel, SQL");
+assert.deepEqual(out.skills, ["SQL", "Excel"]);
+reply = { about: "x" };
+r = await call("/linkedin", { profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." } });
+assert.equal(r.status, 502);
+
 import { sameDomain } from "./src/board.js";
 assert.ok(sameDomain("acme.sa", "acme.sa"));
 assert.ok(sameDomain("careers.acme.sa", "acme.sa"));

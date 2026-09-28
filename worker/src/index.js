@@ -76,7 +76,7 @@ export default {
       }
     }
     if (request.method !== "POST") return reply(405, { error: "method" });
-    if (!["/parse", "/tailor", "/interview"].includes(path)) return reply(404, { error: "path" });
+    if (!["/parse", "/tailor", "/interview", "/linkedin"].includes(path)) return reply(404, { error: "path" });
     if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
 
     const raw = await request.text();
@@ -85,7 +85,7 @@ export default {
     try { input = JSON.parse(raw); } catch { return reply(400, { error: "json" }); }
 
     try {
-      const handle = { "/parse": parse, "/tailor": tailor, "/interview": interview }[path];
+      const handle = { "/parse": parse, "/tailor": tailor, "/interview": interview, "/linkedin": linkedin }[path];
       return reply(200, await handle(input, env));
     } catch (e) {
       if (!e.code) console.error(e.stack || e); // a bug here, not an upstream answer
@@ -210,6 +210,30 @@ ${source}`);
     .map((x) => ({ q: str(x?.q, 400), why: str(x?.why, 400), tip: str(x?.tip, 800) })).filter((x) => x.q);
   if (!questions.length) throw fail(502, "bad_json");
   return { questions };
+}
+
+// A LinkedIn headline and About section from the student's own profile. No
+// posting: the profile is aimed at the role the student targets (other, or
+// what the experience shows). The same rules as the CV: nothing invented.
+async function linkedin(input, env) {
+  const { source, lang } = inputs({ ...input, job: { description: "none" } });
+  const out = await gemini(env, `You are writing a student's LinkedIn profile text. Return JSON only:
+{"headline":"","about":"","skills":[""],"tips":[""]}
+
+Rules:
+- Use only facts found in PROFILE. Never add a skill, employer, title, number or achievement it does not state.
+- headline: at most 200 characters: the role the student targets (from PROFILE if stated, else what their studies and experience show), then 3-5 core skills or a concrete strength, separated by " | ". Add "Open to co-op" or "Open to internships" only if PROFILE says the student is looking for one.
+- about: 3 short paragraphs, first person, at most 1,500 characters in all: who the student is and what they are studying or doing; the evidence - 2-3 things they built or achieved, with numbers only where PROFILE gives them; what they want next and where (city, country, co-op or internship) if PROFILE says.
+- No stock phrases ("passionate", "hard-working", "fast learner", "team player", "results-driven", "eager to leverage", "looking for an opportunity", "able to work under pressure"). No emojis. No level words the student did not use ("expert", "advanced", "proficient").
+- skills: up to 10 skills from PROFILE for LinkedIn's Skills section, most marketable first, as LinkedIn spells them ("Microsoft Excel", "Power BI", "SQL"). A skill PROFILE marks as basic or course-only stays out of the headline and goes last here.
+- tips: 3-4 short, specific things this student should add to their LinkedIn profile, based on what PROFILE shows is missing (a certificate to add under Licenses, a project to put in Featured, a test score). No generic advice.
+- Write headline and about in ${lang}; skill names stay as written. Write tips in Arabic.
+
+PROFILE:
+${source}`);
+  const headline = str(out?.headline, 220), about = str(out?.about, 2600);
+  if (!headline || !about) throw fail(502, "bad_json");
+  return { headline, about, skills: strings(out?.skills, 10), tips: strings(out?.tips, 5) };
 }
 
 async function tailor(input, env) {
