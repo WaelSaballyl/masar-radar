@@ -10,10 +10,13 @@ from .base import get_json
 
 SEARCHES = [
     "data analyst in Saudi Arabia",
-    "data engineer in Saudi Arabia",
-    "business intelligence in Saudi Arabia",
-    "data internship in Saudi Arabia",
-]  # one request each per daily run: 4 x 30 = ~120 of the free plan's 200 a month
+    "internship in Saudi Arabia",
+    "accountant in Saudi Arabia",
+    "software developer in Saudi Arabia",
+    "engineer in Saudi Arabia",
+    "marketing specialist in Saudi Arabia",
+]  # one request each per daily run: 6 x 30 = ~180 of the free plan's 200 a month,
+   # so a manual run costs 6 and only about three fit in a month
 
 
 def enabled() -> bool:

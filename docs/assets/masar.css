@@ -1248,3 +1248,10 @@ html.motion .foot-mark.in span { transform: none; }
 .stats-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 18px; }
 .stats-lists h3 { font-family: var(--kufi); font-size: 1rem; margin: 0 0 6px; }
 .stats-lists ol { margin: 0; padding-inline-start: 20px; color: var(--muted); }
+
+/* the skills line's field switch (home page) */
+.field-switch { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.field-btn { font: inherit; font-size: .85rem; color: var(--text); background: rgb(0 0 0 / .06); border: 1px solid transparent;
+  border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.field-btn[aria-pressed="true"] { background: #161616; color: #E0E0E0; }
+.field-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }

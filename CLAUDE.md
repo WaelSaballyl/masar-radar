@@ -1,6 +1,6 @@
 # masar-radar
 
-Data-jobs market radar, one component of the Masar job-seeker platform. Collects
+Jobs radar for students (data first, plus five more fields since 2026-09-28), one component of the Masar job-seeker platform. Collects
 postings daily from open APIs, extracts skills, publishes a static Arabic
 dashboard on GitHub Pages.
 
@@ -26,7 +26,10 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
 ## Layout
 
 - `radar/sources/*.py` - one adapter per API, all returning the same dict shape
-- `radar/skills.py` - `SKILL_PATTERNS`, role rules, `DATA_FILTER`/`DATA_EXCLUDE` (title only)
+- `radar/skills.py` - `SKILL_PATTERNS`, role rules, `DATA_FILTER`/`DATA_EXCLUDE` (title only), and
+  `FIELD_RULES`/`field_of`: data first, then tech, finance, engineering, marketing, hr; a title no
+  rule names is not collected. Other fields get one role each (`FIELD_ROLE`). The field is derived
+  from the title at export (`jobs.json` `field`, summary `routes` per field), not stored.
 - `radar/ai.py` - Gemini extraction: batches of 5, retry, model fallback, `PROMPT_VERSION`
 - `radar/db.py` - schema plus `_migrate` (additive `ALTER TABLE` only)
 - `radar/store.py` - jsonl <-> sqlite
@@ -115,7 +118,7 @@ Jobicy (highest yield), Remote OK, Arbeitnow (only European coverage), Remotive
 
 ## Secrets
 
-GitHub secrets: `GEMINI_API_KEY` and `RAPIDAPI_KEY` (both set; JSearch free plan, 200 requests/month hard limit, 4 per run - each manual run costs 4). Never ask the
+GitHub secrets: `GEMINI_API_KEY` and `RAPIDAPI_KEY` (both set; JSearch free plan, 200 requests/month hard limit, 6 per run since the fields widened = ~180 a month - each manual run costs 6, so about three spare a month). Never ask the
 user to paste a key into chat; they run `gh secret set NAME -R WaelSaballyl/masar-radar`.
 
 ## Environment gotchas

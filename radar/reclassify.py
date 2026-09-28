@@ -31,7 +31,7 @@ def review(con) -> tuple[list, list, list, list]:
             garbled.append((job_id, location, fixed[2]))
 
         clean_title = fixed[0]
-        if not skills.is_data_job(clean_title):
+        if not skills.field_of(clean_title):
             drop.append((job_id, clean_title, role))
             continue
 

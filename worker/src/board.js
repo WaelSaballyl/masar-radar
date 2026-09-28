@@ -18,7 +18,7 @@ const WORKPLACE = ["onsite", "hybrid", "remote"];
 const EMPLOYMENT = ["full_time", "part_time", "internship", "coop", "contract"];
 const LEVEL = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager"];
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM"];
-const PUBLIC = "id, company, website, title, city, country, workplace, employment, level, description, required, preferred, salary, apply_url, created_at, expires_at, verified";
+const PUBLIC = "id, company, website, title, city, country, workplace, employment, level, description, required, preferred, salary, apply_url, created_at, expires_at, verified, field";
 
 const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const skills = (v) => text(v, 600).split(/[,،\n]/).map((s) => s.trim()).filter(Boolean).slice(0, 20).join(", ");
@@ -51,7 +51,16 @@ async function body(request) {
 // WhatsApp link. red is rejected silently (a scammer learns nothing), yellow
 // waits for a person, green waits too until AUTO_APPROVE is "1".
 const SCAM = /رسوم|رسم تسجيل|تحويل مبلغ|ايداع|إيداع|آيبان|ايبان|\biban\b|صورة (?:ال)?هوية|صورة (?:ال)?جواز|registration fee|training fee|deposit|pay (?:a|the) fee|bank account|passport copy|id copy|wa\.me|whatsapp|واتساب|واتس اب|telegram|تيليجرام|t\.me\//i;
-const DATA = /data|بيانات|analy|تحليل|\bbi\b|business intelligence|ذكاء الأعمال|sql|python|power ?bi|tableau|excel|dashboard|machine learning|تعلم الآلة|statistic|إحصاء|report/i;
+// a posting in one of Masar's fields (radar/skills.py FIELDS) names at least
+// one of these; anything else waits for a person
+const FIELD = ["data", "tech", "finance", "engineering", "marketing", "hr"];
+const FIELDS_RX = new RegExp([
+  /data|بيانات|analy|تحليل|\bbi\b|business intelligence|ذكاء الأعمال|sql|python|power ?bi|tableau|excel|dashboard|machine learning|تعلم الآلة|statistic|إحصاء|report/,
+  /software|developer|programm|engineer|devops|cloud|network|cyber|security|\bqa\b|\bit\b|support|ux|مطور|مبرمج|برمجيات|تقنية|سيبراني|مهندس|هندسة/,
+  /account|financ|audit|tax|zakat|vat|treasury|محاسب|مالي|تدقيق|زكاة|ضريب/,
+  /marketing|social media|content|seo|brand|communication|design|تسويق|محتوى|علاقات عامة|تصميم/,
+  /\bhr\b|human resource|recruit|talent|payroll|موارد بشرية|توظيف|استقطاب|رواتب/,
+].map((r) => r.source).join("|"), "i");
 const host = (s) => { try { return new URL(s).hostname.replace(/^www\./, ""); } catch { return ""; } };
 
 // the contact email is on the company site's own domain (hr@acme.sa for acme.sa)
@@ -64,7 +73,7 @@ export function screen(p, duplicate = false) {
   const site = host(p.website), mail = p.contact_email.split("@")[1] || "";
   if (!site) yellow.push("لا يوجد موقع للشركة");
   else if (!sameDomain(mail, site)) yellow.push(`دومين الإيميل (${mail}) لا يطابق الموقع (${site})`);
-  if (!DATA.test(`${p.title} ${p.required}`)) yellow.push("الوظيفة لا تبدو وظيفة بيانات");
+  if (!FIELDS_RX.test(`${p.title} ${p.required}`)) yellow.push("الوظيفة خارج مجالات مسار");
   const pay = Math.max(0, ...(p.salary.replace(/[,٬]/g, "").match(/\d+/g) || []).map(Number));
   if (["internship", "coop"].includes(p.employment) && pay > 15000) yellow.push("مكافأة تدريب عالية بشكل غير معتاد");
   if (/(?:\+|00)?9665\d{8}|(?<!\d)05\d{8}(?!\d)/.test(p.description.replace(/[\s-]/g, ""))) yellow.push("رقم جوال داخل الوصف");
@@ -153,6 +162,7 @@ async function submit(input, env) {
     workplace: text(input.workplace, 20), employment: text(input.employment, 20), level: text(input.level, 20),
     description: text(input.description, 8000), required: skills(input.required), preferred: skills(input.preferred),
     salary: text(input.salary, 80), apply_url: url(input.apply_url),
+    field: FIELD.includes(input.field) ? input.field : "data",
   };
   if (input.website_confirm) throw bad("bot");  // a hidden field only bots fill in
   for (const f of ["company", "title", "city"]) if (p[f].length < 2) throw bad(f);
@@ -181,12 +191,12 @@ async function submit(input, env) {
   const id = newId(), manage = newToken();
   await env.DB.prepare(
     `INSERT INTO postings (id, status, created_at, reviewed_at, expires_at, company, website, contact_email, title, city,
-       country, workplace, employment, level, description, required, preferred, salary, apply_url, risk, reasons, manage_hash, verified)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       country, workplace, employment, level, description, required, preferred, salary, apply_url, risk, reasons, manage_hash, verified, field)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(id, status, now.toISOString(), status === "pending" ? null : now.toISOString(), expires.toISOString().slice(0, 10),
     p.company, p.website, p.contact_email, p.title, p.city, p.country, p.workplace, p.employment, p.level,
     p.description, p.required, p.preferred, p.salary, p.apply_url, risk, reasons.join("\n"), await sha(manage),
-    sameDomain(p.contact_email.split("@")[1] || "", host(p.website)) ? 1 : 0).run();
+    sameDomain(p.contact_email.split("@")[1] || "", host(p.website)) ? 1 : 0, p.field).run();
   // the same answer whatever the verdict: a rejected scammer learns nothing
   return { id, manage };
 }

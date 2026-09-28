@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from . import db, traits
+from .skills import FIELDS, field_of
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "data" / "summary.json"
 JOBS_OUT = OUT.parent / "jobs.json"
@@ -77,12 +78,22 @@ def build() -> dict:
     entry = [r for r in active if r[5] in ENTRY_LEVELS]
     gulf_entry = [r for r in entry if in_gulf(r)]
 
-    if len(gulf_entry) >= MIN_GULF_ROUTE:
-        route_basis, route_ids = "gulf_entry", [r[0] for r in gulf_entry]
-    elif len(entry) >= MIN_ENTRY_POSTINGS:
-        route_basis, route_ids = "entry", [r[0] for r in entry]
-    else:
-        route_basis, route_ids = "all", ids
+    def route(rows: list) -> dict:
+        """The skills line for these postings: Gulf training and junior ones when
+        there are enough, then all training and junior ones, then everything."""
+        ent = [r for r in rows if r[5] in ENTRY_LEVELS]
+        gent = [r for r in ent if in_gulf(r)]
+        if len(gent) >= MIN_GULF_ROUTE:
+            basis, rids = "gulf_entry", [r[0] for r in gent]
+        elif len(ent) >= MIN_ENTRY_POSTINGS:
+            basis, rids = "entry", [r[0] for r in ent]
+        else:
+            basis, rids = "all", [r[0] for r in rows]
+        return {"basis": basis, "postings": len(rids), "stops": _skill_shares(con, rids, ROUTE_STOPS)}
+
+    # each field gets its own line: SQL tops data, IFRS tops accounting
+    field = {r[0]: field_of(r[1]) or "data" for r in active}
+    fields = Counter(field.values())
 
     # the internship list and the company names show the Gulf alone once it
     # has any; before JSearch there were none, and an empty page helps nobody
@@ -106,11 +117,11 @@ def build() -> dict:
         "gulf_postings": len(gulf),
         "jobs_basis": "gulf" if gulf_entry else "all",
         "companies_basis": "gulf" if gulf else "all",
-        "route": {
-            "basis": route_basis,  # "gulf_entry", "entry" or "all" - the page labels it
-            "postings": len(route_ids),
-            "stops": _skill_shares(con, route_ids, ROUTE_STOPS),
-        },
+        # basis is "gulf_entry", "entry" or "all" - the page labels it
+        "route": route([r for r in active if field[r[0]] == "data"]),
+        "routes": {f: route([r for r in active if field[r[0]] == f])
+                   for f in FIELDS if fields[f] >= MIN_ENTRY_POSTINGS},
+        "fields": {f: fields[f] for f in FIELDS if fields[f]},
         "top_skills": _skill_shares(con, ids, 10),
         "entry_jobs": [
             {"title": t, "company": _company(c), "location": loc, "url": u,
@@ -155,6 +166,7 @@ def build_jobs() -> dict:
         postings.append({
             # id lets a page link straight to one posting (the CV builder's ?job=)
             "id": jid, "title": title, "company": company, "location": location, "url": url,
+            "field": field_of(title) or "data",
             # some sources give no date; the day we first saw it is the honest stand-in
             "posted_at": posted or (collected or "")[:10], "level": level, "role": role,
             "countries": split(countries), "regions": split(regions),

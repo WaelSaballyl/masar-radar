@@ -8,7 +8,7 @@
     ar: {
       brand: "مسار", nav_label: "الأقسام", nav_coop: "فرص التدريب", nav_jobs: "الإعلانات", nav_emp: "للشركات", nav_how: "كيف نبني المؤشر",
       nav_market: "مؤشر السوق", nav_cv: "سيرتك", theme_label: "تبديل المظهر",
-      title: "مؤشر سوق وظائف البيانات",
+      title: "مؤشر سوق التدريب والوظائف", field: "المجال",
       lede: "المهارات والأدوار والدول في الإعلانات المفتوحة الآن. اختر دولتك والدول التي تفضّلها لترى السوق الذي يخصّك.",
       filters_title: "الفلاتر", scope: "ما الذي أعرضه", scope_all: "كل الإعلانات", scope_mine: "دولتي والمفضّلة",
       home: "دولتي", prefs: "الدول المفضّلة", add_pref: "أضف دولة", add_pref_option: "+ أضف دولة",
@@ -38,6 +38,8 @@
         "Data Analyst": "محلل بيانات", "Data Engineer": "مهندس بيانات", "Data Scientist": "عالم بيانات",
         "ML Engineer": "مهندس تعلّم آلي", "Analytics Engineer": "مهندس تحليلات",
         "BI Developer": "مطوّر ذكاء أعمال", "Business Analyst": "محلل أعمال", "Other (Data)": "أخرى",
+        "Software & IT": "برمجة وتقنية", "Accounting & Finance": "محاسبة ومالية", "Engineering": "هندسة",
+        "Marketing": "تسويق", "Human Resources": "موارد بشرية",
       },
       levels: {
         Intern: "تدريب", Junior: "مبتدئ", Mid: "متوسط", Senior: "خبير",
@@ -47,7 +49,7 @@
     en: {
       brand: "Masar", nav_label: "Sections", nav_coop: "Internships", nav_jobs: "Postings", nav_emp: "Employers", nav_how: "How it works",
       nav_market: "Market index", nav_cv: "Your CV", theme_label: "Switch theme",
-      title: "Data jobs market index",
+      title: "Internship and jobs market index", field: "Field",
       lede: "Skills, roles and countries in the postings open right now. Choose your country and the ones you prefer to see the market that is yours.",
       filters_title: "Filters", scope: "Show", scope_all: "All postings", scope_mine: "My countries",
       home: "My country", prefs: "Preferred countries", add_pref: "Add a country", add_pref_option: "+ Add a country",
@@ -77,6 +79,8 @@
         "Data Analyst": "Data analyst", "Data Engineer": "Data engineer", "Data Scientist": "Data scientist",
         "ML Engineer": "ML engineer", "Analytics Engineer": "Analytics engineer",
         "BI Developer": "BI developer", "Business Analyst": "Business analyst", "Other (Data)": "Other",
+        "Software & IT": "Software & IT", "Accounting & Finance": "Accounting & Finance", "Engineering": "Engineering",
+        "Marketing": "Marketing", "Human Resources": "Human resources",
       },
       levels: {
         Intern: "Internship", Junior: "Junior", Mid: "Mid", Senior: "Senior",
@@ -86,8 +90,8 @@
   };
 
   const L = Masar.i18n(I18N, {
-    ar: "مؤشر سوق وظائف البيانات — مسار",
-    en: "Data jobs market index — Masar",
+    ar: "مؤشر سوق التدريب والوظائف — مسار",
+    en: "Internship and jobs market index — Masar",
   });
   const t = (key, vars) => L.t(key, vars);
   const count = (n, noun) => Masar.count(n, noun, L.lang);
@@ -102,7 +106,8 @@
   const GULF = ["SA", "AE", "QA", "KW", "BH", "OM"];
   const inGulf = (c) => GULF.includes(c);
 
-  const DEFAULTS = { scope: "mine", home: "SA", prefs: [], remote: true, level: "", role: "" };
+  // field starts at data: a skills chart over every field mixes SQL with AutoCAD
+  const DEFAULTS = { scope: "mine", home: "SA", prefs: [], remote: true, level: "", role: "", field: "data" };
   const PAGE = 30;
 
   let postings = [];
@@ -120,6 +125,7 @@
       s.remote = s.remote !== false;
       if (!["", "entry", "mid"].includes(s.level)) s.level = "";
       if (typeof s.role !== "string") s.role = "";
+      if (typeof s.field !== "string") s.field = "data";
       return s;
     } catch { return { ...DEFAULTS }; }
   }
@@ -145,6 +151,7 @@
     if (state.level === "entry" && !ENTRY.includes(p.level)) return false;
     if (state.level === "mid" && !MID_UP.includes(p.level)) return false;
     if (state.role && p.role !== state.role) return false;
+    if (state.field && (p.field || "data") !== state.field) return false;
     if (state.scope === "mine") return inMyCountries(p) || (state.remote && isAnywhere(p));
     return true;
   }
@@ -313,9 +320,12 @@
     remote.disabled = state.scope !== "mine";
     remote.closest(".check").style.opacity = remote.disabled ? 0.55 : 1;
     document.getElementById("level").value = state.level;
+    const fieldSelect = document.getElementById("field");
+    fieldSelect.replaceChildren(option("", L.lang === "en" ? "All fields" : "كل المجالات", !state.field),
+      ...Object.keys(Masar.FIELDS).map((f) => option(f, (L.lang === "en" ? Masar.FIELDS_EN : Masar.FIELDS)[f], f === state.field)));
 
     const roleSelect = document.getElementById("role");
-    const roles = [...new Set(postings.map((p) => p.role).filter(Boolean))].sort();
+    const roles = [...new Set(postings.filter((p) => !state.field || (p.field || "data") === state.field).map((p) => p.role).filter(Boolean))].sort();
     if (state.role && !roles.includes(state.role)) state.role = "";
     roleSelect.replaceChildren(option("", t("role_any"), !state.role),
       ...roles.map((r) => option(r, dict().roles[r] || r, r === state.role)));
@@ -352,6 +362,7 @@
     else if (f.id === "remote") state.remote = f.checked;
     else if (f.id === "level") state.level = f.value;
     else if (f.id === "role") state.role = f.value;
+    else if (f.id === "field") { state.field = f.value; state.role = ""; }
     else return;
     update();
   });

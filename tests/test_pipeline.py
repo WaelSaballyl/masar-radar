@@ -184,3 +184,31 @@ class TraitsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FieldsTest(unittest.TestCase):
+    """The title decides the field; data comes first, anything unnamed is skipped."""
+
+    def test_fields(self):
+        cases = {
+            "Data Analyst": "data", "Financial Data Analyst": "data", "Machine Learning Engineer": "data",
+            "Software Engineer Intern": "tech", "Security Analyst": "tech", "مطور ويب": "tech",
+            "Accountant": "finance", "Credit Analyst": "finance", "محاسب": "finance",
+            "Civil Engineer": "engineering", "Mechanical Engineering Intern": "engineering", "مهندس مدني": "engineering",
+            "Digital Marketing Specialist": "marketing", "أخصائي تسويق": "marketing",
+            "HR Generalist": "hr", "HR Data Analyst": "hr", "أخصائي موارد بشرية": "hr",
+            "Sales Representative": None, "Driver": None, "Customer Service": None,
+        }
+        for title, field in cases.items():
+            self.assertEqual(skills.field_of(title), field, title)
+
+    def test_roles_follow_the_field(self):
+        self.assertEqual(skills.classify_role("Accountant"), "Accounting & Finance")
+        self.assertEqual(skills.classify_role("Data Engineer"), "Data Engineer")
+
+    def test_field_skills_ignore_ordinary_prose(self):
+        self.assertEqual(skills.extract_skills("Agile Robots SE builds robots. The team will react quickly and go to market."), [])
+        self.assertEqual(skills.extract_skills("Learning and development budget of 1,000 per year"), [])
+        found = skills.extract_skills("IFRS, VAT and zakat returns, AutoCAD, SEO, payroll and GOSI, React, C# and C++")
+        for s in ["IFRS", "Tax/VAT/Zakat", "AutoCAD", "SEO/SEM", "Payroll", "Saudi Labor Law", "React", "C#/.NET", "C++"]:
+            self.assertIn(s, found)

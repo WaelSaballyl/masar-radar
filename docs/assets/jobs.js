@@ -154,7 +154,7 @@
 
   // ---------- filters, kept in the address so a filtered list can be shared ----------
 
-  const FILTERS = ["q", "where", "type", "exp", "level", "role", "sort"];
+  const FILTERS = ["q", "field", "where", "type", "exp", "level", "role", "sort"];
   const TRAINING = ["coop", "internship", "student"];
 
   function matches(p) {
@@ -175,6 +175,7 @@
     if (level === "entry" && !ENTRY.includes(p.level)) return false;
     if (level === "mid" && !MID_UP.includes(p.level)) return false;
     if (role && p.role !== role) return false;
+    if ($("field").value && (p.field || "data") !== $("field").value) return false;
     return !q || `${p.title} ${p.company} ${p.skills.map((s) => s[0]).join(" ")}`.toLowerCase().includes(q);
   }
 
@@ -236,7 +237,7 @@
     posted_at: (p.created_at || "").slice(0, 10), role: "", countries: [p.country], regions: [], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])],
     kind: KIND[p.employment] || "job", years: null, deadline: p.expires_at, exclusive: true, group: "exclusive",
-    logo: Masar.siteIcon(p.website), verified: !!p.verified,
+    logo: Masar.siteIcon(p.website), verified: !!p.verified, field: p.field || "data",
   }))).catch(() => []);
 
   Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()), exclusive]).then(([d, ex]) => {
@@ -280,7 +281,7 @@
   }
 
   // the chosen filters above the results, each with its own x, and one reset
-  const DEFAULTS = { q: "", where: "", type: "", exp: "", level: "", role: "", sort: "new" };
+  const DEFAULTS = { q: "", field: "", where: "", type: "", exp: "", level: "", role: "", sort: "new" };
   function chips() {
     const box = $("chips");
     box.replaceChildren();

@@ -126,6 +126,8 @@ assert.equal(screen(post({ description: "رسوم التسجيل 500 ريال" }
 assert.equal(screen(post({ contact_email: "hr@other.com" })).risk, "yellow");
 assert.equal(screen(post({ contact_email: "jobs@careers.acme.sa" })).risk, "green", "a subdomain of the site is fine");
 assert.equal(screen(post({ title: "Sales Representative", required: "Negotiation" })).risk, "yellow");
+assert.equal(screen(post({ title: "Accountant Co-op", required: "IFRS, Excel", description: "Month-end close." })).risk, "green", "accounting is one of the fields");
+assert.equal(screen(post({ title: "Civil Engineering Trainee", required: "AutoCAD", description: "Site visits." })).risk, "green");
 assert.equal(screen(post({ salary: "25000" })).risk, "yellow");
 assert.equal(screen(post({ description: "Call 0551234567 now" })).risk, "yellow");
 assert.equal(screen(post(), true).risk, "yellow");
