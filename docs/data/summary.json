@@ -1,7 +1,7 @@
 {
  "updated_at": "2026-09-27T09:22:12+00:00",
- "active_postings": 198,
- "total_postings": 304,
+ "active_postings": 209,
+ "total_postings": 315,
  "companies": 40,
  "sources": [
   "arbeitnow",
@@ -58,53 +58,53 @@
  "top_skills": [
   {
    "name": "SQL",
-   "postings": 96,
-   "share": 0.485
+   "postings": 100,
+   "share": 0.478
   },
   {
    "name": "Python",
-   "postings": 85,
-   "share": 0.429
+   "postings": 92,
+   "share": 0.44
   },
   {
    "name": "Data Governance",
-   "postings": 67,
-   "share": 0.338
+   "postings": 69,
+   "share": 0.33
   },
   {
    "name": "Data Modeling",
-   "postings": 65,
-   "share": 0.328
+   "postings": 66,
+   "share": 0.316
   },
   {
    "name": "ETL",
-   "postings": 64,
-   "share": 0.323
+   "postings": 65,
+   "share": 0.311
   },
   {
    "name": "Machine Learning",
-   "postings": 40,
-   "share": 0.202
+   "postings": 48,
+   "share": 0.23
   },
   {
    "name": "Statistics",
-   "postings": 30,
-   "share": 0.152
+   "postings": 32,
+   "share": 0.153
   },
   {
    "name": "A/B Testing",
-   "postings": 28,
-   "share": 0.141
+   "postings": 29,
+   "share": 0.139
   },
   {
    "name": "dbt",
-   "postings": 27,
-   "share": 0.136
+   "postings": 28,
+   "share": 0.134
   },
   {
-   "name": "Snowflake",
-   "postings": 25,
-   "share": 0.126
+   "name": "GenAI/LLM",
+   "postings": 26,
+   "share": 0.124
   }
  ],
  "entry_jobs": [
@@ -227,6 +227,8 @@
   "Refonte Learning",
   "Hilti Group",
   "Propel Consult",
+  "Devsinc, LLC",
+  "MAKAN for Parking Solutions",
   "Basamh Group",
   "Arabian Private Holdings",
   "Meituan",
@@ -234,17 +236,15 @@
   "Refonte Technologies",
   "Aramco",
   "HungerStation",
+  "Qiddiya Investment Company",
   "SoftwareOne",
+  "Linnk Group",
   "Riyad Bank",
   "AJEX",
+  "Master Works",
   "Karma Sugar Company For Food Industries",
   "Mozn",
   "شركة علم",
-  "Confidential Jobs",
-  "Linnk Group",
-  "MAKAN for Parking Solutions",
-  "Master Works",
-  "Devsinc, LLC",
-  "Qiddiya Investment Company"
+  "Confidential Jobs"
  ]
 }

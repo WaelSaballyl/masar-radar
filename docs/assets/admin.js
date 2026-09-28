@@ -104,6 +104,35 @@
     }
   }
   $("sup-load").onclick = tickets;
+
+  // ---------- visitors ----------
+  const PAGES = { index: "الرئيسية", jobs: "الإعلانات", job: "صفحة إعلان", swipe: "السحب", cv: "صانع السيرة",
+    applications: "طلباتي", dashboard: "مؤشر السوق", employers: "الشركات", guide: "الدليل", account: "الحساب",
+    support: "الدعم", privacy: "الخصوصية", terms: "الشروط" };
+  $("stats-load").onclick = async () => {
+    $("stats-meta").textContent = "…";
+    const r = await call("/stats");
+    if (!r.ok) { $("stats-meta").textContent = r.status === 401 ? "اكتب رمز الإدارة فوق أولاً." : "تعذّر التحميل."; return; }
+    const { days, pages, refs } = r.data;
+    const sum = (k) => days.reduce((a, d) => a + d[k], 0);
+    const views = sum("views"), visitors = sum("visitors"), phone = sum("phone");
+    $("stats-meta").textContent = views
+      ? `زوار: ${visitors}، مشاهدات: ${views}، من الجوال: ${Math.round((phone / views) * 100)}٪`
+      : "لا زيارات مسجلة بعد. تبدأ الأرقام من أول زيارة للموقع المنشور.";
+    const max = Math.max(1, ...days.map((d) => d.visitors));
+    $("stats-days").replaceChildren(...days.map((d) => {
+      const li = el("li", "bar-row");
+      const track = el("span", "bar-track");
+      const seg = el("span", "seg req");
+      seg.style.width = `${(d.visitors / max) * 100}%`;
+      track.append(seg);
+      li.append(el("span", "bar-label", d.day.slice(5)), track, el("span", "bar-value", String(d.visitors)));
+      return li;
+    }));
+    $("stats-pages").replaceChildren(...pages.map((p) => el("li", null, `${PAGES[p.page] || p.page}: ${p.views}`)));
+    $("stats-refs").replaceChildren(...(refs.length ? refs.map((x) => el("li", null, `${x.host}: ${x.views}`)) : [el("li", "muted", "لا شيء بعد")]));
+    $("stats").hidden = false;
+  };
   $("sup-send").addEventListener("submit", (e) => { e.preventDefault(); reply(false); });
   $("sup-close").onclick = () => reply(true);
 })();

@@ -398,10 +398,25 @@ window.Masar = (() => {
     const legal = el("p", "foot-legal");
     const link = (href, text) => { const a = el("a", null, text); a.href = href; return a; };
     legal.append(el("span", null, `© ${new Date().getFullYear()} مسار`), link("privacy.html", "الخصوصية"),
-      link("guide.html", "دليل التدريب التعاوني"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"));
+      link("guide.html", "دليل التدريب التعاوني"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
+      link("terms.html", "الشروط"));
     const box = el("div", "foot-brand");
     box.append(mark, radar, legal);
     document.body.append(box);
+  }
+
+  // One count per page view for the admin page's visitor numbers: the page's
+  // name, the referring site, whether this is the browser's first view today,
+  // and phone or not. No cookie, no id, and the worker stores no IP.
+  if (location.protocol === "https:" && !/[?&]embed=/.test(location.search) && navigator.sendBeacon) {
+    const today = new Date().toISOString().slice(0, 10);
+    let first = false;
+    try { first = localStorage.getItem("masar.seen") !== today; localStorage.setItem("masar.seen", today); } catch { /* private mode */ }
+    let ref = "";
+    try { const r = new URL(document.referrer); if (r.host !== location.host) ref = r.hostname.replace(/^www\./, ""); } catch { /* none */ }
+    navigator.sendBeacon(`${API}/hit`, JSON.stringify({
+      p: here.replace(/\.html$/, "") || "index", r: ref, v: first, m: matchMedia("(max-width: 720px)").matches,
+    }));
   }
 
   // Sections marked .reveal rise into place the first time they are seen.

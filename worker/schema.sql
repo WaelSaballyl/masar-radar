@@ -105,3 +105,20 @@ CREATE TABLE IF NOT EXISTS support_messages (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS support_thread ON support_messages (ticket_id, created_at);
+
+-- Visitor counts (src/stats.js): per day and page, and per referring site.
+-- No cookies, no IP, nothing that identifies a person.
+CREATE TABLE IF NOT EXISTS hits (
+  day TEXT NOT NULL,
+  page TEXT NOT NULL,
+  views INTEGER NOT NULL,
+  visitors INTEGER NOT NULL,
+  phone INTEGER NOT NULL,
+  PRIMARY KEY (day, page)
+);
+CREATE TABLE IF NOT EXISTS refs (
+  day TEXT NOT NULL,
+  host TEXT NOT NULL,
+  views INTEGER NOT NULL,
+  PRIMARY KEY (day, host)
+);

@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
 <meta name="theme-color" content="#181A1B">
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
-<link rel="stylesheet" href="assets/masar.css?v=46">
+<link rel="stylesheet" href="assets/masar.css?v=47">
 </head>
 <body>
 <div class="wrap">
@@ -28,6 +28,20 @@
     </form>
     <p class="match-meta" id="meta" aria-live="polite"></p>
     <ul class="postings" id="list"></ul>
+
+    <section class="support-admin" aria-labelledby="stats-title">
+      <div class="page-head"><h2 id="stats-title">الزوار</h2></div>
+      <p class="muted small">آخر 30 يوماً. بلا كوكيز ولا عناوين IP: الزائر يُحسب مرة في اليوم لكل متصفح.</p>
+      <button class="btn btn-primary btn-small" type="button" id="stats-load">اعرض الأرقام</button>
+      <p class="match-meta" id="stats-meta" aria-live="polite"></p>
+      <div class="stats" id="stats" hidden>
+        <ol class="bars" id="stats-days" aria-label="الزوار كل يوم"></ol>
+        <div class="stats-lists">
+          <div><h3>أكثر الصفحات</h3><ol id="stats-pages"></ol></div>
+          <div><h3>جاؤوا من</h3><ol id="stats-refs"></ol></div>
+        </div>
+      </div>
+    </section>
 
     <section class="support-admin" aria-labelledby="sup-title">
       <div class="page-head"><h2 id="sup-title">الدعم الفني</h2></div>
@@ -54,7 +68,7 @@
     </section>
   </main>
 </div>
-<script src="assets/core.js?v=43"></script>
-<script src="assets/admin.js?v=19"></script>
+<script src="assets/core.js?v=44"></script>
+<script src="assets/admin.js?v=20"></script>
 </body>
 </html>
