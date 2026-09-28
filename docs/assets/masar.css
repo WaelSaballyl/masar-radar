@@ -1288,3 +1288,8 @@ html.motion .foot-mark.in span { transform: none; }
 
 /* an employer that opens CVs quickly */
 .badge-fast { font-size: .78rem; font-weight: 600; padding: 2px 10px 3px; border-radius: 999px; background: #161616; color: #E0E0E0; }
+
+/* LinkedIn helper on the CV page */
+.li-out h3 { font-family: var(--kufi); font-size: 1rem; margin: 18px 0 6px; }
+.li-text { white-space: pre-wrap; background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; padding: 12px 14px; margin: 0 0 8px; unicode-bidi: plaintext; }
+.li-out ul { margin: 0; padding-inline-start: 20px; color: var(--muted); }

@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=49">
+<link rel="stylesheet" href="assets/masar.css?v=50">
 </head>
 <body>
 <div class="wrap">
@@ -155,6 +155,21 @@
       </section>
       <article class="paper" id="cv-paper"></article>
     </div>
+
+    <section class="linkedin step" id="linkedin" aria-labelledby="li-title">
+      <h2 id="li-title">ملفك في لينكدإن</h2>
+      <p class="muted">نكتب لك عنوان ملفك (Headline) ونبذة About وأهم المهارات، من معلوماتك في الخطوة الأولى فقط، بلا مبالغة ولا عبارات جاهزة. انسخها والصقها في لينكدإن.</p>
+      <div class="make-row">
+        <button class="btn btn-quiet" type="button" id="li-make">اكتب ملف لينكدإن</button>
+      </div>
+      <p class="status" id="li-status" aria-live="polite"></p>
+      <div class="li-out" id="li-out" hidden>
+        <h3>Headline</h3><p class="li-text" id="li-headline" dir="auto"></p><button class="btn btn-quiet btn-small li-copy" type="button" data-copy="li-headline">انسخ</button>
+        <h3>About</h3><p class="li-text" id="li-about" dir="auto"></p><button class="btn btn-quiet btn-small li-copy" type="button" data-copy="li-about">انسخ</button>
+        <h3>Skills</h3><p class="li-text" id="li-skills" dir="ltr"></p>
+        <h3>أضف لملفك</h3><ul id="li-tips"></ul>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -164,6 +179,6 @@
 </div>
 <script src="assets/core.js?v=46"></script>
 <script src="assets/cvkit.js?v=39"></script>
-<script src="assets/cv.js?v=39"></script>
+<script src="assets/cv.js?v=40"></script>
 </body>
 </html>
