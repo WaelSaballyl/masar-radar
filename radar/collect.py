@@ -64,7 +64,7 @@ def run() -> dict:
         new_count = 0
         data_count = 0
         for j in unique:
-            if not skills.is_data_job(j["title"]):
+            if not skills.field_of(j["title"]):
                 continue
             data_count += 1
             # Trim first, then extract from the trimmed text. Extracting from

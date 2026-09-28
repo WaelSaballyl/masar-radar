@@ -55,6 +55,52 @@
    }
   ]
  },
+ "routes": {
+  "data": {
+   "basis": "entry",
+   "postings": 27,
+   "stops": [
+    {
+     "name": "SQL",
+     "postings": 10,
+     "share": 0.37
+    },
+    {
+     "name": "ETL",
+     "postings": 9,
+     "share": 0.333
+    },
+    {
+     "name": "Python",
+     "postings": 9,
+     "share": 0.333
+    },
+    {
+     "name": "Data Governance",
+     "postings": 7,
+     "share": 0.259
+    },
+    {
+     "name": "Data Modeling",
+     "postings": 7,
+     "share": 0.259
+    },
+    {
+     "name": "Excel",
+     "postings": 6,
+     "share": 0.222
+    },
+    {
+     "name": "Machine Learning",
+     "postings": 4,
+     "share": 0.148
+    }
+   ]
+  }
+ },
+ "fields": {
+  "data": 209
+ },
  "top_skills": [
   {
    "name": "SQL",

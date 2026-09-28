@@ -8,10 +8,12 @@ requests return more data postings than every other free feed combined.
 """
 from .base import get_json
 
-# Jobicy's own taxonomy. "data-science" carries the analyst and engineer
-# postings too; the other two are swept because data roles are routinely filed
-# under business or engineering rather than their own industry.
-INDUSTRIES = ["data-science", "business", "dev"]
+# Jobicy's own taxonomy (list: /api/v2/remote-jobs?get=industries). "data-science"
+# carries the analyst and engineer postings too; "business" and "dev" are swept
+# because data roles are routinely filed there. The rest feed the other fields;
+# the title filter still decides what is kept.
+INDUSTRIES = ["data-science", "business", "dev", "accounting-finance", "marketing", "hr",
+              "cybersecurity", "admin", "qa-testing", "engineering"]
 COUNT = 50  # maximum the API returns per request
 
 

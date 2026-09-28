@@ -45,7 +45,7 @@
       d_sent: "أُرسل", d_seen: "شافته الشركة", d_short: "القائمة المختصرة",
       line_title: "المهارات اللي تفتح الباب",
       line_lede: "هذا مسار المتدرّب: المهارات الأكثر طلباً في إعلانات التدريب والمبتدئين الآن، محسوبة من إعلانات حقيقية. ابدأ من أول محطة.",
-      line_name: "مسار المتدرّب",
+      line_name: "مسار المتدرّب", field_pick: "اختر المجال",
       cta_guide: "دليل التدريب التعاوني",
       cta_market: "افتح مؤشر السوق",
       loading: "جارٍ تحميل البيانات…",
@@ -110,7 +110,7 @@
       d_sent: "Sent", d_seen: "Viewed", d_short: "Shortlist",
       line_title: "The skills that open the door",
       line_lede: "The intern line: the most requested skills in internship and junior postings right now, counted from real postings. Start at the first station.",
-      line_name: "Intern line",
+      line_name: "Intern line", field_pick: "Choose a field",
       cta_guide: "Co-op guide (Arabic)",
       cta_market: "Open the market index",
       loading: "Loading data…",
@@ -148,6 +148,7 @@
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let data = null, postings = [];
+  let lineField = "data";
   let failed = false;
 
   // ---------- the headline: each word rises into place, once ----------
@@ -248,7 +249,20 @@
     route.replaceChildren();
     if (failed) { route.append(el("li", "route-note", t("load_failed"))); caption.textContent = ""; return; }
     if (!data) { route.append(el("li", "route-note", t("loading"))); return; }
-    const r = data.route;
+    const routes = data.routes || { data: data.route };
+    if (!routes[lineField]) lineField = Object.keys(routes)[0] || "data";
+    const r = routes[lineField] || data.route;
+    // one button per field that has enough postings for a line of its own
+    const sw = document.getElementById("field-switch");
+    const names = L.lang === "en" ? Masar.FIELDS_EN : Masar.FIELDS;
+    sw.replaceChildren(...Object.keys(routes).map((f) => {
+      const b = el("button", "field-btn", names[f] || f);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(f === lineField));
+      b.onclick = () => { lineField = f; renderRoute(); };
+      return b;
+    }));
+    sw.hidden = Object.keys(routes).length < 2;
     caption.textContent = t(`caption_${r.basis}`, { n: count(r.postings, "posting") });
     r.stops.forEach((s, i) => {
       const li = el("li", "stop");

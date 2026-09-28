@@ -122,3 +122,6 @@ CREATE TABLE IF NOT EXISTS refs (
   views INTEGER NOT NULL,
   PRIMARY KEY (day, host)
 );
+
+-- the field of an exclusive posting (data, tech, finance, engineering, marketing, hr)
+ALTER TABLE postings ADD COLUMN field TEXT NOT NULL DEFAULT 'data';

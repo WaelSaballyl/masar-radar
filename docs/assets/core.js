@@ -130,7 +130,14 @@ window.Masar = (() => {
     "Data Analyst": "محلل بيانات", "Data Engineer": "مهندس بيانات", "Data Scientist": "عالم بيانات",
     "ML Engineer": "مهندس تعلّم آلة", "BI Developer": "مطوّر ذكاء أعمال", "Business Analyst": "محلل أعمال",
     "Analytics Engineer": "مهندس تحليلات",
+    "Software & IT": "برمجة وتقنية", "Accounting & Finance": "محاسبة ومالية", "Engineering": "هندسة",
+    "Marketing": "تسويق", "Human Resources": "موارد بشرية",
   };
+  // the fields the radar collects (radar/skills.py FIELDS), in the same order
+  const FIELDS = { data: "البيانات", tech: "البرمجة والتقنية", finance: "المحاسبة والمالية",
+                   engineering: "الهندسة", marketing: "التسويق", hr: "الموارد البشرية" };
+  const FIELDS_EN = { data: "Data", tech: "Software & IT", finance: "Accounting & Finance",
+                      engineering: "Engineering", marketing: "Marketing", hr: "HR" };
 
   // skills the student listed in the CV builder (kept in this browser only)
   let profileText = null;
@@ -430,5 +437,5 @@ window.Masar = (() => {
   }
 
   return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
-           LEVELS, MODES, KINDS, ROLES, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, learnUrl };
+           LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, learnUrl };
 })();

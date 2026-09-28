@@ -58,7 +58,7 @@ DESCRIPTION_CHARS = 12000
 #      lighter one for every batch after the first
 #   7  same prompt again: v6 also fell back (a 503 at the start outlasted the
 #      retries); the first batch now waits up to ~2 min for the main model
-PROMPT_VERSION = 7
+PROMPT_VERSION = 8
 
 REGIONS = ["Worldwide", "Europe", "Middle East", "North America",
            "Latin America", "Asia-Pacific", "Africa"]
@@ -78,17 +78,28 @@ SKILL_SCOPE = {
     "Data Warehousing": "data warehouses, data lakes, lakehouses",
     "Time Series": "forecasting",
     "ETL": "ELT, building and maintaining data pipelines",
+    "Financial Reporting": "preparing financial statements, month-end and year-end close",
+    "Audit": "internal, external and financial audit work",
+    "Tax/VAT/Zakat": "VAT and zakat returns, tax compliance",
+    "Accounts Payable/Receivable": "invoicing, collections, vendor payments",
+    "Social Media": "running a brand's social accounts and campaigns",
+    "Recruitment": "sourcing, screening and interviewing candidates",
+    "Saudi Labor Law": "GOSI, Qiwa, Mudad and Saudi labour regulations",
+    "Cybersecurity": "SIEM, penetration testing, security frameworks such as ISO 27001",
+    "Testing/QA": "test automation, unit and integration testing",
+    "HSE": "health, safety and environment on site",
 }
 
 ROLES = ["Data Analyst", "Data Engineer", "Data Scientist", "ML Engineer",
-         "Analytics Engineer", "BI Developer", "Business Analyst", "Other (Data)"]
+         "Analytics Engineer", "BI Developer", "Business Analyst", "Other (Data)",
+         *skills.FIELD_ROLE.values()]
 SENIORITY = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager", "Unknown"]
 
-PROMPT = """You are reading job postings for a data-jobs market tracker.
+PROMPT = """You are reading job postings for a jobs tracker for students and entry-level candidates in Saudi Arabia and the Gulf: data, software and IT, accounting and finance, engineering, marketing, and human resources roles.
 
 For each posting, report only what the posting itself supports. Do not add a skill because the role usually needs it - if the text does not mention it, leave it out.
 
-skills: what the job asks of the person who takes it. Count a skill when the posting lists it as a requirement or qualification, OR when the job's responsibilities involve doing it: "you will own data quality across our pipelines" is Data Governance even though no tool is named. This covers practices and methods - data modeling, governance, experimentation, forecasting, statistics - as well as named tools and languages.
+skills: what the job asks of the person who takes it. Count a skill when the posting lists it as a requirement or qualification, OR when the job's responsibilities involve doing it: "you will own data quality across our pipelines" is Data Governance even though no tool is named. This covers practices and methods - data modeling, governance, experimentation, forecasting, statistics, financial reporting, audit, recruitment, social media - as well as named tools, languages and certifications.
 
 Do not count a mention that only describes the company, its product, its customers, other open roles, or the team's culture and learning opportunities. "Our AI-powered platform" says nothing about what this hire will do, and "a culture rooted in experimentation" is not A/B Testing.
 
@@ -102,7 +113,7 @@ Use the canonical name from this list where one fits, and the posting's own word
 
 Some canonical names are broader than their label: {scope}
 
-role: one of {roles}
+role: one of {roles}. Use a data role only for data work; an accountant is Accounting & Finance, a web developer Software & IT, a site engineer Engineering.
 seniority: one of {seniority}
 years_experience: the minimum years stated, or null if the posting does not say.
 countries: ISO 3166-1 alpha-2 codes of the countries where the person hired may be based, read from the location and the text. A city counts: Berlin is DE. Leave it empty when the posting is open anywhere or does not say.
