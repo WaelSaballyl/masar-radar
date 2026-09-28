@@ -1299,3 +1299,14 @@ html.motion .foot-mark.in span { transform: none; }
 .ask-bot-row { display: flex; gap: 8px; }
 .bot-answer { margin-top: 10px; padding: 12px 14px; border-radius: 16px; background: #FFFFFF; color: #111111; }
 .bot-answer p { margin: 0 0 10px; white-space: pre-wrap; }
+
+/* opt-in card and invitations (account page), candidate search (applicants page) */
+.talent-box { margin: 22px 0; padding-top: 20px; border-top: 1px solid var(--hairline); }
+.talent-box h2 { font-family: var(--kufi); font-weight: 700; font-size: 1.2rem; margin: 0 0 4px; }
+.talent-box h3 { font-size: 1rem; margin: 14px 0 8px; }
+.talent-box .ticket-row { text-decoration: none; }
+.cands { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.cand { --text: #111111; --muted: #3F3F3F; display: grid; gap: 6px; align-content: start; padding: 16px 18px; border-radius: 22px; background: var(--panel); color: var(--text); }
+.cand strong { font-family: var(--kufi); }
+.cand p { margin: 0; color: var(--muted); font-size: .9rem; }
+.cand .skills-line { direction: ltr; text-align: right; unicode-bidi: plaintext; }

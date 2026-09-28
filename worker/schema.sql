@@ -125,3 +125,21 @@ CREATE TABLE IF NOT EXISTS refs (
 
 -- the field of an exclusive posting (data, tech, finance, engineering, marketing, hr)
 ALTER TABLE postings ADD COLUMN field TEXT NOT NULL DEFAULT 'data';
+
+-- Opt-in student cards (src/talent.js): no name, email, phone or link, only
+-- what the student studies and can do. invites: an employer's live posting
+-- asking a card's student to apply.
+CREATE TABLE IF NOT EXISTS talent (
+  id TEXT PRIMARY KEY,
+  user_id TEXT UNIQUE NOT NULL,
+  card TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS invites (
+  posting_id TEXT NOT NULL,
+  card_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (posting_id, card_id)
+);
+CREATE INDEX IF NOT EXISTS invites_user ON invites (user_id);

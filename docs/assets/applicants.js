@@ -103,5 +103,43 @@
     $("meta").textContent = `${posting.company}، ${posting.city}. ${state}. `
       + (apps.length ? `${Masar.count(apps.length, "applicant", "ar")}، الأقرب لمتطلباتك أولاً.` : "لم يتقدم أحد بعد.");
     render();
+    // a live posting may also look for candidates who opted in
+    if (posting.status === "live") { $("talent").hidden = false; search(); }
   });
+
+  // ---------- candidates who opted in ----------
+  const API_BASE = document.querySelector('meta[name="masar-api"]').content;
+  const SEEK = { coop: "يبحث عن تدريب تعاوني", internship: "يبحث عن تدريب", student: "يبحث عن دوام طلابي", job: "يبحث عن وظيفة" };
+  const COUNTRY = { SA: "السعودية", AE: "الإمارات", QA: "قطر", KW: "الكويت", BH: "البحرين", OM: "عُمان" };
+  async function search() {
+    $("t-meta").textContent = "…";
+    const q = new URLSearchParams({ posting: id, field: $("t-field").value, country: $("t-country").value, q: $("t-q").value.trim() });
+    const r = await fetch(`${API_BASE}/talent/search?${q}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (x) => ({ ok: x.ok, data: await x.json() })).catch(() => ({ ok: false }));
+    if (!r.ok) { $("t-meta").textContent = "تعذّر البحث الآن."; return; }
+    const { cards } = r.data;
+    $("t-meta").textContent = cards.length ? `المرشحون: ${cards.length}` : "لا يوجد مرشحون بهذه الفلاتر بعد.";
+    $("cands").replaceChildren(...cards.map((c) => {
+      const li = el("li", "cand");
+      li.append(el("strong", null, c.target || c.major || "طالب"),
+        el("p", null, [c.degree, c.major, c.university, c.graduation && `تخرّج ${c.graduation}`].filter(Boolean).join("، ")),
+        el("p", null, [c.city, COUNTRY[c.country], SEEK[c.seeking], c.relocate && "مستعد للانتقال"].filter(Boolean).join("، ")));
+      const sk = el("p", "skills-line", c.skills.join(", "));
+      li.append(sk);
+      const b = el("button", "btn btn-small " + (c.invited ? "btn-quiet" : "btn-primary"), c.invited ? "دعوته" : "ادعُه للتقديم");
+      b.type = "button";
+      b.disabled = c.invited;
+      b.onclick = async () => {
+        b.disabled = true;
+        const x = await fetch(`${API_BASE}/talent/invite`, { method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ posting: id, card: c.id }) }).catch(() => null);
+        if (x && x.ok) { b.textContent = "دعوته"; b.className = "btn btn-small btn-quiet"; }
+        else { b.disabled = false; b.textContent = x && x.status === 429 ? "وصلت لحد الدعوات اليوم" : "تعذّرت الدعوة"; }
+      };
+      li.append(b);
+      return li;
+    }));
+  }
+  $("t-go").onclick = search;
 })();

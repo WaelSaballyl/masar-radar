@@ -32,6 +32,7 @@
     }
     syncState("متزامن. أي تغيير هنا يصل لأجهزتك الأخرى خلال ثوانٍ.");
     fillMe();
+    talent();
   }
 
   // ---------- the profile: CV fields in masar.profile, the rest in masar.me ----------
@@ -70,6 +71,46 @@
     }, 400);
   });
   form.addEventListener("submit", (e) => e.preventDefault());
+
+  // ---------- the opt-in card employers can find, and their invitations ----------
+  const cardFrom = () => {
+    const p = read("masar.profile"), me = read("masar.me");
+    // the field follows the target role when it names one, like the radar does
+    return { target: me.target, country: me.country, seeking: me.seeking, relocate: me.relocate, field: me.field || "data",
+             city: p.city, university: p.university, major: p.major, degree: p.degree, graduation: p.graduation, skills: p.skills };
+  };
+  async function talent() {
+    const r = await account.call("/talent/mine").catch(() => null);
+    if (!r || r.status !== 200) return;
+    $("talent-on").checked = !!r.card;
+    $("invites-box").hidden = !r.invites.length;
+    $("invites").replaceChildren(...r.invites.map((i) => {
+      const li = el("li");
+      const a = el("a", "ticket-row");
+      a.href = `job.html?ex=${encodeURIComponent(i.id)}`;
+      a.append(el("strong", null, `${i.title}، ${i.company}`), el("span", "badge-new", "دعتك للتقديم"));
+      li.append(a);
+      return li;
+    }));
+  }
+  $("talent-on").addEventListener("change", async (e) => {
+    const on = e.target.checked;
+    $("talent-status").textContent = "…";
+    const r = on ? await account.call("/talent", { card: cardFrom() }).catch(() => null)
+                 : await account.call("/talent/hide", {}).catch(() => null);
+    if (r && r.status === 200) $("talent-status").textContent = on ? "بطاقتك ظاهرة للشركات. تتحدّث حين تعدّل ملفك." : "أخفينا بطاقتك.";
+    else {
+      e.target.checked = !on;
+      $("talent-status").textContent = r && r.error === "field:skills" ? "أضف مهاراتك أو تخصصك في ملفك أولاً." : "تعذّر الحفظ. جرّب بعد قليل.";
+    }
+  });
+  // a shown card follows the profile as it is edited
+  let cardTimer = null;
+  form.addEventListener("input", () => {
+    if (!$("talent-on").checked) return;
+    clearTimeout(cardTimer);
+    cardTimer = setTimeout(() => account.call("/talent", { card: cardFrom() }).catch(() => {}), 2000);
+  });
   const syncState = (text) => { $("sync-state").textContent = text; };
 
   // Google's script is loaded only on this page, and only when signed out

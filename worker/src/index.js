@@ -15,6 +15,7 @@ import { board } from "./board.js";
 import { auth } from "./auth.js";
 import { support } from "./support.js";
 import { stats } from "./stats.js";
+import { talent } from "./talent.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -48,6 +49,12 @@ export default {
         if (!e.code) console.error(e.stack || e);
         return reply(e.status || 500, { error: e.code || "server", ...e.extra });
       }
+    }
+    // opt-in student cards employers can search, and their invitations
+    if (path === "/talent" || path.startsWith("/talent/")) {
+      if (request.method === "POST" && path === "/talent/invite" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      try { return reply(200, (await talent(request, env, path)) || { error: "path" }); }
+      catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
     }
     // visitor counts: no cookies, no IP stored
     if (path === "/hit" || path === "/stats") {

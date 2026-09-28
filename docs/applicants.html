@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=51">
+<link rel="stylesheet" href="assets/masar.css?v=52">
 </head>
 <body>
 <div class="wrap">
@@ -39,10 +39,29 @@
       </div>
       <article class="paper" id="cv-paper"></article>
     </div>
+
+    <section class="talent-search" id="talent" hidden aria-labelledby="talent-title">
+      <div class="page-head"><h2 id="talent-title">ابحث عن مرشحين</h2>
+        <p class="section-lede">طلاب اختاروا أن تجدهم الشركات. البطاقات بلا أسماء ولا أرقام: ادعُ من يناسبك، وتصلك سيرته حين يقدّم على إعلانك.</p></div>
+      <form class="filters" id="talent-form" onsubmit="return false">
+        <label class="field">المجال
+          <select id="t-field"><option value="">كل المجالات</option><option value="data">البيانات</option><option value="tech">البرمجة والتقنية</option>
+            <option value="finance">المحاسبة والمالية</option><option value="engineering">الهندسة</option><option value="marketing">التسويق</option><option value="hr">الموارد البشرية</option></select>
+        </label>
+        <label class="field">الدولة
+          <select id="t-country"><option value="">كل الدول</option><option value="SA">السعودية</option><option value="AE">الإمارات</option><option value="QA">قطر</option>
+            <option value="KW">الكويت</option><option value="BH">البحرين</option><option value="OM">عُمان</option></select>
+        </label>
+        <label class="field">مهارة أو تخصص<input id="t-q" dir="auto" placeholder="SQL أو محاسبة"></label>
+        <button class="btn btn-primary btn-small" type="button" id="t-go">ابحث</button>
+      </form>
+      <p class="match-meta" id="t-meta" aria-live="polite"></p>
+      <ul class="cands" id="cands"></ul>
+    </section>
   </main>
 </div>
 <script src="assets/core.js?v=46"></script>
 <script src="assets/cvkit.js?v=39"></script>
-<script src="assets/applicants.js?v=38"></script>
+<script src="assets/applicants.js?v=39"></script>
 </body>
 </html>
