@@ -12,7 +12,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from . import db, traits
+from . import db, landing, traits
 from .skills import FIELDS, field_of
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "data" / "summary.json"
@@ -187,7 +187,7 @@ SITE = "https://waelsaballyl.github.io/masar-radar/"
 SITEMAP_OUT = OUT.parent.parent / "sitemap.xml"
 
 
-def build_sitemap(jobs: dict) -> str:
+def build_sitemap(jobs: dict, pages: list[str] = ()) -> str:
     """The pages a search engine should know: the fixed pages, plus the
     postings list filtered the way people search ("SQL jobs", "Saudi Arabia",
     "internships"). Collected postings get no page of their own here: their
@@ -202,6 +202,7 @@ def build_sitemap(jobs: dict) -> str:
     urls += [f"jobs.html?where={c}" for c in sorted(GULF) if any(c in p["countries"] for p in postings)]
     top = Counter(s for p in postings for s, required in p["skills"] if required)
     urls += [f"jobs.html?q={quote(s)}" for s, n in top.most_common(20) if n >= 3]
+    urls += list(pages)
     day = (jobs["updated_at"] or "")[:10]
     rows = "".join(f"<url><loc>{escape(SITE + u)}</loc>{f'<lastmod>{day}</lastmod>' if day else ''}</url>\n" for u in urls)
     return f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{rows}</urlset>\n'
@@ -215,7 +216,9 @@ def main() -> None:
     JOBS_OUT.write_text(json.dumps(jobs, ensure_ascii=False, separators=(",", ":")),
                         encoding="utf-8")
     print(f"[done] market index data -> {JOBS_OUT} ({len(jobs['postings'])} postings)")
-    SITEMAP_OUT.write_text(build_sitemap(jobs), encoding="utf-8")
+    pages = landing.write(jobs)
+    print(f"[done] landing pages -> docs/l/ ({len(pages)})")
+    SITEMAP_OUT.write_text(build_sitemap(jobs, pages), encoding="utf-8")
     route = summary.get("route", {})
     print(f"[done] site summary -> {OUT} ({summary.get('active_postings', 0)} active, "
           f"route from {route.get('postings', 0)} {route.get('basis', '')} postings)")

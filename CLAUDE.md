@@ -34,6 +34,8 @@ On Windows set `PYTHONIOENCODING=utf-8`, or printing Arabic crashes the cp1256 c
 - `radar/db.py` - schema plus `_migrate` (additive `ALTER TABLE` only)
 - `radar/store.py` - jsonl <-> sqlite
 - `.github/workflows/radar.yml` - daily: restore, collect, ai, export, build, commit
+- `radar/landing.py` - static SEO pages in `docs/l/` (per field, Gulf country, top required skill; `<base href="../">`),
+  rebuilt by export_site each run and listed in the sitemap
 - `worker/` - Cloudflare Worker for the CV builder (`docs/cv.html`): holds the Gemini
   key; `/parse` and `/tailor`. `src/audit.js` removes any skill or number the student's
   profile lacks. Tests: `node worker/test.mjs`; local stub: `node worker/dev.mjs` (:8787,
