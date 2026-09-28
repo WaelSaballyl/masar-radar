@@ -1272,3 +1272,16 @@ html.motion .foot-mark.in span { transform: none; }
 .support-admin .page-head, .support-admin .page-head::before { padding-block: 24px 8px; }
 .support-admin .page-head::before { display: none; }
 @media (max-width: 720px) { .page-head { padding-block: 40px 20px; } }
+
+/* ---------- landing pages (docs/l/, written by radar/landing.py) ---------- */
+.landing { padding-bottom: 72px; }
+.landing .page-head .btn { margin-top: 8px; }
+.land-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.land-row { --text: #111111; --muted: #3F3F3F; display: grid; gap: 2px; padding: 16px 18px; border-radius: 22px;
+  background: var(--panel); color: var(--text); text-decoration: none; transition: transform .2s; height: 100%; }
+.land-row:hover { transform: translateY(-2px); }
+.land-title { font-weight: 600; color: #090909; unicode-bidi: plaintext; text-align: right; }
+.land-co, .land-meta { font-size: .88rem; color: var(--muted); unicode-bidi: plaintext; text-align: right; }
+.land-related { margin-top: 40px; }
+.land-related h2 { font-family: var(--kufi); font-size: 1.2rem; margin: 0 0 12px; }
+.land-related .chip { text-decoration: none; padding: 6px 14px; }
