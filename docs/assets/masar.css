@@ -900,7 +900,7 @@ body { overflow-x: clip; }
 }
 .mega-line { display: block; overflow: hidden; padding-block: .06em; }
 .mega .w { display: inline-block; animation: rise .95s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(.1s + var(--i, 0) * .13s); }
-@keyframes rise { from { transform: translateY(110%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rise { from { transform: translateY(110%); } to { transform: none; } }
 .stage-lede { max-width: 58ch; margin: 0 auto 34px; color: var(--muted); font-size: 1.15rem; }
 
 /* the search box: a light card, like a message you are about to send */
@@ -1310,3 +1310,7 @@ html.motion .foot-mark.in span { transform: none; }
 .cand strong { font-family: var(--kufi); }
 .cand p { margin: 0; color: var(--muted); font-size: .9rem; }
 .cand .skills-line { direction: ltr; text-align: right; unicode-bidi: plaintext; }
+
+/* room kept for what loads after the first paint, so nothing below it jumps */
+#hero-meta { min-height: 1.75em; }
+.rail-section .marquee { min-height: 150px; }
