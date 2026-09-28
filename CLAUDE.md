@@ -141,6 +141,9 @@ user to paste a key into chat; they run `gh secret set NAME -R WaelSaballyl/masa
   string-replace patch scripts.
 - Scratchpad paths can exceed 260 characters, which native Windows Python cannot open.
 - The scheduled workflow fires around 08:30 UTC, not the 03:17 in the cron line.
+- A run can take an hour (AI re-reads after a PROMPT_VERSION bump). Its commit step rebases onto
+  anything pushed meanwhile (`-X theirs`, its generated files win); before that fix, a push during
+  a run lost the whole day's collection (2026-09-28).
 
 ## Status
 

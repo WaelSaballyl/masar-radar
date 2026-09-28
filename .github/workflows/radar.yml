@@ -69,4 +69,11 @@ jobs:
           git config user.email "actions@github.com"
           git add data/*.jsonl docs/
           git diff --cached --quiet || git commit -m "radar: daily collection $(date -u +%F)"
-          git push
+          # a run takes up to an hour; code pushed meanwhile must not throw
+          # the day's collection away. Rebase onto it; where both touched a
+          # generated file (docs/data, docs/l, sitemap) this run's copy wins.
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase -X theirs origin main
+          done
+          exit 1
