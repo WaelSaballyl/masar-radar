@@ -205,7 +205,13 @@ export async function board(request, env, path) {
   const today = new Date().toISOString().slice(0, 10);
   if (path === "/board/postings" && request.method === "GET") {
     const { results } = await env.DB.prepare(
-      `SELECT ${PUBLIC} FROM postings WHERE status = 'approved' AND expires_at >= ? ORDER BY reviewed_at DESC LIMIT 200`,
+      // how fast this employer opens CVs: the average days from applying to
+      // first view, over its postings, once three applications were opened
+      `SELECT ${PUBLIC},
+         (SELECT CASE WHEN count(*) >= 3 THEN round(avg(julianday(a.viewed_at) - julianday(a.created_at)), 1) END
+            FROM applications a JOIN postings q ON q.id = a.posting_id
+           WHERE lower(q.company) = lower(postings.company) AND a.viewed_at IS NOT NULL) AS reply_days
+       FROM postings WHERE status = 'approved' AND expires_at >= ? ORDER BY reviewed_at DESC LIMIT 200`,
     ).bind(today).all();
     return { postings: results };
   }

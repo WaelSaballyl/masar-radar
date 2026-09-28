@@ -44,6 +44,8 @@
     const top = el("div", "posting-top");
     if (p.exclusive) top.append(el("span", "badge-exclusive", "حصري على مسار"));
     if (p.verified) top.append(Masar.verifiedBadge());
+    const fast = Masar.replyBadge(p.reply_days);
+    if (fast) top.append(fast);
     if (KINDS[p.kind] && p.kind !== "job") top.append(el("span", "tag tag-training", KINDS[p.kind]));
     if (LEVELS[p.level] && !(p.level === "Intern" && p.kind !== "job")) top.append(el("span", "tag", LEVELS[p.level]));
     if (p.years != null) top.append(el("span", "tag", yearsText(p.years)));
@@ -180,7 +182,7 @@
     id: p.id, title: p.title, company: p.company, website: p.website, location: p.city, url: p.apply_url, level: p.level,
     posted_at: (p.created_at || "").slice(0, 10), deadline: p.expires_at, role: "", countries: [p.country], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])], description: p.description,
-    logo: Masar.siteIcon(p.website), verified: !!p.verified,
+    logo: Masar.siteIcon(p.website), verified: !!p.verified, reply_days: p.reply_days,
     salary: p.salary, employment: p.employment, kind: KIND[p.employment] || "job", years: null, exclusive: true,
   }))).catch(() => []) : Promise.resolve([]);
 
