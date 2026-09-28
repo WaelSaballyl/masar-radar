@@ -189,4 +189,16 @@ import { verifyGoogle, clean } from "./src/auth.js";
   assert.deepEqual(clean({ "masar.saved": "[1]", "masar.session": "x", "masar.profile": { a: 1 } }), { "masar.saved": "[1]" });
 }
 
+// ---- talent cards never carry contact details ----
+import { card } from "./src/talent.js";
+{
+  const c = card({ target: "Data Analyst, call 0551234567", skills: "SQL, Excel, me@x.com, https://linkedin.com/in/me",
+    university: "KSU", major: "IS", graduation: "2023 - 2027", field: "evil", country: "SA", seeking: "coop", relocate: 1 });
+  assert.equal(c.field, "data");
+  assert.equal(c.graduation, "2027");
+  assert.ok(!/055|@|http|linkedin/i.test(JSON.stringify(c)), JSON.stringify(c));
+  assert.deepEqual(c.skills, ["SQL", "Excel"]);
+  assert.throws(() => card({}), /field:skills/);
+}
+
 console.log("worker tests passed");

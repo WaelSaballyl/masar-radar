@@ -80,6 +80,12 @@ seeking, relocate) to `masar.me`. Support (`support.html`, `src/support.js`, D1
 support_tickets/support_messages): a visitor opens a conversation (name, email, topic), keeps its
 token in `masar.tickets` (synced), and the page polls every 10 s while a chat is open; the team
 answers from admin.html with ADMIN_TOKEN. Email replies wait for the domain + Resend.
+Opt-in talent cards (`src/talent.js`, D1 talent/invites): a signed-in student shows an anonymous
+card (target, field, study, skills, city - `card()` strips any email/phone/link); an employer with an
+approved posting searches them on applicants.html and invites (30 a day per posting); invites show on
+the student's account page. The support assistant (`/support/ask`, `FACTS` in index.js) answers from
+fixed facts - keep FACTS true when the site changes. `/linkedin` writes headline/About from the profile.
+Visitor counts: `/hit` beacon from core.js (no cookie/IP), shown on admin.html.
 
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
