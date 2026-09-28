@@ -128,7 +128,7 @@
       await loaded;
       window.google.accounts.id.initialize({ client_id: clientId, callback: signIn, ux_mode: "popup", context: "signin" });
       window.google.accounts.id.renderButton($("google-btn"), {
-        theme: "filled_black", size: "large", shape: "pill", text: "continue_with", locale: "ar", width: 320, logo_alignment: "left",
+        theme: "filled_black", size: "large", shape: "pill", text: "continue_with", locale: Masar.store.get("masar.lang") === "en" ? "en" : "ar", width: 320, logo_alignment: "left",
       });
     } catch {
       status("تعذّر تحميل زر قوقل. تأكد من الاتصال وحدّث الصفحة.");

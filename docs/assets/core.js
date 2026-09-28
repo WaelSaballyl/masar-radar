@@ -374,7 +374,7 @@ window.Masar = (() => {
   };
   const TABS = [["./", "home", "الرئيسية", "Home"], ["jobs.html", "jobs", "الإعلانات", "Postings"], ["swipe.html", "swipe", "سحب", "Swipe"],
                 ["cv.html", "cv", "سيرتك", "CV"], ["applications.html", "apps", "طلباتي", "Applied"]];
-  const english = () => store.get("masar.lang") === "en" && !!document.getElementById("lang-toggle");
+  const english = () => store.get("masar.lang") === "en";
   const noTabs = ["swipe.html", "admin.html", "applicants.html"].includes(here) || /[?&]embed=/.test(location.search);
   if (!noTabs && document.querySelector(".topbar")) {
     const bar = el("nav", "tabbar");
@@ -431,6 +431,93 @@ window.Masar = (() => {
     navigator.sendBeacon(`${API}/hit`, JSON.stringify({
       p: here.replace(/\.html$/, "") || "index", r: ref, v: first, m: matchMedia("(max-width: 720px)").matches,
     }));
+  }
+
+  // ---------- English on every page ----------
+  // The home page and the market index translate themselves (their own
+  // lang-toggle). Every other page gets an EN/ع button here, and in English
+  // assets/en.js swaps each piece of interface text for its English, including
+  // text drawn later (results, messages). Data is never translated: posting
+  // titles, companies, descriptions, CVs and chat messages stay as written.
+  const ownI18n = !!document.getElementById("lang-toggle");
+  if (!ownI18n && document.querySelector(".topbar .tools")) {
+    const b = el("button", "tool", english() ? "ع" : "EN");
+    b.type = "button";
+    b.lang = english() ? "ar" : "en";
+    b.setAttribute("aria-label", english() ? "العربية" : "English");
+    b.onclick = () => { store.set("masar.lang", english() ? "ar" : "en"); location.reload(); };
+    document.querySelector(".topbar .tools").prepend(b);
+  }
+  if (english() && !ownI18n) {
+    const s = document.createElement("script");
+    s.src = "assets/en.js?v=4";
+    s.onload = translate;
+    document.head.append(s);
+  }
+  function translate() {
+    const D = window.MASAR_EN;
+    if (!D) return;
+    const patterns = D.patterns.map(([rx, en]) => [new RegExp(rx), en]);
+    const AR = /[؀-ۿ]/;
+    // keys and values compared trimmed: the node keeps its own spacing
+    const exact = Object.fromEntries(Object.entries(D.exact).map(([k, v]) => [k.trim(), v.trim()]));
+    // country names as Intl writes them in Arabic ("ألمانيا") -> English
+    try {
+      const ar = new Intl.DisplayNames(["ar"], { type: "region" }), en = new Intl.DisplayNames(["en"], { type: "region" });
+      "SA AE QA KW BH OM EG JO LB IQ SY PS YE MA DZ TN LY SD US CA GB IE DE FR NL BE LU CH AT ES PT IT PL CZ SE NO DK FI EE LT LV RO BG GR TR IL CY IN PK BD SG MY ID PH VN TH JP KR CN HK TW AU NZ BR MX AR CL CO PE ZA NG KE UA HU SK SI HR RS"
+        .split(" ").forEach((c) => { exact[ar.of(c)] ??= en.of(c); });
+    } catch { /* an old browser keeps the Arabic names */ }
+    const tr = (s, depth = 0) => {
+      const t = s.trim();
+      if (!t || !AR.test(t)) return null;
+      if (exact[t] != null) return s.replace(t, exact[t]);
+      if (D.months[t]) return s.replace(t, D.months[t]);
+      if (depth > 2) return null;
+      // parts joined by the Arabic comma ("الرياض، أمس", "SQL، Excel") are
+      // translated one by one and joined with the English comma
+      const pieces = (part) => part.split(/\s*،\s*/).map((x) => (x ? tr(x, depth + 1) ?? x : x).trim()).join(", ");
+      for (const [rx, en] of patterns) {
+        const m = t.match(rx);
+        if (m) return s.replace(t, en.replace(/\$(\d)/g, (_, i) => { const part = m[i] || ""; return tr(part, depth + 1) ?? pieces(part); }));
+      }
+      if (t.includes("،")) return s.replace(t, pieces(t));
+      return null;
+    };
+    const SKIP = ".paper, .bubbles, .li-out, .bot-answer, .land-list, .job-desc, .job-title, .posting-title, .posting-company, "
+      + ".posting-who, .swipe-title, .swipe-desc, .reel-title, .reel-desc, .rail-title, .rail-co, .cand, .admin-desc, textarea, script, style, [translate=no]";
+    const ATTRS = ["placeholder", "aria-label", "title"];
+    const text = (n) => {
+      if (n.parentElement?.closest(SKIP)) return;
+      const out = tr(n.nodeValue);
+      if (out != null && out !== n.nodeValue) n.nodeValue = out;
+    };
+    // a text box's own words are the user's; its placeholder is ours
+    const SKIP_ATTR = SKIP.replace("textarea, ", "");
+    const attrs = (node) => ATTRS.forEach((a) => {
+      const v = node.getAttribute?.(a);
+      const out = v && !node.closest(SKIP_ATTR) ? tr(v) : null;
+      if (out != null && out !== v) node.setAttribute(a, out);
+    });
+    const walk = (root) => {
+      if (root.nodeType === 3) { text(root); return; }
+      if (root.nodeType !== 1) return;
+      attrs(root);
+      if (root.closest?.(SKIP)) return;
+      root.querySelectorAll(ATTRS.map((a) => `[${a}]`).join(",")).forEach(attrs);
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      for (let n = w.nextNode(); n; n = w.nextNode()) text(n);
+    };
+    html.lang = "en";
+    html.dir = "ltr";
+    document.title = tr(document.title) ?? document.title;
+    walk(document.body);
+    new MutationObserver((muts) => muts.forEach((m) => {
+      if (m.type === "childList") m.addedNodes.forEach(walk);
+      else if (m.type === "characterData") text(m.target);
+      else attrs(m.target);
+    })).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+    const ask = window.confirm.bind(window);
+    window.confirm = (msg) => ask(tr(String(msg)) ?? msg);
   }
 
   // Sections marked .reveal rise into place the first time they are seen.

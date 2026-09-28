@@ -86,6 +86,12 @@ approved posting searches them on applicants.html and invites (30 a day per post
 the student's account page. The support assistant (`/support/ask`, `FACTS` in index.js) answers from
 fixed facts - keep FACTS true when the site changes. `/linkedin` writes headline/About from the profile.
 Visitor counts: `/hit` beacon from core.js (no cookie/IP), shown on admin.html.
+English: index.html and dashboard.html translate themselves (their own `lang-toggle`); every other
+page gets an EN/ع button from core.js, and in English `assets/en.js` (`exact` ar->en, `patterns`
+with $1 captures translated again, Arabic-comma lists split) swaps interface text in place,
+including text drawn later (MutationObserver). Data is never translated (the `SKIP` selector:
+posting titles/companies/descriptions, CVs, chats). New Arabic UI text needs its English in
+en.js, or it shows in Arabic; bump `en.js?v=` in core.js.
 
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
