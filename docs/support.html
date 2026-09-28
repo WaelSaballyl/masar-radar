@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/masar.css?v=50">
+<link rel="stylesheet" href="assets/masar.css?v=51">
 </head>
 <body>
 <div class="wrap">
@@ -35,6 +35,16 @@
           <h2 id="chat-title">محادثاتك</h2>
           <button class="btn btn-quiet btn-small" type="button" id="new-chat" hidden>محادثة جديدة</button>
         </div>
+
+        <form class="ask-bot" id="ask-bot">
+          <label class="field">اسأل المساعد أولاً، يرد فوراً
+            <span class="ask-bot-row"><input id="ask-q" maxlength="600" dir="auto" placeholder="مثلاً: كيف أحذف حسابي؟"><button class="btn btn-primary btn-small" type="submit">اسأل</button></span>
+          </label>
+          <div class="bot-answer" id="bot-answer" hidden>
+            <p id="bot-text" dir="auto"></p>
+            <button class="btn btn-quiet btn-small" type="button" id="bot-human">ما حلّ مشكلتي، أكلّم الفريق</button>
+          </div>
+        </form>
 
         <ul class="tickets" id="tickets"></ul>
 
@@ -88,6 +98,6 @@
   </main>
 </div>
 <script src="assets/core.js?v=46"></script>
-<script src="assets/support.js?v=1"></script>
+<script src="assets/support.js?v=2"></script>
 </body>
 </html>
