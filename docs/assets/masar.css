@@ -1236,3 +1236,15 @@ html.motion .foot-mark.in span { transform: none; }
 .support-admin { margin-top: 48px; }
 .support-admin .chat-card { margin-top: 14px; }
 @media (max-width: 880px) { .support-grid { grid-template-columns: 1fr; } }
+
+/* ---------- long text pages (privacy, terms) ---------- */
+.prose { max-width: 760px; padding-bottom: 72px; }
+.prose h2 { font-family: var(--kufi); font-weight: 700; font-size: 1.25rem; margin: 32px 0 8px; }
+.prose p, .prose li { color: var(--muted); }
+.prose ul { padding-inline-start: 22px; }
+
+/* ---------- admin: visitors ---------- */
+.stats { margin-top: 14px; }
+.stats-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 18px; }
+.stats-lists h3 { font-family: var(--kufi); font-size: 1rem; margin: 0 0 6px; }
+.stats-lists ol { margin: 0; padding-inline-start: 20px; color: var(--muted); }

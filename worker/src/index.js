@@ -14,6 +14,7 @@ import { audit, covers, mentions, numbersIn, restore, strings, str } from "./aud
 import { board } from "./board.js";
 import { auth } from "./auth.js";
 import { support } from "./support.js";
+import { stats } from "./stats.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -47,6 +48,11 @@ export default {
         if (!e.code) console.error(e.stack || e);
         return reply(e.status || 500, { error: e.code || "server", ...e.extra });
       }
+    }
+    // visitor counts: no cookies, no IP stored
+    if (path === "/hit" || path === "/stats") {
+      try { return reply(200, (await stats(request, env, path)) || { error: "path" }); }
+      catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
     }
     // support conversations; opening one and writing in it are rate limited
     if (path.startsWith("/support/")) {
