@@ -183,6 +183,13 @@ window.Masar = (() => {
     b.title = "إيميل الشركة من نفس دومين موقعها";
     return b;
   };
+  // an employer that opens CVs quickly (reply_days from /board/postings)
+  const replyBadge = (days) => {
+    if (days == null || days > 7) return null;
+    const b = el("span", "badge-fast", days <= 1 ? "تفتح السير خلال يوم" : days <= 3 ? "تفتح السير خلال أيام" : "تفتح السير خلال أسبوع");
+    b.title = "متوسط الوقت حتى تفتح الشركة سير المتقدمين، من طلبات حقيقية";
+    return b;
+  };
   // an exclusive posting's logo: the icon of the company's own site
   const siteIcon = (website) => {
     try { return `https://www.google.com/s2/favicons?domain=${new URL(website).hostname}&sz=128`; } catch { return ""; }
@@ -437,5 +444,5 @@ window.Masar = (() => {
   }
 
   return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
-           LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, learnUrl };
+           LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, replyBadge, learnUrl };
 })();
