@@ -298,7 +298,10 @@
       const m = job ? MasarATS.match(doc.text, job, patterns) : null;
       $("read-score").textContent = String(result.score);
       $("read-sub").textContent = "من 100";
-      $("report").dataset.level = result.score >= 85 ? "good" : result.score >= 60 ? "fair" : "poor";
+      const total = MasarATS.overall(result.score, m ? m.score : null);
+      $("total-score").textContent = `${total}٪`;
+      $("total-sub").textContent = m && m.score !== null ? "نصفها قراءة الملف ونصفها التطابق" : "قراءة الملف فقط، بدون إعلان";
+      $("report").dataset.level = total >= 85 ? "good" : total >= 60 ? "fair" : "poor";
       renderChecks(result.checks);
       renderFields(result.fields);
       renderMatch(m);

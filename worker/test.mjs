@@ -207,7 +207,10 @@ import vm from "node:vm";
 {
   const ctx = { window: {} };
   vm.runInNewContext(readFileSync(new URL("../docs/assets/atskit.js", import.meta.url), "utf8"), ctx);
-  const { analyze, match, twoColumns } = ctx.window.MasarATS;
+  const { analyze, match, twoColumns, overall } = ctx.window.MasarATS;
+  assert.equal(overall(90, 70), 80);
+  assert.equal(overall(90, null), 90);
+  assert.equal(overall(0, 100), 0, "an unreadable file scores nothing");
   const body = "Sara Ahmed\nJeddah | sara@example.com | +966 50 111 2222\nSummary\n" + "Analyst who builds dashboards. ".repeat(50)
     + "\nExperience\nData Analyst Intern, Savola, Jun 2024 - Sep 2024\nBuilt Power BI dashboards\nEducation\nB.Sc. Statistics, KAU, 2024\nSkills\nSQL, Excel, Power BI";
   const clean = analyze({ text: body, kind: "pdf", pages: 1 });

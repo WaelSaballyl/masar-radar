@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap"></noscript>
-<link rel="stylesheet" href="assets/masar.css?v=54">
+<link rel="stylesheet" href="assets/masar.css?v=55">
 </head>
 <body>
 <div class="wrap">
@@ -67,6 +67,11 @@
 
     <div id="report" class="ats-report" hidden>
       <section class="ats-scores" aria-label="النتيجة">
+        <div class="ats-score ats-total">
+          <p class="ats-num" id="total-score"></p>
+          <p class="ats-label">نتيجة ATS</p>
+          <p class="ats-sub" id="total-sub"></p>
+        </div>
         <div class="ats-score">
           <p class="ats-num" id="read-score"></p>
           <p class="ats-label">قراءة الأنظمة لملفك</p>
@@ -109,12 +114,13 @@
     <section class="ats-how">
       <h2>كيف نحسب</h2>
       <p>لا يوجد نظام فرز واحد: كل شركة تستخدم نظامها (Workday وOracle Taleo وSAP SuccessFactors وGreenhouse وغيرها)، ولا يعطي أي منها رقماً عاماً لسيرتك. الذي تشترك فيه كلها أنها تقرأ نص الملف فقط، ثم تبحث فيه عن بيانات التواصل والأقسام والتواريخ والمهارات. لذلك نقرأ ملفك بالطريقة نفسها، ونطبّق عليه قواعد ثابتة لكل واحدة وزن معروف، بلا ذكاء اصطناعي ولا تخمين: نفس الملف يأخذ نفس النتيجة كل مرة، وكل نقطة ناقصة مكتوب سببها.</p>
+      <p>نتيجة ATS نصفها قراءة الملف ونصفها التطابق مع الإعلان. بدون إعلان هي قراءة الملف وحدها، والملف الذي لا يُقرأ نتيجته صفر مهما كان فيه.</p>
       <p>التطابق مع الإعلان يعدّ المهارات المطلوبة فيه بنفس القواعد التي نستخرج بها المهارات من كل إعلانات مسار، ويبحث عنها في سيرتك. المهارة المفضّلة بنصف وزن المطلوبة، والمسمى الوظيفي بوزن مهارة. لا تضف لسيرتك مهارة لا تعرفها لترفع الرقم: المقابلة تكشفها.</p>
     </section>
   </main>
 </div>
 <script src="assets/core.js?v=49"></script>
-<script src="assets/atskit.js?v=1"></script>
-<script src="assets/ats.js?v=1"></script>
+<script src="assets/atskit.js?v=2"></script>
+<script src="assets/ats.js?v=2"></script>
 </body>
 </html>
