@@ -212,3 +212,20 @@ class FieldsTest(unittest.TestCase):
         found = skills.extract_skills("IFRS, VAT and zakat returns, AutoCAD, SEO, payroll and GOSI, React, C# and C++")
         for s in ["IFRS", "Tax/VAT/Zakat", "AutoCAD", "SEO/SEM", "Payroll", "Saudi Labor Law", "React", "C#/.NET", "C++"]:
             self.assertIn(s, found)
+
+
+class JsPatternTest(unittest.TestCase):
+    """docs/data/skills.json: the same rules for the ATS check in the browser
+    (worker/test.mjs runs them in JavaScript)."""
+
+    def test_case_folding_and_boundaries(self):
+        self.assertEqual(skills.js_pattern(r"\bsql\b").count("[sS]"), 1)
+        self.assertNotIn("(?-i", skills.js_pattern(skills.SKILL_PATTERNS["R"]))
+        self.assertIn("(?:\\bR", skills.js_pattern(skills.SKILL_PATTERNS["R"]).replace(skills._JS_B, "\\b"))
+        self.assertIn("\\p{L}", skills.js_pattern(r"\bاكسل\b"))
+        self.assertIn("[szSZ]", skills.js_pattern(r"optimi[sz]ation"))
+
+    def test_every_rule_converts(self):
+        self.assertEqual(set(skills.js_patterns()), set(skills.SKILL_PATTERNS))
+        with self.assertRaises(ValueError):
+            skills.js_pattern("[a-z]")

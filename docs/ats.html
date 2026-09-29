@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>فحص السيرة بعين أنظمة الفرز (ATS) — مسار</title>
+<meta name="description" content="ارفع سيرتك وشوف بالضبط ما تقرأه أنظمة فرز السير منها: النص، بيانات التواصل، الأقسام، والمهارات المطلوبة في الإعلان. ملفك لا يغادر جهازك.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="فحص السيرة بعين أنظمة الفرز (ATS) — مسار">
+<meta property="og:description" content="شوف بالضبط ما تقرأه أنظمة فرز السير من ملفك، وكم مهارة من الإعلان تلقاها فيه.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/ats.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#181A1B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap"></noscript>
+<link rel="stylesheet" href="assets/masar.css?v=54">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام"></nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main class="ats">
+    <div class="page-head">
+      <h1>فحص السيرة بعين أنظمة الفرز</h1>
+      <p class="section-lede">أغلب الشركات تمرّر السير على نظام فرز (ATS) قبل أن يقرأها أحد. ارفع سيرتك ونريك بالضبط ما يقرأه النظام منها، وما يضيع، وكم مهارة من الإعلان يلقاها فيها.</p>
+      <p class="privacy">نقرأ الملف داخل متصفحك. لا يُرفع ولا يُحفظ عندنا.</p>
+    </div>
+
+    <section class="step" aria-labelledby="a1">
+      <h2 id="a1"><span class="step-n" aria-hidden="true">١</span>سيرتك</h2>
+      <div class="import-row">
+        <label class="file"><input type="file" id="ats-file" accept=".pdf,.docx"><span>اختر ملف PDF أو Word</span></label>
+      </div>
+      <p class="muted small">ملفات PDF وWord (docx). ملف Word القديم (doc) احفظه docx أولاً.</p>
+    </section>
+
+    <section class="step" aria-labelledby="a2">
+      <h2 id="a2"><span class="step-n" aria-hidden="true">٢</span>الإعلان (اختياري)</h2>
+      <p class="muted">اختر إعلاناً أو الصق وصف وظيفة، ونقيس كم من مهاراته المطلوبة يلقاها النظام في سيرتك.</p>
+      <div class="segmented" role="radiogroup" aria-label="مصدر الإعلان">
+        <label><input type="radio" name="source" value="none" checked><span>بدون إعلان</span></label>
+        <label><input type="radio" name="source" value="listed"><span>من إعلانات مسار</span></label>
+        <label><input type="radio" name="source" value="pasted"><span>ألصق وصف وظيفة</span></label>
+      </div>
+      <div id="listed-box" class="pick" hidden>
+        <input type="search" id="job-search" placeholder="ابحث بالمسمى أو الشركة" aria-label="ابحث في الإعلانات">
+        <select id="job-pick" size="7" aria-label="الإعلانات"></select>
+      </div>
+      <div id="pasted-box" class="pick" hidden>
+        <textarea id="job-text" rows="7" dir="auto" placeholder="الصق نص الإعلان كاملاً: المسمى في أول سطر، ثم المهام والمتطلبات" aria-label="نص الإعلان"></textarea>
+      </div>
+      <div class="make-row">
+        <button class="btn btn-primary" type="button" id="run">افحص سيرتي</button>
+      </div>
+      <p class="status" id="run-status" aria-live="polite"></p>
+    </section>
+
+    <div id="report" class="ats-report" hidden>
+      <section class="ats-scores" aria-label="النتيجة">
+        <div class="ats-score">
+          <p class="ats-num" id="read-score"></p>
+          <p class="ats-label">قراءة الأنظمة لملفك</p>
+          <p class="ats-sub" id="read-sub"></p>
+        </div>
+        <div class="ats-score" id="match-box" hidden>
+          <p class="ats-num" id="match-score"></p>
+          <p class="ats-label">التطابق مع الإعلان</p>
+          <p class="ats-sub" id="match-sub"></p>
+        </div>
+      </section>
+
+      <section class="ats-block">
+        <h2>ما يحتاج إصلاح</h2>
+        <ul class="ats-checks" id="checks"></ul>
+      </section>
+
+      <section class="ats-block" id="kw-block" hidden>
+        <h2>مهارات الإعلان في سيرتك</h2>
+        <p class="muted" id="kw-note"></p>
+        <div class="ats-kw">
+          <div><h3>لقيناها</h3><ul class="chips" id="kw-found"></ul></div>
+          <div><h3>ما لقيناها</h3><ul class="chips" id="kw-missing"></ul></div>
+        </div>
+      </section>
+
+      <section class="ats-block">
+        <h2>ما قرأه النظام</h2>
+        <dl class="ats-fields" id="fields"></dl>
+        <details class="ats-raw">
+          <summary>النص كما يصل للنظام</summary>
+          <p class="muted small">هذا النص هو كل ما يعرفه النظام عن سيرتك. إذا شفت فيه كلمة مقطّعة أو مقلوبة أو ناقصة، فهكذا وصلت.</p>
+          <pre id="raw" dir="auto"></pre>
+        </details>
+      </section>
+
+      <p class="ats-next"><a class="btn btn-quiet" href="cv.html">جهّز سيرة تنقرأ كاملة في صانع السيرة</a></p>
+    </div>
+
+    <section class="ats-how">
+      <h2>كيف نحسب</h2>
+      <p>لا يوجد نظام فرز واحد: كل شركة تستخدم نظامها (Workday وOracle Taleo وSAP SuccessFactors وGreenhouse وغيرها)، ولا يعطي أي منها رقماً عاماً لسيرتك. الذي تشترك فيه كلها أنها تقرأ نص الملف فقط، ثم تبحث فيه عن بيانات التواصل والأقسام والتواريخ والمهارات. لذلك نقرأ ملفك بالطريقة نفسها، ونطبّق عليه قواعد ثابتة لكل واحدة وزن معروف، بلا ذكاء اصطناعي ولا تخمين: نفس الملف يأخذ نفس النتيجة كل مرة، وكل نقطة ناقصة مكتوب سببها.</p>
+      <p>التطابق مع الإعلان يعدّ المهارات المطلوبة فيه بنفس القواعد التي نستخرج بها المهارات من كل إعلانات مسار، ويبحث عنها في سيرتك. المهارة المفضّلة بنصف وزن المطلوبة، والمسمى الوظيفي بوزن مهارة. لا تضف لسيرتك مهارة لا تعرفها لترفع الرقم: المقابلة تكشفها.</p>
+    </section>
+  </main>
+</div>
+<script src="assets/core.js?v=49"></script>
+<script src="assets/atskit.js?v=1"></script>
+<script src="assets/ats.js?v=1"></script>
+</body>
+</html>

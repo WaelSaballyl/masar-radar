@@ -13,10 +13,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from . import db, landing, traits
-from .skills import FIELDS, field_of
+from .skills import FIELDS, field_of, js_patterns
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "data" / "summary.json"
 JOBS_OUT = OUT.parent / "jobs.json"
+# the skill rules for the ATS check, which matches a CV in the browser
+SKILLS_OUT = OUT.parent / "skills.json"
 
 # A posting missing from this many days of runs is treated as closed. Runs are
 # daily; three days absorbs a source having a bad day without keeping postings
@@ -197,7 +199,7 @@ def build_sitemap(jobs: dict, pages: list[str] = ()) -> str:
 
     postings = jobs["postings"]
     urls = ["", "guide.html", "jobs.html", "dashboard.html", "cv.html", "swipe.html", "employers.html", "privacy.html",
-            "terms.html", "support.html",
+            "terms.html", "support.html", "ats.html",
             "jobs.html?type=training"]
     urls += [f"jobs.html?where={c}" for c in sorted(GULF) if any(c in p["countries"] for p in postings)]
     top = Counter(s for p in postings for s, required in p["skills"] if required)
@@ -216,6 +218,7 @@ def main() -> None:
     JOBS_OUT.write_text(json.dumps(jobs, ensure_ascii=False, separators=(",", ":")),
                         encoding="utf-8")
     print(f"[done] market index data -> {JOBS_OUT} ({len(jobs['postings'])} postings)")
+    SKILLS_OUT.write_text(json.dumps(js_patterns(), ensure_ascii=False, indent=0), encoding="utf-8")
     pages = landing.write(jobs)
     print(f"[done] landing pages -> docs/l/ ({len(pages)})")
     SITEMAP_OUT.write_text(build_sitemap(jobs, pages), encoding="utf-8")

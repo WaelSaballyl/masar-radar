@@ -182,6 +182,58 @@ SKILL_PATTERNS: dict[str, str] = {
 
 _COMPILED = {skill: re.compile(pat, re.IGNORECASE) for skill, pat in SKILL_PATTERNS.items()}
 
+# The ATS check (docs/ats.html) matches a CV with these same rules in the
+# browser. JavaScript lacks two things Python has here: the (?-i:...) group
+# (case-sensitive inside a case-insensitive pattern) and a Unicode \b / \w
+# (JS's are ASCII, so \bاكسل\b never matches). js_pattern rewrites a pattern
+# for a JS RegExp with the "u" flag and NO "i" flag: every letter outside a
+# (?-i:...) group becomes [xX], and \b / \w become their Unicode forms.
+_JS_W = r"\p{L}\p{N}_"
+_JS_B = rf"(?:(?<![{_JS_W}])(?=[{_JS_W}])|(?<=[{_JS_W}])(?![{_JS_W}]))"
+
+
+def js_pattern(pat: str) -> str:
+    out, groups, i = [], [], 0
+    while i < len(pat):
+        c = pat[i]
+        fold = not any(groups)
+        if c == "\\":
+            esc = pat[i:i + 2]
+            out.append(_JS_B if esc == r"\b" else f"[{_JS_W}]" if esc == r"\w" else esc)
+            i += 2
+            continue
+        if c == "[":
+            j, body = i + 1, []
+            while pat[j] != "]":
+                body.append(pat[j:j + 2] if pat[j] == "\\" else pat[j])
+                j += len(body[-1])
+            text = "".join(body)
+            letters = [t for t in body if len(t) == 1 and t.isascii() and t.isalpha()]
+            if fold and letters:
+                if re.search(r"[A-Za-z]-[A-Za-z]", text):
+                    raise ValueError(f"letter range in a class: {pat}")
+                text += "".join(t.swapcase() for t in letters)
+            out.append(f"[{text.replace(chr(92) + 'w', _JS_W)}]")
+            i = j + 1
+            continue
+        if pat.startswith("(?-i:", i):
+            groups.append(True)
+            out.append("(?:")
+            i += 5
+            continue
+        if c == "(":
+            groups.append(False)
+        elif c == ")":
+            groups.pop()
+        out.append(f"[{c.lower()}{c.upper()}]" if fold and c.isascii() and c.isalpha() else c)
+        i += 1
+    return "".join(out)
+
+
+def js_patterns() -> dict[str, str]:
+    """SKILL_PATTERNS for docs/data/skills.json (see js_pattern)."""
+    return {skill: js_pattern(pat) for skill, pat in SKILL_PATTERNS.items()}
+
 # order matters: first match wins
 ROLE_PATTERNS: list[tuple[str, str]] = [
     ("Analytics Engineer", r"analytics\s+engineer"),

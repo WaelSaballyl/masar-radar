@@ -316,6 +316,8 @@
       say("prep-status", "");
       keepVersion(job, lang);
       $("result").hidden = false;
+      // after showing it: the text of a hidden paper has no line breaks
+      checkATS(job, lang);
       say("make-status", "");
       $("result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     } catch (e) {
@@ -337,7 +339,7 @@
     }
     if (p.gpa && !MasarCV.showGpa(p.gpa)) tips.push("لم نعرض معدلك لأنه أقل من ثلاثة أرباع المقياس، ونصيحة مختصي التوظيف ألا يُذكر حينها.");
     if (!/linkedin\.com/i.test(p.link || "")) tips.push("أضف رابط حسابك في LinkedIn في الخطوة الأولى؛ صار واجهتك المهنية ويرفع فرص ترشيحك.");
-    if (lang === "ar") tips.push("أنظمة فرز السير (ATS) تقرأ الإنجليزية أفضل. جهّز نسخة إنجليزية لأي تقديم عبر موقع أو إيميل.");
+    if (lang === "ar") tips.push("أنظمة فرز السير (ATS) تقرأ العربي داخل ملف PDF مقلوباً أو مقطّعاً. أرسل النسخة العربية بصيغة Word، وجهّز نسخة إنجليزية لأي تقديم عبر موقع.");
     const role = job.title || ($("job-text").value.split("\n")[0] || "").split(/ [-–] /)[0].trim();
     const box = $("tips-list");
     box.replaceChildren(...tips.map((t) => el("li", null, t)));
@@ -355,6 +357,49 @@
     }
     $("tips").hidden = !box.children.length;
   }
+
+  // ---------- the ATS check of this CV (atskit.js, the rules of ats.html) ----------
+  // The paper's text is what the saved file carries: the PDF prints real text
+  // (no ligatures, one column, contact in the page) and the Word file is built
+  // from the same paper, so a clean result here holds for both.
+  let patterns = null;
+  const FIX = {
+    arabic_pdf: "احفظ النسخة العربية بزر «احفظها Word»، لأن أنظمة الفرز تقرأ العربي داخل PDF مقلوباً.",
+    email: "أضف إيميلك في الخطوة الأولى.", phone: "أضف رقم جوالك في الخطوة الأولى.", name: "أضف اسمك في الخطوة الأولى.",
+    experience: "أضف خبرة أو مشروعاً في الخطوة الأولى.", education: "أضف جامعتك وتخصصك في الخطوة الأولى.",
+    skills: "أضف مهاراتك في الخطوة الأولى.", dates: "اكتب مدة كل خبرة في الخطوة الأولى، مثل Jun 2025 - Aug 2025.",
+    length: "السيرة قصيرة على أنظمة الفرز. إذا عندك مشروع أو تدريب أو عمل تطوعي لم تذكره، أضفه في الخطوة الأولى.",
+  };
+  async function checkATS(job, lang) {
+    const text = $("cv-paper").innerText;
+    const result = MasarATS.analyze({ text, kind: lang === "ar" ? "masar-ar" : "masar" });
+    let m = null;
+    if (job) {
+      try { patterns ||= await fetch("data/skills.json").then((r) => r.json()); } catch { patterns = {}; }
+      m = MasarATS.match(text, job, patterns);
+    }
+    $("ats-line").textContent = `فحص ATS لهذه السيرة: قراءة الأنظمة ${result.score} من 100`
+      + (m && m.score !== null ? `، والتطابق مع الإعلان ${m.score}٪.` : ".");
+    const notes = result.checks.filter((c) => !c.ok && FIX[c.id]).map((c) => FIX[c.id]);
+    if (m && m.title && !m.titleHit) notes.push(`المسمى «${m.core}» غير مكتوب في سيرتك، والنظام يبحث به. إذا كان يصف ما تعمله فعلاً، اكتبه في «المسمى الذي تستهدفه» في المعلومات الإضافية وجهّز السيرة من جديد.`);
+    const li = el("li");
+    const a = el("a", null, "افحص الملف نفسه بعد حفظه");
+    a.href = "ats.html";
+    li.append(a, " في صفحة فحص ATS.");
+    $("ats-notes").replaceChildren(...notes.map((t) => el("li", null, t)), li);
+    $("ats-inline").hidden = false;
+  }
+
+  $("word").addEventListener("click", () => {
+    const paper = $("cv-paper");
+    const a = el("a");
+    a.href = URL.createObjectURL(MasarDocx.fromPaper(paper));
+    a.download = `${paper.querySelector("h1")?.textContent || "CV"} - CV.docx`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  });
 
   // ---------- interview prep ----------
 
@@ -443,9 +488,11 @@
         paper.dir = v.lang === "ar" ? "rtl" : "ltr";
         $("coverage").replaceChildren(el("p", "coverage-for", `سيرة محفوظة لإعلان: ${v.label}.`));
         $("removed").hidden = true;
+        $("tips").hidden = true;
         $("apply").hidden = true;
         $("prep").hidden = true;
         $("result").hidden = false;
+        checkATS(null, v.lang);
         $("result").scrollIntoView({ behavior: "smooth" });
       };
       drop.onclick = () => { store.set(VERSIONS, JSON.stringify(versions().filter((_, j) => j !== i))); showVersions(); };

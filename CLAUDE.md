@@ -93,6 +93,19 @@ including text drawn later (MutationObserver). Data is never translated (the `SK
 posting titles/companies/descriptions, CVs, chats). New Arabic UI text needs its English in
 en.js, or it shows in Arabic; bump `en.js?v=` in core.js.
 
+ATS check (`ats.html`, `assets/ats.js` + `assets/atskit.js`): reads a CV file in the browser the way a screening
+system does - PDF text through pdf.js with `disableNormalization` (so "ﬁ" ligatures and Arabic presentation forms
+show as a parser gets them), docx straight from its XML (own unzip; tables, text boxes, columns, contact in
+header/footer parts) - and scores it by fixed rules with fixed weights (`analyze`), plus a posting match (`match`)
+using `docs/data/skills.json`: `skills.js_pattern` rewrites each `SKILL_PATTERNS` rule for a JS RegExp (`u` flag, no
+`i`: letters folded as [xX] outside `(?-i:...)`, Unicode \b and \w), written by export_site; worker/test.mjs runs the
+JS rules. There is no single ATS: the page says the score is rules, not a prediction. Measured facts behind the rules:
+an Arabic PDF (Chrome's print or Word's own export) extracts reversed/broken ("خلال" -> "خالل"), so Arabic CVs go out as
+Word; `.paper:lang(en)` turns ligatures off or "Certifications" reaches a parser as "Certiﬁcations". The CV builder
+shows the check under each CV (run after `#result` is visible - a hidden paper's innerText has no line breaks) and
+saves Word via `assets/docx.js` (stored zip, one column, real Heading 1 / List Bullet styles, Latin runs split from
+RTL runs so "+966 ..." is not reordered; checked opening in Word).
+
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
 to `jobs.html?q=Skill`). `radar/traits.py` decides type and years by fixed rules at export:

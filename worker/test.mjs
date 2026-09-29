@@ -201,4 +201,56 @@ import { card } from "./src/talent.js";
   assert.throws(() => card({}), /field:skills/);
 }
 
+// ---- the ATS check (docs/assets/atskit.js) and the skill rules it matches with ----
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
+{
+  const ctx = { window: {} };
+  vm.runInNewContext(readFileSync(new URL("../docs/assets/atskit.js", import.meta.url), "utf8"), ctx);
+  const { analyze, match, twoColumns } = ctx.window.MasarATS;
+  const body = "Sara Ahmed\nJeddah | sara@example.com | +966 50 111 2222\nSummary\n" + "Analyst who builds dashboards. ".repeat(50)
+    + "\nExperience\nData Analyst Intern, Savola, Jun 2024 - Sep 2024\nBuilt Power BI dashboards\nEducation\nB.Sc. Statistics, KAU, 2024\nSkills\nSQL, Excel, Power BI";
+  const clean = analyze({ text: body, kind: "pdf", pages: 1 });
+  assert.equal(clean.score, 100, JSON.stringify(clean.checks.filter((c) => !c.ok)));
+  assert.equal(clean.fields.name, "Sara Ahmed");
+  assert.deepEqual([...clean.fields.sections], ["summary", "experience", "education", "skills"]);
+  // a scanned CV has no text at all
+  assert.equal(analyze({ text: "", kind: "pdf", pages: 1 }).score, 0);
+  // what really breaks reading, each named with its weight
+  const lig = analyze({ text: body.replace("Summary", "Summary\nCertiﬁcates"), kind: "pdf", pages: 1 });
+  assert.deepEqual([...lig.checks.filter((c) => !c.ok).map((c) => c.id)], ["ligatures"]);
+  const arabic = analyze({ text: body + "\nنبذة\nطالب نظم معلومات في جامعة الملك سعود ".repeat(30), kind: "pdf", pages: 1 });
+  assert.ok(arabic.checks.some((c) => c.id === "arabic_pdf" && !c.ok));
+  const header = analyze({ text: body.replace(/.*sara@.*\n/, ""), kind: "docx", headerContact: true, tables: 1 });
+  assert.deepEqual([...header.checks.filter((c) => !c.ok).map((c) => c.id)].sort(), ["header_contact", "tables"]);
+  assert.equal(header.score, 75);
+  // Arabic headings count too
+  assert.ok(analyze({ text: body.replace("Experience", "الخبرات العملية:"), kind: "masar" }).fields.sections.includes("experience"));
+  // two columns: nothing crosses the gutter, text on both sides; one column with dates on the right is not
+  const cols = Array.from({ length: 30 }, (_, i) => (i % 2 ? [[40, 180]] : [[220, 560]]));
+  assert.ok(twoColumns(cols, 595));
+  const single = Array.from({ length: 30 }, (_, i) => (i % 6 ? [[40, 400 + (i % 4) * 40]] : [[40, 300], [470, 555]]));
+  assert.ok(!twoColumns(single, 595));
+
+  // the rules as the browser gets them (python -m radar.export_site writes them)
+  const rules = JSON.parse(readFileSync(new URL("../docs/data/skills.json", import.meta.url), "utf8"));
+  const rx = Object.fromEntries(Object.entries(rules).map(([k, v]) => [k, new RegExp(v, "u")]));
+  const hits = (t) => Object.keys(rx).filter((k) => rx[k].test(t));
+  assert.ok(hits("SQL, R and PowerBI").includes("R") && hits("SQL, R and PowerBI").includes("Power BI"));
+  assert.ok(!hits("Riyadh research").includes("R"), "R stays case-sensitive");
+  assert.ok(hits("خبرة في اكسل").includes("Excel"), "Arabic words need a Unicode \\b");
+  assert.ok(!hits("ml").includes("Machine Learning") && hits("ML models").includes("Machine Learning"));
+
+  const m = match(body, { title: "Data Analyst", required: ["SQL", "Power BI", "Tableau"], preferred: ["Excel"] }, rules);
+  assert.deepEqual([...m.matched], ["SQL", "Power BI"]);
+  assert.deepEqual([...m.missing], ["Tableau"]);
+  assert.equal(m.score, Math.round((2 + 0.5 + 1) / (3 + 0.5 + 1) * 100));
+  const pasted = match(body, { description: "Junior Data Analyst - Riyadh\nWe need SQL, Python and Tableau. " + "x ".repeat(40) }, rules);
+  assert.deepEqual([...pasted.required].sort(), ["Python", "SQL", "Tableau"]);
+  assert.equal(pasted.title, "Junior Data Analyst");
+  assert.ok(pasted.titleHit, "the level word is not part of the job");
+  const nice = match(body, { description: "Data Analyst\nMust know SQL and Excel. Nice to have: Looker, dbt. " + "x ".repeat(40) }, rules);
+  assert.deepEqual([...nice.required].sort(), ["Excel", "SQL"]);
+  assert.deepEqual([...nice.preferred].sort(), ["Looker", "dbt"]);
+}
 console.log("worker tests passed");

@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800&display=swap"></noscript>
-<link rel="stylesheet" href="assets/masar.css?v=53">
+<link rel="stylesheet" href="assets/masar.css?v=54">
 </head>
 <body>
 <div class="wrap">
@@ -57,6 +57,7 @@
         </div>
         <textarea id="cv-text" rows="4" placeholder="أو الصق نص سيرتك هنا"></textarea>
         <p class="status" id="import-status" aria-live="polite"></p>
+        <p class="muted small">تبي تعرف كيف تقرأ أنظمة الفرز سيرتك الحالية؟ <a href="ats.html">افحصها في فحص ATS</a>.</p>
       </div>
 
       <form id="profile" autocomplete="on" onsubmit="return false">
@@ -132,10 +133,12 @@
 
     <div id="result" hidden>
       <div class="coverage" id="coverage"></div>
+      <section class="ats-inline" id="ats-inline" hidden><p id="ats-line"></p><ul id="ats-notes"></ul></section>
       <section class="tips" id="tips" hidden><h2>قبل ما ترسل</h2><ul id="tips-list"></ul></section>
       <details class="removed" id="removed" hidden><summary></summary><ul></ul></details>
       <div class="actions">
         <button class="btn btn-primary" type="button" id="print">احفظها PDF</button>
+        <button class="btn btn-quiet" type="button" id="word">احفظها Word</button>
         <button class="btn btn-quiet" type="button" id="copy">انسخ النص</button>
       </div>
       <section class="prep" id="prep">
@@ -177,8 +180,10 @@
     <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener">الشيفرة على GitHub</a>
   </footer>
 </div>
-<script src="assets/core.js?v=48"></script>
-<script src="assets/cvkit.js?v=39"></script>
-<script src="assets/cv.js?v=40"></script>
+<script src="assets/core.js?v=49"></script>
+<script src="assets/cvkit.js?v=40"></script>
+<script src="assets/atskit.js?v=1"></script>
+<script src="assets/docx.js?v=1"></script>
+<script src="assets/cv.js?v=41"></script>
 </body>
 </html>
