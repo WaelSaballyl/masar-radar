@@ -747,15 +747,19 @@ window.MASAR_EN = {
     "ارفعها في": "Upload it to the",
     "ونريك النص الذي يقرؤه النظام منها وما يكسره. السير التي يجهّزها مسار عمود واحد بنص حقيقي؛ احفظ الإنجليزية PDF، والعربية Word.": "and we show you the text a system reads from it and what breaks it. CVs made on Masar are one column of real text; save the English one as PDF and the Arabic one as Word.",
     "تبي تعرف كيف تقرأ أنظمة الفرز سيرتك الحالية؟": "Want to know how screening systems read your current CV?",
-    "افحصها في فحص ATS": "Check it with the ATS check"
+    "افحصها في فحص ATS": "Check it with the ATS check",
+    "نتيجة ATS": "ATS score",
+    "نصفها قراءة الملف ونصفها التطابق": "half how the file reads, half the match",
+    "قراءة الملف فقط، بدون إعلان": "how the file reads only, no posting",
+    "نتيجة ATS نصفها قراءة الملف ونصفها التطابق مع الإعلان. بدون إعلان هي قراءة الملف وحدها، والملف الذي لا يُقرأ نتيجته صفر مهما كان فيه.": "The ATS score is half how the file reads and half the match with the posting. Without a posting it is how the file reads alone, and a file that cannot be read scores zero whatever it contains."
   },
   patterns: [
     ["^مطلوب (\\d+)، لقينا منها (\\d+)$", "$1 required, $2 found"],
     ["^المسمى «(.+)» موجود في سيرتك\\.$", "The title \"$1\" is in your CV."],
     ["^المسمى «(.+)» غير موجود في سيرتك، والنظام يبحث به\\. إذا كان يصف ما تعمله، اكتبه في العنوان تحت اسمك\\.$", "The title \"$1\" is not in your CV, and the system searches by it. If it describes what you do, write it in the headline under your name."],
     ["^المسمى «(.+)» غير مكتوب في سيرتك، والنظام يبحث به\\. .*$", "The title \"$1\" is not written in your CV, and the system searches by it. If it truly describes what you do, add it as your target role in additional information and make the CV again."],
-    ["^فحص ATS لهذه السيرة: قراءة الأنظمة (\\d+) من 100، والتطابق مع الإعلان (\\d+)٪\\.$", "ATS check of this CV: read by systems $1 out of 100, match with the posting $2%."],
-    ["^فحص ATS لهذه السيرة: قراءة الأنظمة (\\d+) من 100\\.$", "ATS check of this CV: read by systems $1 out of 100."],
+    ["^نتيجة ATS لهذه السيرة: (\\d+)٪ \\(قراءة الأنظمة (\\d+) من 100، والتطابق مع الإعلان (\\d+)٪\\)\\.$", "ATS score of this CV: $1% (read by systems $2 out of 100, match with the posting $3%)."],
+    ["^نتيجة ATS لهذه السيرة: (\\d+)٪ \\(قراءة الأنظمة (\\d+) من 100\\)\\.$", "ATS score of this CV: $1% (read by systems $2 out of 100)."],
     ["^الخط يدمج fi وff وfl في حرف واحد، فيقرأ النظام هذه الكلمات بحرف غريب ولا يطابقها مع البحث: (.+)$", "The font joins fi, ff and fl into one character, so the system reads these words with an odd letter and does not match them in a search: $1"],
     ["^أنظمة كثيرة تقرأ الجدول خلية خلية بترتيب غير متوقع أو تتجاهله\\. حوّله إلى أسطر عادية\\. عدد الجداول: (\\d+)$", "Many systems read a table cell by cell in an odd order, or skip it. Turn it into plain lines. Tables: $1"],
     ["^أنظمة كثيرة تتجاهل ما داخل مربع النص\\. انقل محتواه إلى نص عادي في الصفحة\\. عدد المربعات: (\\d+)$", "Many systems skip what is inside a text box. Move its content into the page as plain text. Text boxes: $1"],

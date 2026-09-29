@@ -378,8 +378,9 @@
       try { patterns ||= await fetch("data/skills.json").then((r) => r.json()); } catch { patterns = {}; }
       m = MasarATS.match(text, job, patterns);
     }
-    $("ats-line").textContent = `فحص ATS لهذه السيرة: قراءة الأنظمة ${result.score} من 100`
-      + (m && m.score !== null ? `، والتطابق مع الإعلان ${m.score}٪.` : ".");
+    const hasMatch = m && m.score !== null;
+    $("ats-line").textContent = `نتيجة ATS لهذه السيرة: ${MasarATS.overall(result.score, hasMatch ? m.score : null)}٪ `
+      + (hasMatch ? `(قراءة الأنظمة ${result.score} من 100، والتطابق مع الإعلان ${m.score}٪).` : `(قراءة الأنظمة ${result.score} من 100).`);
     const notes = result.checks.filter((c) => !c.ok && FIX[c.id]).map((c) => FIX[c.id]);
     if (m && m.title && !m.titleHit) notes.push(`المسمى «${m.core}» غير مكتوب في سيرتك، والنظام يبحث به. إذا كان يصف ما تعمله فعلاً، اكتبه في «المسمى الذي تستهدفه» في المعلومات الإضافية وجهّز السيرة من جديد.`);
     const li = el("li");

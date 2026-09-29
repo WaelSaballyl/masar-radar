@@ -156,5 +156,9 @@
     };
   }
 
-  window.MasarATS = { analyze, match, twoColumns, headingOf, SECTIONS, DATE };
+  // The one percentage: half how the file reads, half how it matches the
+  // posting. A file the system cannot read scores nothing, whatever it says.
+  const overall = (read, matchScore) => (read === 0 ? 0 : matchScore == null ? read : Math.round((read + matchScore) / 2));
+
+  window.MasarATS = { analyze, match, overall, twoColumns, headingOf, SECTIONS, DATE };
 })();
