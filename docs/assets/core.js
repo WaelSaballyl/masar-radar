@@ -330,6 +330,7 @@ window.Masar = (() => {
     ["jobs.html", "الإعلانات", "Postings"],
     ["swipe.html", "قدّم بالسحب", "Swipe to apply"],
     ["cv.html", "سيرتك", "Your CV"],
+    ["ats.html", "فحص ATS", "ATS check"],
     ["applications.html", "طلباتي", "My applications"],
     ["dashboard.html", "مؤشر السوق", "Market index"],
     ["employers.html", "للشركات", "Employers"],
@@ -412,7 +413,7 @@ window.Masar = (() => {
     const legal = el("p", "foot-legal");
     const link = (href, text) => { const a = el("a", null, text); a.href = href; return a; };
     legal.append(el("span", null, `© ${new Date().getFullYear()} مسار`), link("privacy.html", "الخصوصية"),
-      link("guide.html", "دليل التدريب التعاوني"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
+      link("guide.html", "دليل التدريب التعاوني"), link("ats.html", "فحص ATS"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
       link("terms.html", "الشروط"));
     const box = el("div", "foot-brand");
     box.append(mark, radar, legal);
@@ -450,7 +451,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=4";
+    s.src = "assets/en.js?v=5";
     s.onload = translate;
     document.head.append(s);
   }
@@ -484,7 +485,7 @@ window.Masar = (() => {
       return null;
     };
     const SKIP = ".paper, .bubbles, .li-out, .bot-answer, .land-list, .job-desc, .job-title, .posting-title, .posting-company, "
-      + ".posting-who, .swipe-title, .swipe-desc, .reel-title, .reel-desc, .rail-title, .rail-co, .cand, .admin-desc, textarea, script, style, [translate=no]";
+      + ".posting-who, .ats-raw, .ats-fields dd, .ats-kw .chips, .swipe-title, .swipe-desc, .reel-title, .reel-desc, .rail-title, .rail-co, .cand, .admin-desc, textarea, script, style, [translate=no]";
     const ATTRS = ["placeholder", "aria-label", "title"];
     const text = (n) => {
       if (n.parentElement?.closest(SKIP)) return;

@@ -63,7 +63,7 @@
 
   const HEAD = {
     en: { summary: "Summary", education: "Education", skills: "Skills", experience: "Experience",
-          projects: "Projects", certificates: "Certificates", languages: "Languages", gpa: "GPA",
+          projects: "Projects", certificates: "Certifications", languages: "Languages", gpa: "GPA",
           additional: "Additional information", link: "Link", verify: "Verify", sep: ", " },
     ar: { summary: "نبذة", education: "التعليم", skills: "المهارات", experience: "الخبرات",
           projects: "المشاريع", certificates: "الشهادات", languages: "اللغات", gpa: "المعدل",
