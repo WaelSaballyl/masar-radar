@@ -751,7 +751,9 @@ window.MASAR_EN = {
     "نتيجة ATS": "ATS score",
     "نصفها قراءة الملف ونصفها التطابق": "half how the file reads, half the match",
     "قراءة الملف فقط، بدون إعلان": "how the file reads only, no posting",
-    "نتيجة ATS نصفها قراءة الملف ونصفها التطابق مع الإعلان. بدون إعلان هي قراءة الملف وحدها، والملف الذي لا يُقرأ نتيجته صفر مهما كان فيه.": "The ATS score is half how the file reads and half the match with the posting. Without a posting it is how the file reads alone, and a file that cannot be read scores zero whatever it contains."
+    "نتيجة ATS نصفها قراءة الملف ونصفها التطابق مع الإعلان. بدون إعلان هي قراءة الملف وحدها، والملف الذي لا يُقرأ نتيجته صفر مهما كان فيه.": "The ATS score is half how the file reads and half the match with the posting. Without a posting it is how the file reads alone, and a file that cannot be read scores zero whatever it contains.",
+    "الإعلان غير متاح": "Posting not available",
+    "اكتب سؤالك أولاً، ولو بكلمتين.": "Type your question first, even two words."
   },
   patterns: [
     ["^مطلوب (\\d+)، لقينا منها (\\d+)$", "$1 required, $2 found"],

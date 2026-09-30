@@ -401,10 +401,7 @@ window.Masar = (() => {
   // The name across the whole width at the bottom of every page, in the
   // wordmark's letters (Montserrat); each letter rises in when it is reached.
   if (!noTabs && document.querySelector(".topbar")) {
-    const font = document.createElement("link");
-    font.rel = "stylesheet";
-    font.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap";
-    document.head.append(font);
+    // Montserrat 800 is declared in masar.css; the browser fetches it when these letters are drawn
     const mark = el("div", "foot-mark reveal");
     mark.setAttribute("aria-hidden", "true");
     [..."MASAR"].forEach((c, i) => { const s = el("span", null, c); s.style.setProperty("--i", i); mark.append(s); });
@@ -531,6 +528,12 @@ window.Masar = (() => {
     document.querySelectorAll(".reveal").forEach((n) => io.observe(n));
   }
 
-  return { store, count, pct, date, ago, place, GULF, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
+  // A long list laid out before the web fonts arrive is laid out again for
+  // each font that lands (three passes of ~300ms on a mid-range phone). Pages
+  // wait for the fonts, at most 1.5 s, before drawing their big lists once.
+  const fontsReady = () => Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(),
+                                         new Promise((ok) => setTimeout(ok, 1500))]);
+
+  return { store, count, pct, date, ago, place, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
            LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, replyBadge, learnUrl };
 })();

@@ -66,10 +66,9 @@ def _page(title: str, lede: str, postings: list[dict], related: list[tuple[str, 
 <meta property="og:description" content="{escape(desc)}">
 <meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
-<meta name="theme-color" content="#181A1B">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Noto+Kufi+Arabic:wght@700;800;900&display=swap"></noscript>
+<meta name="theme-color" content="#0B1219">
+<link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/masar.css?v={css}">
 </head>
 <body>

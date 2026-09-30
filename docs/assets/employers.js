@@ -36,7 +36,13 @@
         body: JSON.stringify(Object.fromEntries(new FormData(form))),
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) { say(WHY[d.error] || "تعذّر إرسال الإعلان. جرّب مرة ثانية.", true); return; }
+      if (!r.ok) {
+        say(WHY[d.error] || "تعذّر إرسال الإعلان. جرّب مرة ثانية.", true);
+        // the field the message names is where the cursor goes
+        const name = String(d.error || "").replace(/^field:/, "");
+        form.elements[name === "work_email" ? "contact_email" : name]?.focus?.();
+        return;
+      }
       form.reset();
       say("وصلنا إعلانك، وسنراجعه وننشره خلال يوم عمل. سنتواصل معك على إيميل العمل إن احتجنا توضيحاً.");
       // the private link to the applicants: shown once, the token lives only in it

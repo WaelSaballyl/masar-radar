@@ -242,7 +242,7 @@
     logo: Masar.siteIcon(p.website), verified: !!p.verified, field: p.field || "data", reply_days: p.reply_days,
   }))).catch(() => []);
 
-  Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()), exclusive]).then(([d, ex]) => {
+  Promise.all([fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()), exclusive, Masar.fontsReady()]).then(([d, ex]) => {
     postings = [...ex, ...d.postings
       .map((p) => ({ ...p, kind: p.employment || "job", group: place(p) === "unknown" ? "other" : place(p) }))
       .sort((a, b) => (b.posted_at || "").localeCompare(a.posted_at || ""))];

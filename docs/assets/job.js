@@ -189,10 +189,12 @@
   Promise.all([collected, exclusive]).then(([all, excl]) => {
     const p = ex ? excl.find((x) => x.id === ex) : all.find((x) => x.id === id);
     if (!p) {
-      $("job").replaceChildren(el("p", null, "هذا الإعلان لم يعد متاحاً، غالباً لأنه أُغلق. "));
+      const gone = el("div");
+      gone.append(el("h1", "job-title", "الإعلان غير متاح"), el("p", null, "هذا الإعلان لم يعد متاحاً، غالباً لأنه أُغلق. "));
+      $("job").replaceChildren(gone);
       const a = el("a", null, "تصفّح الإعلانات المفتوحة");
       a.href = "jobs.html";
-      $("job").firstChild.append(a);
+      gone.lastChild.append(a);
       return;
     }
     show(p, all);

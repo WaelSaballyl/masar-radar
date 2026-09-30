@@ -375,6 +375,7 @@
   render();
   fetch("data/jobs.json", { cache: "no-cache" })
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.status))))
+    .then((d) => Masar.fontsReady().then(() => d))
     .then((d) => { postings = d.postings || []; updatedAt = d.updated_at; render(); })
     .catch(() => { failed = true; render(); });
 })();
