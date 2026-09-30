@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الشركات التي توظّف — مسار</title>
+<meta name="description" content="كل شركة تعلن عن تدريب أو وظيفة في مسار: عدد إعلاناتها، ودولها، والمهارات التي تطلبها أكثر، وإعلاناتها المفتوحة.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="الشركات التي توظّف — مسار">
+<meta property="og:description" content="كل شركة تعلن في مسار، والمهارات التي تطلبها أكثر.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/companies.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B1219">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/masar.css?v=63">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام"></nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main class="companies">
+    <div class="page-head" id="head">
+      <h1>الشركات التي توظّف</h1>
+      <p class="section-lede">كل شركة لها إعلان مفتوح في مسار الآن: كم إعلاناً عندها، وأين، والمهارات التي تطلبها أكثر. اختر شركة لتشوف إعلاناتها وما تحتاجه لتتقدّم لها.</p>
+      <div class="companies-tools">
+        <input type="search" id="co-search" placeholder="ابحث باسم الشركة أو مهارة" aria-label="ابحث في الشركات">
+        <select id="co-where" aria-label="الدولة">
+          <option value="">كل الدول</option><option value="gulf">السعودية والخليج</option><option value="SA">السعودية</option>
+          <option value="AE">الإمارات</option><option value="QA">قطر</option><option value="KW">الكويت</option><option value="BH">البحرين</option><option value="OM">عُمان</option>
+        </select>
+      </div>
+    </div>
+    <p class="muted" id="co-count" aria-live="polite"></p>
+    <ul class="co-grid" id="co-list"></ul>
+    <section class="co-one" id="co-one" hidden></section>
+  </main>
+</div>
+<script src="assets/core.js?v=54"></script>
+<script src="assets/companies.js?v=1"></script>
+</body>
+</html>

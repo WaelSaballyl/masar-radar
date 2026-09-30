@@ -57,7 +57,9 @@
       .filter((x, i, a) => x && a.indexOf(x) === i).join("، ");
     const who = el("p", "job-who");
     who.append(Masar.logo(p, "co-logo co-logo-lg"));
-    const company = el("strong", null, p.company);
+    const company = el("a", "job-company-link");
+    company.append(el("strong", null, p.company));
+    company.href = `companies.html?c=${encodeURIComponent(p.company)}`;
     company.dir = "auto";
     who.append(company, where ? `، ${where}` : "");
     const when = el("p", "muted", `نُشر ${ago(p.posted_at, "ar")}` + (p.deadline ? `، وآخر موعد للتقديم ${date(p.deadline, "ar")}` : ""));
