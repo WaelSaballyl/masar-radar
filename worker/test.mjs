@@ -207,10 +207,28 @@ import vm from "node:vm";
 {
   const ctx = { window: {} };
   vm.runInNewContext(readFileSync(new URL("../docs/assets/atskit.js", import.meta.url), "utf8"), ctx);
-  const { analyze, match, twoColumns, overall } = ctx.window.MasarATS;
-  assert.equal(overall(90, 70), 80);
-  assert.equal(overall(90, null), 90);
-  assert.equal(overall(0, 100), 0, "an unreadable file scores nothing");
+  const { analyze, content, match, twoColumns, overall, level } = ctx.window.MasarATS;
+  assert.equal(overall(90, 70, null), 80);
+  assert.equal(overall(100, 50, 50), 65);
+  assert.equal(overall(0, 100, 100), 0, "an unreadable file scores nothing");
+  assert.equal(level(85), "good"); assert.equal(level(69), "work");
+  // content is graded: a tidy file of duties is not a strong CV
+  const duties = ["Sara Ahmed", "Experience", "Data Analyst Intern, Savola, Jun 2024 - Sep 2024",
+    "Responsible for making reports for the team every week", "Worked on dashboards in Power BI for managers",
+    "Helped with cleaning data in Excel sheets", "Skills", "SQL, Excel"].join("\n");
+  const weak = content(duties);
+  assert.deepEqual([...weak.checks.filter((c) => !c.ok).map((c) => c.id)], ["results", "verbs", "weak", "summary", "skill_count", "linkedin"]);
+  assert.ok(weak.score < 30, String(weak.score));
+  const results = ["Sara Ahmed", "linkedin.com/in/sara", "Summary", "Statistics graduate.", "Experience",
+    "Data Analyst Intern, Savola, Jun 2024 - Sep 2024", "Built 6 Power BI dashboards used by 40 branch managers",
+    "Automated a weekly Excel report, saving 5 hours a week", "Sales Dashboard, Power BI, SQL",
+    "Cleaned sales rows in SQL, cutting errors by 30%", "Skills", "SQL, Excel, Power BI, Python, Tableau, Statistics"].join("\n");
+  assert.equal(content(results).score, 100, JSON.stringify(content(results).checks.filter((c) => !c.ok)));
+  assert.equal(content(results).points, 3, "a project's name and tools is not a point");
+  // Arabic verbs with a shadda, and years are not results
+  const ar = content(["الخبرات", "طوّرت لوحات Power BI للإدارة في الفرع الرئيسي", "عملت على تقارير المبيعات في سنة 2024 كاملة"].join("\n"));
+  assert.deepEqual([...ar.checks.find((c) => c.id === "verbs").info], [1, 2]);
+  assert.deepEqual([...ar.checks.find((c) => c.id === "results").info], [0, 2]);
   const body = "Sara Ahmed\nJeddah | sara@example.com | +966 50 111 2222\nSummary\n" + "Analyst who builds dashboards. ".repeat(50)
     + "\nExperience\nData Analyst Intern, Savola, Jun 2024 - Sep 2024\nBuilt Power BI dashboards\nEducation\nB.Sc. Statistics, KAU, 2024\nSkills\nSQL, Excel, Power BI";
   const clean = analyze({ text: body, kind: "pdf", pages: 1 });
