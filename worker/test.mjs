@@ -116,7 +116,7 @@ assert.deepEqual(out.coverage.missing, ["Data modeling"]);
 assert.equal(out.cv.summary, "", "the CV may not claim 'advanced'");
 
 // exclusive postings: the screening bot
-import { screen } from "./src/board.js";
+import { screen, board } from "./src/board.js";
 const post = (x = {}) => ({ title: "Data Analyst Co-op", description: "Build Power BI dashboards and SQL reports.",
   salary: "3,000 SAR", apply_url: "", website: "https://www.acme.sa/", contact_email: "hr@acme.sa",
   required: "SQL, Excel", employment: "coop", ...x });
@@ -278,5 +278,82 @@ import vm from "node:vm";
   const nice = match(body, { description: "Data Analyst\nMust know SQL and Excel. Nice to have: Looker, dbt. " + "x ".repeat(40) }, rules);
   assert.deepEqual([...nice.required].sort(), ["Excel", "SQL"]);
   assert.deepEqual([...nice.preferred].sort(), ["Looker", "dbt"]);
+}
+
+// ---- D1 in memory (node:sqlite, the whole schema.sql) for the database paths ----
+const { DatabaseSync } = await import("node:sqlite");
+function memoryD1() {
+  const db = new DatabaseSync(":memory:");
+  db.exec(readFileSync(new URL("./schema.sql", import.meta.url), "utf8"));
+  return {
+    raw: db,
+    prepare(sql) {
+      let args = [];
+      const st = {
+        bind(...a) { args = a; return st; },
+        async run() { return { meta: { changes: Number(db.prepare(sql).run(...args).changes) } }; },
+        async first() { return db.prepare(sql).get(...args) ?? null; },
+        async all() { return { results: db.prepare(sql).all(...args) }; },
+      };
+      return st;
+    },
+  };
+}
+const hexSha = async (s) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))]
+  .map((b) => b.toString(16).padStart(2, "0")).join("");
+const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST", body: JSON.stringify(data) });
+
+// ---- "really interested": three a month per email, first in the employer's list ----
+{
+  const env = { DB: memoryD1() };
+  const receipts = [];
+  for (let i = 0; i < 5; i++) {
+    // Sara applies to four postings, Omar to the fifth
+    env.DB.raw.exec(`INSERT INTO postings (id, status, created_at, expires_at, company, contact_email, title, city, workplace, employment, level, description)
+                     VALUES ('p0000000000${i}', 'approved', '2026-09-01', '2099-01-01', 'Co', 'hr@co.sa', 'Analyst', 'Riyadh', 'onsite', 'internship', 'Intern', 'x')`);
+    const r = String(i).repeat(48);
+    receipts.push(r);
+    env.DB.raw.prepare(`INSERT INTO applications (id, posting_id, created_at, name, email, matched, required, paper, receipt_hash)
+                        VALUES (?, ?, '2026-09-0${i + 1}', 'S', ?, ?, 4, '[]', ?)`)
+      .run(`a${i}`, `p0000000000${i}`, i < 4 ? "sara@x.com" : "omar@x.com", 4 - (i % 4), await hexSha(r));
+  }
+  for (let i = 0; i < 3; i++) {
+    const out = await board(postTo("/board/boost", { receipt: receipts[i + 1] }), env, "/board/boost");
+    assert.equal(out.boosts_left, 2 - i);
+  }
+  await assert.rejects(board(postTo("/board/boost", { receipt: receipts[0] }), env, "/board/boost"), /boosts/, "a fourth this month is refused");
+  await assert.rejects(board(postTo("/board/boost", { receipt: receipts[1] }), env, "/board/boost"), /boosts|boost/);
+  // another student keeps their own three
+  assert.equal((await board(postTo("/board/boost", { receipt: receipts[4] }), env, "/board/boost")).boosts_left, 2);
+  const mineOut = await board(postTo("/board/mine", { receipts: [receipts[0]] }), env, "/board/mine");
+  assert.equal(mineOut.boosts_left, 0);
+}
+
+// ---- skill tests: answers stay on the worker, a pass verifies, one try a day ----
+{
+  const { skilltests, TESTS } = await import("./src/skilltests.js");
+  const env = { DB: memoryD1() };
+  const token = "c".repeat(48);
+  env.DB.raw.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, 'u1', '2026-01-01', '2099-01-01')").run(await hexSha(token));
+  const as = (path, method, data) => new Request(`https://w${path}`, { method, headers: { Authorization: `Bearer ${token}` }, ...(data ? { body: JSON.stringify(data) } : {}) });
+  const list = await skilltests(new Request("https://w/tests"), env, "/tests");
+  assert.ok(list.tests.some((t) => t.slug === "sql"));
+  for (const [slug, t] of Object.entries(TESTS)) {
+    for (const x of t.questions) assert.equal(new Set([x.a, ...x.w]).size, 4, `${slug}: four different options for "${x.q}"`);
+  }
+  const shown = await skilltests(new Request("https://w/tests/sql"), env, "/tests/sql");
+  assert.ok(!JSON.stringify(shown).includes('"a"'), "the answers are not sent");
+  // six right of eight passes (75%)
+  const answers = Object.fromEntries(TESTS.sql.questions.map((x, i) => [i, i < 6 ? x.a : x.w[0]]));
+  const out = await skilltests(as("/tests/sql", "POST", { answers }), env, "/tests/sql");
+  assert.deepEqual([out.score, out.of, out.passed, [...out.wrong]], [6, 8, true, [6, 7]]);
+  await assert.rejects(skilltests(as("/tests/sql", "POST", { answers }), env, "/tests/sql"), /wait/, "one attempt a day");
+  const mine = await skilltests(as("/tests/mine", "GET"), env, "/tests/mine");
+  assert.deepEqual(mine.verified.map((v) => [v.skill, v.score]), [["SQL", 75]]);
+  assert.ok(mine.next.sql);
+  // five of eight does not pass
+  const low = Object.fromEntries(TESTS.excel.questions.map((x, i) => [i, i < 5 ? x.a : "x"]));
+  assert.equal((await skilltests(as("/tests/excel", "POST", { answers: low }), env, "/tests/excel")).passed, false);
+  await assert.rejects(skilltests(new Request("https://w/tests/sql", { method: "POST", body: "{}" }), env, "/tests/sql"), /session/);
 }
 console.log("worker tests passed");

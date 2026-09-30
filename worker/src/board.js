@@ -6,6 +6,7 @@
 //   POST /board/admin/<id>/<approve|reject|relink>
 //   POST /board/apply                    student applies       -> {ok, receipt}
 //   POST /board/mine   {receipts}        the student's applications and what the employer did
+//   POST /board/boost  {receipt}         "really interested": first in the employer's list (3 a month)
 //   GET  /board/manage/<id>              employer (Bearer link token) -> {posting, applications}
 //   GET  /board/manage/<id>/<app>        one CV                -> {paper}
 //   POST /board/manage/<id>/<app>/<new|shortlisted|rejected>
@@ -130,7 +131,7 @@ async function mine(input, env) {
   const hashes = await Promise.all(receipts.map(sha));
   const { results } = await env.DB.prepare(
     // where the student stands among this posting's applicants: counts only, nobody else's data
-    `SELECT p.id AS posting_id, p.title, p.company, p.city, p.expires_at, a.created_at, a.status, a.viewed_at, a.nudged_at,
+    `SELECT p.id AS posting_id, p.title, p.company, p.city, p.expires_at, a.created_at, a.status, a.viewed_at, a.nudged_at, a.boosted_at,
             a.matched, a.required, a.receipt_hash AS hash,
             (SELECT COUNT(*) FROM applications b WHERE b.posting_id = a.posting_id) AS applicants,
             (SELECT COUNT(*) FROM applications b WHERE b.posting_id = a.posting_id
@@ -138,7 +139,31 @@ async function mine(input, env) {
        FROM applications a JOIN postings p ON p.id = a.posting_id
       WHERE a.receipt_hash IN (${hashes.map(() => "?").join(",")}) ORDER BY a.created_at DESC`,
   ).bind(...hashes).all();
-  return { applications: results };
+  return { applications: results, boosts_left: await boostsLeft(env, hashes) };
+}
+
+// "Really interested": a student marks up to BOOSTS applications in 30 days;
+// the employer sees them first with a badge. Counted per email, since the
+// same student may hold receipts from several browsers.
+const BOOSTS = 3;
+async function boostsLeft(env, hashes) {
+  const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  const row = await env.DB.prepare(
+    `SELECT COUNT(*) AS n FROM applications WHERE boosted_at >= ? AND email IN
+       (SELECT email FROM applications WHERE receipt_hash IN (${hashes.map(() => "?").join(",")}))`,
+  ).bind(since, ...hashes).first();
+  return Math.max(0, BOOSTS - (row ? row.n : 0));
+}
+async function boost(input, env) {
+  const receipt = text(input.receipt, 48);
+  if (!/^[a-f0-9]{48}$/.test(receipt)) throw bad("receipt");
+  const hash = await sha(receipt);
+  if ((await boostsLeft(env, [hash])) <= 0) throw refuse("boosts", 409);
+  const { meta } = await env.DB.prepare(
+    "UPDATE applications SET boosted_at = ? WHERE receipt_hash = ? AND boosted_at IS NULL AND status != 'rejected'",
+  ).bind(new Date().toISOString(), hash).run();
+  if (!meta.changes) throw refuse("boost", 409);
+  return { ok: true, boosts_left: await boostsLeft(env, [hash]) };
 }
 
 // A week after applying with no answer, the student may remind the employer,
@@ -219,6 +244,7 @@ export async function board(request, env, path) {
   if (path === "/board/apply" && request.method === "POST") return apply(await body(request), env);
   if (path === "/board/mine" && request.method === "POST") return mine(await body(request), env);
   if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request), env);
+  if (path === "/board/boost" && request.method === "POST") return boost(await body(request), env);
 
   // the employer's applicants: best match first
   const own = path.match(/^\/board\/manage\/([a-f0-9]{12})(?:\/([a-f0-9]{12}))?(?:\/(new|shortlisted|rejected))?$/);
@@ -228,8 +254,8 @@ export async function board(request, env, path) {
     if (!app && request.method === "GET") {
       const posting = await env.DB.prepare("SELECT id, title, company, city, status, expires_at FROM postings WHERE id = ?").bind(id).first();
       const { results } = await env.DB.prepare(
-        `SELECT id, created_at, status, name, email, phone, link, matched, required, nudged_at FROM applications WHERE posting_id = ?
-         ORDER BY (matched * 1.0 / max(required, 1)) DESC, created_at LIMIT 500`,
+        `SELECT id, created_at, status, name, email, phone, link, matched, required, nudged_at, boosted_at FROM applications WHERE posting_id = ?
+         ORDER BY boosted_at IS NULL, (matched * 1.0 / max(required, 1)) DESC, created_at LIMIT 500`,
       ).bind(id).all();
       // a rejected posting reads as "in review": its sender learns nothing
       return { posting: { ...posting, status: posting.status === "approved" ? "live" : "review" }, applications: results };

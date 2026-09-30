@@ -123,6 +123,15 @@
     const r = await account.call("/talent/mine").catch(() => null);
     if (!r || r.status !== 200) return;
     $("talent-on").checked = !!r.card;
+    const t = await account.call("/tests/mine").catch(() => null);
+    const box = $("verified");
+    if (t && t.status === 200 && t.verified.length) {
+      box.replaceChildren("مهاراتك الموثّقة: ", ...t.verified.flatMap((v) => { const b = el("span", "verified-skill", `✓ ${v.skill}`); b.dir = "ltr"; return [b, " "]; }));
+    } else {
+      const a = el("a", null, "اختبارات المهارات");
+      a.href = "tests.html";
+      box.replaceChildren("وثّق مهاراتك في ", a, " لتظهر «موثّقة» على بطاقتك.");
+    }
     $("invites-box").hidden = !r.invites.length;
     $("invites").replaceChildren(...r.invites.map((i) => {
       const li = el("li");

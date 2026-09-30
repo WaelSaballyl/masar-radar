@@ -16,6 +16,7 @@ import { auth } from "./auth.js";
 import { support } from "./support.js";
 import { stats } from "./stats.js";
 import { talent } from "./talent.js";
+import { skilltests } from "./skilltests.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -55,6 +56,14 @@ export default {
       if (request.method === "POST" && path === "/talent/invite" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
       try { return reply(200, (await talent(request, env, path)) || { error: "path" }); }
       catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
+    }
+    // skill tests: questions without answers, scored here; passing marks the skill verified
+    if (path === "/tests" || path.startsWith("/tests/")) {
+      if (request.method === "POST" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      try {
+        const out = await skilltests(request, env, path);
+        return out ? reply(200, out) : reply(404, { error: "path" });
+      } catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
     }
     // visitor counts: no cookies, no IP stored
     if (path === "/hit" || path === "/stats") {
@@ -233,6 +242,12 @@ const FACTS = `Masar (مسار) is a free site for students and new graduates in
 - Postings: internships, co-op (تدريب تعاوني), part-time for students and entry-level jobs in data, software and IT, accounting and finance, engineering, marketing and HR. Collected daily from open job platforms and Google Jobs for Saudi Arabia; each links to its source. Exclusive postings come straight from companies and are reviewed before they go live. Postings page: jobs.html, with filters for field, country, type, experience and level, and a "saved" filter.
 - Masar never asks for fees. A posting that asks for money, an ID copy or contact on WhatsApp/Telegram is a scam: report it through support.
 - CV builder (cv.html): upload a PDF or Word CV (a scanned image cannot be read - paste the text instead) or fill the form; it tailors the CV to a posting using only the student's own facts, removes what they lack, and shows what the posting asks that they do not have. Save as PDF or as Word (docx; use Word for an Arabic CV, because screening systems read Arabic inside a PDF reversed), earlier CVs are kept, interview questions, LinkedIn headline and About. Each finished CV shows its ATS check.
+- Each posting page shows "your match with this posting" from the newest CV the student made (or the profile), and the account page shows CV health with the three biggest fixes. Both are computed in the browser.
+- Companies page (companies.html): every company with an open posting, its countries, most-asked skills and postings; follow a company to get its new postings as alerts.
+- Job alerts (alerts.html): save a search (from the postings page filters or the form) or follow a company; new matching postings show on the next visit and on the postings page. Email alerts are not available yet.
+- Interview questions: pages per role (for example l/interview-data-analyst.html) with a common question for each skill the role's postings ask most, what it tests and how to answer, plus the general questions. The CV builder also writes interview questions for a specific posting.
+- Premium (premium.html): free during the trial. It covers swipe to apply, "really interested" (3 a month: the application shows first in the employer's list with a badge, from the my applications page), seeing when the company opened your CV and a reminder after a week, skill tests, the talent card, the LinkedIn writer. No payment is asked; a price would be announced on that page first.
+- Skill tests (tests.html): 8 questions each in SQL, Excel, Python, Power BI, Statistics and Financial Reporting; 6 right passes and marks the skill verified on the account and talent card. Needs sign-in; one attempt per skill a day.
 - ATS check (ats.html): upload a PDF or Word CV and optionally pick a posting or paste a description; it shows exactly the text a screening system reads, what breaks it (a scanned image, two columns, tables, text boxes, contact in the page header, joined letters like fi, Arabic inside a PDF, missing sections, dates or contact) with fixed points for each, a content score (numbers and results in the experience points, points starting with an action verb, no duty phrases like "Responsible for", a summary, at least six skills, a LinkedIn link), and which of the posting's skills are found. The ATS score is half reading and half content without a posting, and 30% reading, 30% content, 40% match with one; 85+ is excellent, 70+ good, 50+ needs work. The file is read in the browser and never uploaded. There is no single ATS; the score is fixed rules, not a prediction of any company's system.
 - Apply: on exclusive postings students apply from the CV page or by swiping on swipe.html (right to apply, left to skip, 5 seconds to undo). Contact details go to the company only after the student ticks consent. One application per email per posting.
 - My applications (applications.html): whether the company opened the CV, shortlist, rank among applicants, one reminder to the company after 7 days without a reply.

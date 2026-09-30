@@ -109,6 +109,18 @@ shows the check under each CV (run after `#result` is visible - a hidden paper's
 saves Word via `assets/docx.js` (stored zip, one column, real Heading 1 / List Bullet styles, Latin runs split from
 RTL runs so "+966 ..." is not reordered; checked opening in Word).
 
+From Bayt's paid tools (2026-09-30, free here): job.html shows "your match" from `MasarATS.myCV()` (newest
+`masar.cvs` via `blocksText`, else `profileText`); account.html shows CV health (top 3 fixes by points).
+`companies.html` (+ `?c=`) groups jobs.json + exclusive by company. Alerts: `Masar.alerts` in core.js,
+definitions in synced `masar.alerts` (in SYNC and SYNC_KEYS), seen ids in local-only `masar.alertSeen`;
+`alerts.html`, a chip on jobs.html, follow on company pages; email alerts wait for Resend. Interview pages
+`l/interview-<role>.html` from `radar/interview.py` (one question per skill name, test keeps them on
+SKILL_PATTERNS names), written by landing.write. Premium (`premium.html`, free during the trial, no payment):
+"really interested" = `POST /board/boost` (3 per email per 30 days, `applications.boosted_at`, sorted first on
+applicants), skill tests = `src/skilltests.js` (answers stay on the worker, 6/8 passes, one try a day,
+D1 `verified_skills`/`test_attempts`, shown on account + talent cards). worker/test.mjs runs D1 paths on an
+in-memory node:sqlite built from schema.sql (`memoryD1`).
+
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
 to `jobs.html?q=Skill`). `radar/traits.py` decides type and years by fixed rules at export:

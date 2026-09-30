@@ -44,6 +44,20 @@
       li.append(el("p", "rank", top < 100 ? `أنت ضمن أقرب ${top}٪ من ${a.applicants} متقدمين لمتطلبات الإعلان.`
         : `تقدّم ${a.applicants} على هذا الإعلان، وعند أغلبهم مهارات مطلوبة أكثر منك.`));
     }
+    // "really interested": first in the employer's list, a few a month (premium, free in the trial)
+    if (a.boosted_at) li.append(el("p", "app-boosted", "★ أظهرت اهتمامك: طلبك في أول قائمة الشركة."));
+    else if (a.status !== "rejected" && receiptOf[a.hash] && boostsLeft > 0) {
+      const b = el("button", "btn btn-quiet btn-small", `★ مهتم فعلاً: قدّم طلبي أولاً (باقي ${boostsLeft})`);
+      b.type = "button";
+      b.onclick = async () => {
+        b.disabled = true;
+        const r = await fetch(`${API}/board/boost`, { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ receipt: receiptOf[a.hash] }) }).then((x) => x.json().then((d) => ({ ok: x.ok, d }))).catch(() => null);
+        if (r && r.ok) { boostsLeft = r.d.boosts_left; b.replaceWith(el("p", "app-boosted", "★ أظهرت اهتمامك: طلبك في أول قائمة الشركة.")); }
+        else b.replaceWith(el("p", "muted", r && r.d.error === "boosts" ? "استخدمت نقاط الاهتمام لهذا الشهر." : "تعذّر ذلك الآن."));
+      };
+      li.append(b);
+    }
     // a week without an answer: one reminder to the employer
     const week = Date.now() - new Date(a.created_at).getTime() >= 7 * 86_400_000;
     if (a.nudged_at) li.append(el("p", "muted", "ذكّرت الشركة بطلبك."));
@@ -65,6 +79,7 @@
   const receipts = MasarCV.receipts();
   // the worker answers with each receipt's hash; this maps it back
   const receiptOf = {};
+  let boostsLeft = 0;
   const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
   if (!receipts.length) {
     $("meta").textContent = "";
@@ -75,7 +90,8 @@
   }
   fetch(`${API}/board/mine`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ receipts }) })
     .then((r) => r.json())
-    .then(async ({ applications }) => {
+    .then(async ({ applications, boosts_left: left }) => {
+      boostsLeft = left || 0;
       for (const r of receipts) receiptOf[hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(r)))] = r;
       const picked = applications.filter((a) => a.status === "shortlisted").length;
       $("meta").textContent = Masar.count(applications.length, "application", "ar")

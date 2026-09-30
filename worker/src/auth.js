@@ -146,6 +146,8 @@ export async function auth(request, env, path) {
       env.DB.prepare("DELETE FROM user_data WHERE user_id = ?").bind(user.id),
       env.DB.prepare("DELETE FROM talent WHERE user_id = ?").bind(user.id),
       env.DB.prepare("DELETE FROM invites WHERE user_id = ?").bind(user.id),
+      env.DB.prepare("DELETE FROM verified_skills WHERE user_id = ?").bind(user.id),
+      env.DB.prepare("DELETE FROM test_attempts WHERE user_id = ?").bind(user.id),
       env.DB.prepare("DELETE FROM users WHERE id = ?").bind(user.id),
     ]);
     return { ok: true };
