@@ -137,7 +137,13 @@
   $("ask-bot").addEventListener("submit", async (e) => {
     e.preventDefault();
     const q = $("ask-q").value.trim();
-    if (q.length < 3) return;
+    if (q.length < 3) {
+      $("bot-answer").hidden = false;
+      // the answer box is left untranslated (answers are data), so this line picks its language itself
+      $("bot-text").textContent = document.documentElement.lang === "en" ? "Type your question first, even two words." : "اكتب سؤالك أولاً، ولو بكلمتين.";
+      $("ask-q").focus();
+      return;
+    }
     const b = e.target.querySelector("[type=submit]");
     b.disabled = true;
     $("bot-answer").hidden = false;

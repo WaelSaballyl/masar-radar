@@ -153,6 +153,16 @@ user to paste a key into chat; they run `gh secret set NAME -R WaelSaballyl/masa
 - Bash-tool heredocs swallow backslashes: edit Python with the Edit tool, not
   string-replace patch scripts.
 - Scratchpad paths can exceed 260 characters, which native Windows Python cannot open.
+- Windows PowerShell 5.1: `Get-Content` without `-Encoding utf8` reads UTF-8 Arabic as cp1256 and
+  `Set-Content` writes the mojibake back (support.html and employers.html were garbled this way once);
+  `-replace` with a scriptblock is PS 6+ only and in 5.1 pasted the whole file into a script tag. Bump
+  asset versions with a Python `re.sub` over docs/*.html + radar/landing.py (landing pages are generated
+  from its template, so a version bumped only in docs/l is reverted by the next daily run).
+- Mobile Lighthouse: each web font that lands re-lays out every Arabic text node (~300 ms a pass on a
+  mid-range phone), so long lists (jobs.js, market.js) wait for `Masar.fontsReady()` (fonts or 1.5 s) and
+  draw once; `#groups:empty` / `.charts:has(ol:empty)` / `#match-meta:empty` keep room so the footer does
+  not shift. Google serves different font file URLs per browser, so `<link rel=preload>` of its woff2
+  URLs double-downloads; the remaining fix is self-hosting the fonts (the owner's call).
 - The scheduled workflow fires around 08:30 UTC, not the 03:17 in the cron line.
 - A run can take an hour (AI re-reads after a PROMPT_VERSION bump). Its commit step rebases onto
   anything pushed meanwhile (`-X theirs`, its generated files win); before that fix, a push during
@@ -163,6 +173,15 @@ user to paste a key into chat; they run `gh secret set NAME -R WaelSaballyl/masa
 Done: data fixes, four sources, jsonl storage, AI extraction (prompt v3),
 landing page for co-op students (`docs/index.html`, `docs/assets/masar.css|js`).
 
+Colours v5 (2026-09-30, replaces the v3 colours below; the owner found v3 tiring and asked me to choose):
+one navy-ink family - dark: page `#0F1720`, bar `#0B1219`, surfaces `#16202B`/`#1C2835`, text `#E3EAF2`
+(not pure white); light: page `#EEF2F6`, white surfaces, ink `#0E1A26` - and one sky-blue accent (`--mint`
+`#7CC0EE` dark / `#0B5C8E` light; `--wine` `#1E5F8E` for exclusive/training). Panels are a step of the
+same family (no bright grey islands): every panel scope reads `--p-text/--p-muted/--p-line/--p-surface/
+--p-btn/--p-on-btn/--p-accent/--p-paper`, set per theme in `:root` - never hard-code panel colours again.
+Burgundy is gone (tiles, hire band, blobs are blue). Fonts are self-hosted in `docs/assets/fonts/`
+(`@font-face` at the top of masar.css; the Plex 400 and Kufi Arabic files are preloaded on every page).
+v3 for the record:
 Identity (v3, 2026-09-27, the owner's pick after buff2u.com): monochrome - charcoal page
 (`#232628`, bar `#181A1B`, logo grey `#E0E0E0`, sampled from buff2u), light-grey gradient panels (`--panel`) with near-black type and
 black pill buttons, one burgundy (`--wine` `#7B2D2D`) for exclusive/training. Panels re-declare
