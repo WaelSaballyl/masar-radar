@@ -58,6 +58,9 @@ ALTER TABLE postings ADD COLUMN verified INTEGER NOT NULL DEFAULT 0;
 -- the student asked the employer, once, a week after applying, to look at the application
 ALTER TABLE applications ADD COLUMN nudged_at TEXT;
 
+-- "really interested" (src/board.js boost): first in the employer's list, 3 per email in 30 days
+ALTER TABLE applications ADD COLUMN boosted_at TEXT;
+
 -- Student accounts (src/auth.js): Google sign-in, no passwords. Only a hash of
 -- each session token is kept. user_data holds the browser's synced keys as one
 -- JSON object; rev rises by one per write so two devices cannot overwrite each other.
@@ -143,3 +146,19 @@ CREATE TABLE IF NOT EXISTS invites (
   PRIMARY KEY (posting_id, card_id)
 );
 CREATE INDEX IF NOT EXISTS invites_user ON invites (user_id);
+
+-- Skill tests (src/skilltests.js): a pass marks the skill verified for the student's
+-- account and talent card; one attempt per skill a day.
+CREATE TABLE IF NOT EXISTS verified_skills (
+  user_id TEXT NOT NULL,
+  skill TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  passed_at TEXT NOT NULL,
+  PRIMARY KEY (user_id, skill)
+);
+CREATE TABLE IF NOT EXISTS test_attempts (
+  user_id TEXT NOT NULL,
+  skill TEXT NOT NULL,
+  at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS test_attempts_user ON test_attempts (user_id, skill, at);

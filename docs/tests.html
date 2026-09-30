@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>اختبارات المهارات — مسار</title>
+<meta name="description" content="اختبارات قصيرة في SQL وExcel وPython وPower BI والإحصاء والتقارير المالية. انجح ووثّق المهارة على بطاقتك للشركات.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="اختبارات المهارات — مسار">
+<meta property="og:description" content="اختبارات قصيرة في SQL وExcel وPython وPower BI والإحصاء والتقارير المالية. انجح ووثّق المهارة على بطاقتك للشركات.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/tests.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B1219">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/masar.css?v=66">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام"></nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main class="tests-page">
+    <div class="page-head">
+      <h1>اختبارات المهارات</h1>
+      <p class="section-lede">اختبار قصير لكل مهارة، ثمانية أسئلة. إذا جاوبت ستة منها صح، نوثّق المهارة في حسابك، وتظهر بعلامة «موثّقة» على بطاقتك للشركات. محاولة واحدة لكل مهارة في اليوم.</p>
+      <p class="muted" id="who"></p>
+    </div>
+    <ul class="test-grid" id="test-list"></ul>
+    <section class="test-run" id="run" hidden>
+      <h2 id="run-title"></h2>
+      <form id="run-form"><ol class="test-questions" id="questions"></ol>
+        <button class="btn btn-primary" type="submit" id="submit">سلّم الإجابات</button>
+        <button class="btn btn-quiet" type="button" id="cancel">ارجع للاختبارات</button>
+      </form>
+      <p class="status" id="run-status" role="status"></p>
+    </section>
+  </main>
+</div>
+<script src="assets/core.js?v=58"></script>
+<script src="assets/tests.js?v=1"></script>
+</body>
+</html>

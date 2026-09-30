@@ -21,6 +21,7 @@
     const top = el("div", "posting-top");
     top.append(el("span", `tag app-${a.status}`, STATUS[a.status]));
     if (a.required) top.append(el("span", "level level-intern", `يطابق ${a.matched} من ${a.required} مهارات مطلوبة`));
+    if (a.boosted_at) top.append(el("span", "badge-new", "★ مهتم فعلاً"));
     if (a.nudged_at) top.append(el("span", "badge-new", "ذكّرك بطلبه"));
     top.append(el("span", "posting-age", Masar.ago(a.created_at.slice(0, 10), "ar")));
     const name = el("h3", "posting-title", a.name);
@@ -126,6 +127,13 @@
         el("p", null, [c.city, COUNTRY[c.country], SEEK[c.seeking], c.relocate && "مستعد للانتقال"].filter(Boolean).join("، ")));
       const sk = el("p", "skills-line", c.skills.join(", "));
       li.append(sk);
+      // skills the student passed a Masar test in
+      if (c.verified && c.verified.length) {
+        const v = el("p", "skills-line");
+        c.verified.forEach((name) => { const b = el("span", "verified-skill", `✓ ${name}`); b.dir = "ltr"; v.append(b, " "); });
+        v.append(el("span", "muted small", "موثّقة باختبار مسار"));
+        li.append(v);
+      }
       const b = el("button", "btn btn-small " + (c.invited ? "btn-quiet" : "btn-primary"), c.invited ? "دعوته" : "ادعُه للتقديم");
       b.type = "button";
       b.disabled = c.invited;

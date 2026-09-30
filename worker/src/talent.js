@@ -41,7 +41,7 @@ export function card(input) {
   return out;
 }
 
-async function user(request, env) {
+export async function user(request, env) {
   const token = bearer(request);
   if (!/^[a-f0-9]{48}$/.test(token)) throw refuse("session", 401);
   const row = await env.DB.prepare("SELECT user_id FROM sessions WHERE token_hash = ? AND expires_at > ?")
@@ -95,10 +95,13 @@ export async function talent(request, env, path) {
     const field = url.searchParams.get("field") || "", country = url.searchParams.get("country") || "";
     const q = text(url.searchParams.get("q"), 60).toLowerCase();
     const { results } = await env.DB.prepare(
-      `SELECT t.id, t.card, t.updated_at, EXISTS(SELECT 1 FROM invites i WHERE i.card_id = t.id AND i.posting_id = ?) AS invited
+      // skills the student passed a Masar test in travel with the card as "verified"
+      `SELECT t.id, t.card, t.updated_at, EXISTS(SELECT 1 FROM invites i WHERE i.card_id = t.id AND i.posting_id = ?) AS invited,
+              (SELECT group_concat(v.skill, '|') FROM verified_skills v WHERE v.user_id = t.user_id) AS verified
          FROM talent t ORDER BY t.updated_at DESC LIMIT 500`,
     ).bind(posting).all();
-    const cards = results.map((r) => ({ id: r.id, invited: !!r.invited, updated_at: r.updated_at, ...JSON.parse(r.card) }))
+    const cards = results.map((r) => ({ id: r.id, invited: !!r.invited, updated_at: r.updated_at, ...JSON.parse(r.card),
+                                        verified: r.verified ? r.verified.split("|") : [] }))
       .filter((c) => (!field || c.field === field) && (!country || c.country === country)
         && (!q || [c.target, c.major, ...c.skills].join(" ").toLowerCase().includes(q)))
       .slice(0, 100);
