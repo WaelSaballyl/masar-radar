@@ -230,7 +230,8 @@
     const found = (list) => list.filter((n) => has(flat, n));
     const req = found(required), pref = found(preferred);
     // "Junior Data Analyst" is found in "Data Analyst Intern": the level is not the job
-    const core = title.replace(/\b(?:junior|jr\.?|senior|sr\.?|intern(?:ship)?|trainee|graduate|entry[\s-]level|co-?op|associate|lead|m\/w\/d|f\/m\/d)\b|\(.*?\)|متدرب|مبتدئ|حديث التخرج/gi, " ")
+    // "Senior Data Analyst - Acquisition 🇫🇷": the job is before the dash
+    const core = title.split(/\s+[-–—|]\s+/)[0].replace(/[^\p{L}\p{N}\s.+#&/()-]/gu, " ").replace(/\b(?:junior|jr\.?|senior|sr\.?|intern(?:ship)?|trainee|graduate|entry[\s-]level|co-?op|associate|lead|m\/w\/d|f\/m\/d)\b|\(.*?\)|متدرب|مبتدئ|حديث التخرج/gi, " ")
       .replace(/\s+/g, " ").trim();
     const titleHit = !!core && flat.toLowerCase().includes(core.toLowerCase());
     const total = required.length + preferred.length * 0.5 + (title ? 1 : 0);
@@ -251,5 +252,47 @@
     ? Math.round((read + said) / 2) : Math.round(read * 0.3 + said * 0.3 + matchScore * 0.4));
   const level = (score) => (score >= 85 ? "good" : score >= 70 ? "fair" : score >= 50 ? "work" : "poor");
 
-  window.MasarATS = { analyze, content, match, overall, level, twoColumns, headingOf, SECTIONS, DATE };
+  // A saved CV (cvkit toBlocks: [tag, class, children]) as the lines a parser
+  // gets: each heading, paragraph and list item on its own line.
+  const BLOCK = new Set(["h1", "h2", "p", "li", "div", "ul"]);
+  function blocksText(blocks) {
+    let out = "";
+    const walk = (list, depth) => {
+      if (!Array.isArray(list) || depth > 6) return;
+      for (const b of list) {
+        if (typeof b === "string") out += b;
+        else if (Array.isArray(b)) {
+          walk(b[2], depth + 1);
+          if (BLOCK.has(String(b[0]).toLowerCase())) { if (!out.endsWith("\n")) out += "\n"; } else out += " ";
+        }
+      }
+    };
+    walk(blocks, 0);
+    return out.replace(/[ \t]+/g, " ").replace(/ ?\n ?/g, "\n").trim();
+  }
+  // No CV made yet: the profile's own words under the headings a parser knows
+  function profileText(p) {
+    p = p || {};
+    const part = (head, v) => (v && String(v).trim() ? `${head}\n${String(v).trim()}\n` : "");
+    return [p.name, [p.city, p.phone, p.email, p.link].filter(Boolean).join(" | "), "",
+      part("Education", [p.degree, p.major, p.university, p.graduation].filter(Boolean).join(", ")),
+      part("Experience", p.experience), part("Projects", p.projects), part("Skills", p.skills),
+      part("Certifications", p.certificates), part("Languages", p.languages)].filter((x) => x !== undefined).join("\n").trim();
+  }
+
+  // The student's CV in this browser: the newest one made in the builder, else
+  // the profile. null when there is neither.
+  function myCV() {
+    const store = window.Masar && window.Masar.store;
+    if (!store) return null;
+    const read = (k, empty) => { try { return JSON.parse(store.get(k) || empty) || JSON.parse(empty); } catch { return JSON.parse(empty); } };
+    const cvs = read("masar.cvs", "[]");
+    const newest = Array.isArray(cvs) && cvs[0];
+    if (newest && newest.paper) return { from: "cv", label: newest.label || "", lang: newest.lang, text: blocksText(newest.paper) };
+    const p = read("masar.profile", "{}");
+    if (!(p.skills || p.experience || p.projects)) return null;
+    return { from: "profile", label: "", lang: "en", text: profileText(p) };
+  }
+
+  window.MasarATS = { analyze, content, match, overall, level, twoColumns, headingOf, blocksText, profileText, myCV, SECTIONS, DATE };
 })();

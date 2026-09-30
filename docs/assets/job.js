@@ -64,7 +64,9 @@
     box.append(top, h1, who, when);
 
     const f = fit(p);
-    if (f) box.append(el("p", `posting-fit${f.have / f.of >= 0.6 ? " good" : ""}`, `عندك ${f.have} من ${f.of} مهارات مطلوبة في هذا الإعلان.`));
+    const me = window.MasarATS && MasarATS.myCV();
+    if (me) box.append(matchBox(p, me));
+    else if (f) box.append(el("p", `posting-fit${f.have / f.of >= 0.6 ? " good" : ""}`, `عندك ${f.have} من ${f.of} مهارات مطلوبة في هذا الإعلان.`));
     else if (!mine()) {
       const hint = el("p", "muted");
       const a = el("a", null, "أضف مهاراتك");
@@ -157,6 +159,41 @@
         return li;
       }));
     }
+  }
+
+  // How the newest CV (or the profile) matches this posting, by the ATS check's rules
+  const LEVEL = { good: "ممتاز", fair: "جيد", work: "يحتاج شغل", poor: "ضعيف" };
+  function matchBox(p, me) {
+    const sec = el("section", "job-match");
+    sec.setAttribute("aria-labelledby", "match-h");
+    const h = el("h2", null, "توافقك مع هذا الإعلان");
+    h.id = "match-h";
+    sec.append(h, el("p", "muted", "نحسب…"));
+    fetch("data/skills.json").then((r) => r.json()).catch(() => ({})).then((patterns) => {
+      const job = { title: p.title, required: p.skills.filter((s) => s[1]).map((s) => s[0]),
+                    preferred: p.skills.filter((s) => !s[1]).map((s) => s[0]) };
+      const m = MasarATS.match(me.text, job, patterns);
+      if (m.score === null) { sec.remove(); return; }
+      const num = el("p", "job-match-num", `${m.score}٪`);
+      num.append(el("span", `ats-level lvl-${MasarATS.level(m.score)}`, LEVEL[MasarATS.level(m.score)]));
+      const from = el("p", "muted small", me.from === "cv" ? `من آخر سيرة جهّزتها${me.label ? ` (${me.label})` : ""}.` : "من ملفك في مسار، قبل ما تجهّز سيرة.");
+      from.dir = "auto";
+      const parts = [num, from];
+      const chips = (names, cls) => { const ul = el("ul", "chips"); names.forEach((n) => { const li = el("li", `chip ${cls}`, n); li.dir = "ltr"; ul.append(li); }); return ul; };
+      const found = [...m.matched, ...m.preferredMatched], missing = [...m.missing, ...m.preferredMissing];
+      if (found.length) parts.push(el("h3", null, "لقيناها في سيرتك"), chips(found, "kw-ok"));
+      if (missing.length) parts.push(el("h3", null, "ما لقيناها"), chips(missing, "kw-no"));
+      if (m.title && !m.titleHit) parts.push(el("p", "muted small", `المسمى «${m.core}» غير مكتوب في سيرتك، وأنظمة الفرز تبحث به.`));
+      const act = el("p", "job-match-actions");
+      const make = el("a", "btn btn-primary btn-small", me.from === "cv" ? "جهّز سيرة مخصصة لهذا الإعلان" : "جهّز سيرتك لهذا الإعلان");
+      make.href = `cv.html?${p.exclusive ? "ex" : "job"}=${encodeURIComponent(p.id)}`;
+      const file = el("a", "btn btn-quiet btn-small", "افحص ملف سيرتك معه");
+      file.href = p.exclusive ? "ats.html" : `ats.html?job=${encodeURIComponent(p.id)}`;
+      act.append(make, " ", file);
+      parts.push(act);
+      sec.replaceChildren(h, ...parts);
+    });
+    return sec;
   }
 
   function schema(p) {

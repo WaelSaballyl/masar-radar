@@ -599,12 +599,29 @@ a.skill:hover { border-color: var(--mint); }
 .crumbs a { color: var(--muted); }
 .crumbs a:hover { color: var(--mint-text); }
 .crumb-sep { opacity: .6; }
+/* the posting page's article is not a row of the co-op list above */
+.job-page .job { display: block; }
+.job-page .job a { white-space: normal; }
 .job { margin-top: 14px; padding: 24px; border: 1px solid var(--hairline); border-radius: 16px; background: var(--surface); }
 .job-title { font-family: var(--kufi); font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.4; margin: 12px 0 4px; unicode-bidi: plaintext; text-align: start; }
 .job-who { margin: 0 0 4px; font-size: 1.05rem; }
 .job h2 { font-size: 1.05rem; margin: 22px 0 8px; }
 .job .posting-actions { margin: 16px 0 4px; }
 .job-desc { white-space: pre-line; line-height: 1.8; unicode-bidi: plaintext; text-align: start; }
+.job-match { margin: 18px 0 6px; padding: 16px 18px; border: 1px solid var(--hairline); border-radius: 14px; }
+.job-match h2 { margin-top: 0; }
+.job-match h3 { font-size: .95rem; margin: 12px 0 6px; }
+.job-match .chips { list-style: none; margin: 0; padding: 0; }
+.job-match .chip { cursor: default; }
+.job-match-num { font-family: var(--kufi); font-weight: 800; font-size: 2.4rem; line-height: 1.1; margin: 0; font-variant-numeric: tabular-nums; }
+.job-match-num .ats-level { font-family: var(--plex, inherit); }
+.health { margin: 22px 0; padding: 18px; border: 1px solid var(--hairline); border-radius: 14px; }
+.health h2 { margin-top: 0; }
+.health h3 { font-size: .95rem; margin: 14px 0 6px; }
+.health-fixes { margin: 0; padding-inline-start: 22px; line-height: 1.8; }
+.health-fixes .ats-points { color: var(--mint-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.job-match-actions { margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ats-level.lvl-good { background: var(--mint); border-color: var(--mint); color: var(--on-mint); }
 .related { margin-top: 28px; }
 .related h2 { font-size: 1.1rem; }
 

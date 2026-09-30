@@ -20,7 +20,7 @@
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/masar.css?v=61">
+<link rel="stylesheet" href="assets/masar.css?v=62">
 </head>
 <body>
 <div class="wrap">
@@ -120,6 +120,15 @@
         <a class="btn btn-primary" href="cv.html">ارفع سيرتك أو عدّلها</a>
       </div>
 
+      <section class="health" id="health" hidden aria-labelledby="health-title">
+        <h2 id="health-title">صحة سيرتك</h2>
+        <p class="job-match-num"><span id="health-score"></span> <span class="ats-level" id="health-level"></span></p>
+        <p class="muted small" id="health-from" dir="auto"></p>
+        <h3>أهم ما يرفعها، بالترتيب</h3>
+        <ol class="health-fixes" id="health-fixes"></ol>
+        <p><a class="btn btn-quiet btn-small" href="ats.html">افحص ملف سيرتك كاملاً</a></p>
+      </section>
+
       <div class="account-actions">
         <button class="btn btn-primary" type="button" id="sync-now">زامن الآن</button>
         <button class="btn btn-quiet" type="button" id="sign-out">تسجيل الخروج</button>
@@ -133,7 +142,8 @@
     </section>
   </main>
 </div>
-<script src="assets/core.js?v=52"></script>
-<script src="assets/account.js?v=5"></script>
+<script src="assets/core.js?v=53"></script>
+<script src="assets/atskit.js?v=4"></script>
+<script src="assets/account.js?v=6"></script>
 </body>
 </html>
