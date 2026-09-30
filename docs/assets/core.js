@@ -221,7 +221,7 @@ window.Masar = (() => {
   // change and come back on every other device. Without an account nothing
   // leaves the browser, as before.
   const API = document.querySelector('meta[name="masar-api"]')?.content || "https://masar-cv.masar-cv.workers.dev";
-  const SYNC = ["masar.profile", "masar.me", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped", "masar.tickets"];
+  const SYNC = ["masar.profile", "masar.me", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped", "masar.tickets", "masar.alerts"];
   const readJson = (k, d) => { try { return JSON.parse(store.get(k) || d); } catch { return JSON.parse(d); } };
   const account = {
     api: API,
@@ -324,6 +324,70 @@ window.Masar = (() => {
   }
   if (account.token) sync().catch(() => {});
 
+  // Job alerts: saved searches (masar.alerts, synced) and, per alert, the
+  // postings already shown (masar.alertSeen, this browser only). A posting is
+  // new for an alert when it matches and was not there the last time. Email
+  // alerts wait for the domain; until then the site shows them on a visit.
+  const ALERTS = "masar.alerts", SEEN = "masar.alertSeen";
+  const readJSON = (k, empty) => { try { return JSON.parse(store.get(k) || empty) || JSON.parse(empty); } catch { return JSON.parse(empty); } };
+  const TRAINING_KINDS = ["coop", "internship", "student"];
+  const alerts = {
+    list: () => readJSON(ALERTS, "[]").filter((a) => a && a.id),
+    add(f) {
+      const clean = Object.fromEntries(["q", "where", "type", "role", "field", "company"].filter((k) => f[k]).map((k) => [k, String(f[k]).trim()]));
+      if (!Object.keys(clean).length) return null;
+      const same = alerts.list().find((a) => JSON.stringify(a.f) === JSON.stringify(clean));
+      if (same) return same;
+      const a = { id: Math.random().toString(36).slice(2, 10), f: clean };
+      store.set(ALERTS, JSON.stringify([...alerts.list(), a].slice(-20)));
+      return a;
+    },
+    remove(id) {
+      store.set(ALERTS, JSON.stringify(alerts.list().filter((a) => a.id !== id)));
+      const seen = readJSON(SEEN, "{}"); delete seen[id]; store.set(SEEN, JSON.stringify(seen));
+    },
+    matches(p, f) {
+      const kind = p.kind || p.employment || "job";
+      if (f.company && p.company.trim().toLowerCase() !== f.company.toLowerCase()) return false;
+      if (f.where === "gulf" && place(p) !== "gulf" && !p.exclusive) return false;
+      if (/^[A-Z]{2}$/.test(f.where || "") && !p.countries.includes(f.where)) return false;
+      if (f.type === "training" && !TRAINING_KINDS.includes(kind)) return false;
+      if (f.type && f.type !== "training" && kind !== f.type) return false;
+      if (f.role && p.role !== f.role) return false;
+      if (f.field && (p.field || "data") !== f.field) return false;
+      const q = (f.q || "").toLowerCase();
+      return !q || `${p.title} ${p.company} ${p.skills.map((s) => s[0]).join(" ")}`.toLowerCase().includes(q);
+    },
+    // [{ alert, all, fresh }] for postings as the pages build them; a new alert sees nothing as new
+    check(postings) {
+      const seen = readJSON(SEEN, "{}");
+      let changed = false;
+      const out = alerts.list().map((a) => {
+        const all = postings.filter((p) => alerts.matches(p, a.f));
+        if (!seen[a.id]) { seen[a.id] = all.map((p) => p.id).slice(0, 400); changed = true; }
+        const old = new Set(seen[a.id]);
+        return { alert: a, all, fresh: all.filter((p) => !old.has(p.id)) };
+      });
+      if (changed) store.set(SEEN, JSON.stringify(seen));
+      return out;
+    },
+    markSeen(id, postings) {
+      const seen = readJSON(SEEN, "{}");
+      seen[id] = postings.map((p) => p.id).slice(0, 400);
+      store.set(SEEN, JSON.stringify(seen));
+    },
+    label(f) {
+      const parts = [];
+      if (f.q) parts.push(`«${f.q}»`);
+      if (f.company) parts.push(`إعلانات ${f.company}`);
+      if (f.role) parts.push(ROLES[f.role] || f.role);
+      if (f.field) parts.push(`مجال ${FIELDS[f.field] || f.field}`);
+      if (f.type) parts.push({ training: "تدريب بأنواعه", coop: "تدريب تعاوني", internship: "تدريب", student: "دوام طلابي", job: "وظيفة" }[f.type] || f.type);
+      if (f.where) parts.push(f.where === "gulf" ? "السعودية والخليج" : /^[A-Z]{2}$/.test(f.where) ? countryName(f.where, "ar") : f.where);
+      return parts.join("، ");
+    },
+  };
+
   // One menu for every page, so no page forgets a section. The home page
   // calls nav(lang) again when its language changes.
   const NAV = [
@@ -410,7 +474,7 @@ window.Masar = (() => {
     const legal = el("p", "foot-legal");
     const link = (href, text) => { const a = el("a", null, text); a.href = href; return a; };
     legal.append(el("span", null, `© ${new Date().getFullYear()} مسار`), link("privacy.html", "الخصوصية"),
-      link("guide.html", "دليل التدريب التعاوني"), link("ats.html", "فحص ATS"), link("companies.html", "الشركات"), link("l/interview-data-analyst.html", "أسئلة المقابلات"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
+      link("guide.html", "دليل التدريب التعاوني"), link("ats.html", "فحص ATS"), link("companies.html", "الشركات"), link("alerts.html", "تنبيهات الوظائف"), link("l/interview-data-analyst.html", "أسئلة المقابلات"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
       link("terms.html", "الشروط"));
     const box = el("div", "foot-brand");
     box.append(mark, radar, legal);
@@ -448,7 +512,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=8";
+    s.src = "assets/en.js?v=9";
     s.onload = translate;
     document.head.append(s);
   }
@@ -534,6 +598,6 @@ window.Masar = (() => {
   const fontsReady = () => Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(),
                                          new Promise((ok) => setTimeout(ok, 1500))]);
 
-  return { store, count, pct, date, ago, place, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
+  return { store, count, pct, date, ago, place, alerts, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
            LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, replyBadge, learnUrl };
 })();

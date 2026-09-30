@@ -1490,3 +1490,15 @@ input[type=date]:focus-visible, input[type=date]:focus { outline: 3px solid var(
 .iv-general { max-width: 78ch; padding-inline-start: 22px; }
 .iv-general li { margin-bottom: 14px; }
 .iv-general p { margin: 0 0 4px; line-height: 1.8; }
+
+/* job alerts */
+.chip-alert { border-color: var(--mint); color: var(--mint-text); font-weight: 600; }
+.alert-new { padding: 18px 20px; border: 1px solid var(--hairline); border-radius: 14px; background: var(--surface); margin-bottom: 24px; }
+.alert-new h2 { margin: 0 0 12px; font-size: 1.1rem; }
+.alert-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.alert-list { display: grid; gap: 14px; margin-bottom: 40px; }
+.alert-card { padding: 18px 20px; border: 1px solid var(--hairline); border-radius: 14px; }
+.alert-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.alert-head h2 { margin: 0; font-size: 1.1rem; unicode-bidi: plaintext; }
+.alert-card .postings { margin-top: 12px; }
+.alert-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }

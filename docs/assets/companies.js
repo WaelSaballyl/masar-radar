@@ -108,8 +108,10 @@
     const follow = el("p", "co-follow");
     const btn = el("button", "btn btn-quiet", "نبّهني بإعلاناتها الجديدة");
     btn.type = "button";
-    btn.onclick = () => { if (window.MasarAlerts) { MasarAlerts.add({ company: c.name }); btn.textContent = "أضفناها لتنبيهاتك"; btn.disabled = true; } else location.href = `alerts.html?company=${encodeURIComponent(c.name)}`; };
-    follow.append(btn);
+    btn.onclick = () => { Masar.alerts.add({ company: c.name }); btn.textContent = "أضفناها لتنبيهاتك"; btn.disabled = true; };
+    const see = el("a", null, "تنبيهاتي");
+    see.href = "alerts.html";
+    follow.append(btn, " ", see);
     box.append(follow);
   }
 
