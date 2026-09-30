@@ -753,7 +753,10 @@ window.MASAR_EN = {
     "قراءة الملف فقط، بدون إعلان": "how the file reads only, no posting",
     "نتيجة ATS نصفها قراءة الملف ونصفها التطابق مع الإعلان. بدون إعلان هي قراءة الملف وحدها، والملف الذي لا يُقرأ نتيجته صفر مهما كان فيه.": "The ATS score is half how the file reads and half the match with the posting. Without a posting it is how the file reads alone, and a file that cannot be read scores zero whatever it contains.",
     "الإعلان غير متاح": "Posting not available",
-    "اكتب سؤالك أولاً، ولو بكلمتين.": "Type your question first, even two words."
+    "اكتب سؤالك أولاً، ولو بكلمتين.": "Type your question first, even two words.",
+    "شوف مثال بإعلانات وهمية، بدون ما يُرسل شي": "See an example with made-up postings, nothing is sent",
+    "جرّب السحب على إعلانات وهمية": "Try swiping on made-up postings",
+    "اخرج من التجربة": "Leave the demo"
   },
   patterns: [
     ["^مطلوب (\\d+)، لقينا منها (\\d+)$", "$1 required, $2 found"],

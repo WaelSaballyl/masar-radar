@@ -1444,3 +1444,4 @@ input[type=date]:focus-visible, input[type=date]:focus { outline: 3px solid var(
   html:not(.has-tabbar) .topbar .nav::-webkit-scrollbar { display: none; }
   html:not(.has-tabbar) .topbar .nav a { white-space: nowrap; padding: 10px 10px; font-size: .9rem; }
 }
+.swipe-try { margin: 14px 0 0; }

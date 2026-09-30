@@ -77,7 +77,13 @@
     const next = queue.slice(0, 3);
     $("buttons").hidden = !next.length;
     if (!next.length) {
-      deck.append(el("p", "swipe-empty", "خلصت الإعلانات الحصرية الجديدة. نضيف إعلانات كل ما نشرتها الشركات، وتلاقي كل الإعلانات الثانية في صفحة الإعلانات."));
+      const empty = el("p", "swipe-empty", "خلصت الإعلانات الحصرية الجديدة. نضيف إعلانات كل ما نشرتها الشركات، وتلاقي كل الإعلانات الثانية في صفحة الإعلانات. ");
+      if (!DEMO) {
+        const a = el("a", null, "جرّب السحب على إعلانات وهمية");
+        a.href = "swipe.html?demo=1";
+        empty.append(a, ".");
+      }
+      deck.append(empty);
       return;
     }
     // the top card is last in the DOM, so it paints above the others
@@ -395,7 +401,12 @@
       d("demo4", "Reporting Analyst Co-op", "جهة تجريبية حكومية", "الدمام", "coop", "onsite", "Excel, SQL",
         "إعلان تجريبي. إعداد التقارير الشهرية وأتمتة جداول Excel ومراجعة جودة البيانات."),
     ];
-    $("route").before(el("p", "swipe-demo", "وضع التجربة: إعلانات وهمية، ولا يُرسل أي شيء."));
+    const note = el("p", "swipe-demo", "وضع التجربة: إعلانات وهمية، ولا يُرسل أي شيء. ");
+    const out = el("a", null, "اخرج من التجربة");
+    out.href = "swipe.html";
+    note.append(out);
+    $("route").before(note);
+    $("try-demo").hidden = true;
     document.body.classList.add("demo");
     if (PHONE) gulf.then((g) => feed(queue, g)); else deal();
   } else {
