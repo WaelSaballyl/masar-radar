@@ -259,6 +259,15 @@
   function nudges() {
     const box = $("nudges");
     box.replaceChildren();
+    // new postings for the student's saved alerts come first
+    const news = Masar.alerts.check(postings).reduce((n, r) => n + r.fresh.length, 0);
+    if (news) {
+      const n = el("p", "nudge");
+      const a = el("a", null, "افتح تنبيهاتك");
+      a.href = "alerts.html";
+      n.append(`إعلانات جديدة في تنبيهاتك: ${news}. `, a, ".");
+      box.append(n);
+    }
     const fresh = postings.filter(isNew).length;
     if (fresh) {
       const n = el("p", "nudge");
@@ -289,6 +298,18 @@
     box.replaceChildren();
     const on = FILTERS.filter((k) => $(k).value.trim() !== DEFAULTS[k]);
     const label = (k) => (k === "q" ? `"${$(k).value.trim()}"` : $(k).selectedOptions[0].textContent);
+    // keep this search as an alert: its new postings show on the next visit
+    const alertable = on.filter((k) => ["q", "where", "type", "role", "field"].includes(k));
+    if (alertable.length) {
+      const save = el("button", "chip chip-alert", "نبّهني بالجديد بهذا البحث");
+      save.type = "button";
+      save.onclick = () => {
+        Masar.alerts.add(Object.fromEntries(alertable.map((k) => [k, $(k).value.trim()])));
+        save.textContent = "أضفناه لتنبيهاتك";
+        save.disabled = true;
+      };
+      box.append(save);
+    }
     on.forEach((k) => {
       const c = el("button", "chip", label(k));
       c.type = "button";

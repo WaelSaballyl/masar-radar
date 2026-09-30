@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تنبيهات الوظائف — مسار</title>
+<meta name="description" content="احفظ بحثك أو شركة تتابعها، ونعرض لك كل إعلان جديد يطابقه في زيارتك القادمة.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="تنبيهات الوظائف — مسار">
+<meta property="og:description" content="تنبيهات بالإعلانات الجديدة التي تطابق بحثك.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/alerts.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B1219">
+<meta name="robots" content="noindex">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/masar.css?v=65">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام"></nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main class="alerts-page">
+    <div class="page-head">
+      <h1>تنبيهات الوظائف</h1>
+      <p class="section-lede">احفظ بحثاً أو شركة تتابعها، وكل ما تفتح مسار نعرض لك الإعلانات الجديدة التي تطابقه. تنبيهاتك تُحفظ في متصفحك، وتصل لأجهزتك الأخرى إذا سجّلت دخولك.</p>
+    </div>
+    <form class="alert-new" id="alert-new">
+      <h2>تنبيه جديد</h2>
+      <div class="alert-fields">
+        <label class="field">مسمى أو مهارة أو شركة<input name="q" dir="auto" placeholder="SQL أو محاسب أو أرامكو"></label>
+        <label class="field">المكان
+          <select name="where"><option value="">أي مكان</option><option value="gulf">السعودية والخليج</option><option value="SA">السعودية</option>
+            <option value="AE">الإمارات</option><option value="QA">قطر</option><option value="KW">الكويت</option><option value="BH">البحرين</option><option value="OM">عُمان</option></select>
+        </label>
+        <label class="field">النوع
+          <select name="type"><option value="">أي نوع</option><option value="training">تدريب بأنواعه</option><option value="coop">تدريب تعاوني</option>
+            <option value="internship">تدريب</option><option value="student">دوام طلابي</option><option value="job">وظيفة</option></select>
+        </label>
+      </div>
+      <button class="btn btn-primary" type="submit">أضف التنبيه</button>
+      <p class="status" id="new-status" role="status"></p>
+    </form>
+    <p class="muted" id="alerts-meta" aria-live="polite"></p>
+    <div id="alert-list" class="alert-list"></div>
+  </main>
+</div>
+<script src="assets/core.js?v=57"></script>
+<script src="assets/alerts.js?v=1"></script>
+</body>
+</html>
