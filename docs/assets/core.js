@@ -410,7 +410,7 @@ window.Masar = (() => {
     const legal = el("p", "foot-legal");
     const link = (href, text) => { const a = el("a", null, text); a.href = href; return a; };
     legal.append(el("span", null, `© ${new Date().getFullYear()} مسار`), link("privacy.html", "الخصوصية"),
-      link("guide.html", "دليل التدريب التعاوني"), link("ats.html", "فحص ATS"), link("companies.html", "الشركات"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
+      link("guide.html", "دليل التدريب التعاوني"), link("ats.html", "فحص ATS"), link("companies.html", "الشركات"), link("l/interview-data-analyst.html", "أسئلة المقابلات"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
       link("terms.html", "الشروط"));
     const box = el("div", "foot-brand");
     box.append(mark, radar, legal);

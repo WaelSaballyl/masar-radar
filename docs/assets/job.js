@@ -100,6 +100,18 @@
     };
     actions.append(cv, share);
     box.append(actions);
+    // the role's interview questions page, when the radar made one
+    if (p.role) {
+      const page = `l/interview-${p.role.toLowerCase().replace(/\+/g, "p").replace(/#/g, "sharp").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.html`;
+      fetch(page, { method: "HEAD" }).then((r) => {
+        if (!r.ok) return;
+        const hint = el("p", "muted");
+        const a = el("a", null, `أسئلة مقابلة ${ROLES[p.role] || p.role} وكيف تجاوبها`);
+        a.href = page;
+        hint.append(a);
+        actions.after(hint);
+      }).catch(() => {});
+    }
 
     const skills = (want, label) => {
       const names = p.skills.filter((s) => s[1] === want).map((s) => s[0]);
