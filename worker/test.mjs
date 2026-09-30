@@ -207,7 +207,12 @@ import vm from "node:vm";
 {
   const ctx = { window: {} };
   vm.runInNewContext(readFileSync(new URL("../docs/assets/atskit.js", import.meta.url), "utf8"), ctx);
-  const { analyze, content, match, twoColumns, overall, level } = ctx.window.MasarATS;
+  const { analyze, content, match, twoColumns, overall, level, blocksText, profileText } = ctx.window.MasarATS;
+  // a saved CV's blocks read back one line per heading, paragraph and point
+  assert.equal(blocksText([["h1", "", ["Sara Ahmed"]], ["h2", "", ["Experience"]],
+    ["div", "cv-item", [["p", "cv-row", [["strong", "", ["Intern, Savola"]], ["span", "", ["2024"]]]], ["ul", "", [["li", "", ["Built 6 dashboards"]], ["li", "", ["Cut errors by 30%"]]]]]]]),
+    ["Sara Ahmed", "Experience", "Intern, Savola 2024", "Built 6 dashboards", "Cut errors by 30%"].join("\n"));
+  assert.ok(profileText({ name: "Sara", skills: "SQL, Excel", experience: "Built dashboards" }).includes("Skills\nSQL, Excel"));
   assert.equal(overall(90, 70, null), 80);
   assert.equal(overall(100, 50, 50), 65);
   assert.equal(overall(0, 100, 100), 0, "an unreadable file scores nothing");

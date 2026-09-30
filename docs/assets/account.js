@@ -53,7 +53,46 @@
     $("cv-state").textContent = cvs.length
       ? `السير المحفوظة: ${cvs.length}. آخرها لإعلان ${cvs[0].label || ""}.`
       : p.experience || p.skills ? "معلوماتك موجودة. جهّز منها سيرة لأي إعلان." : "لم ترفع سيرتك بعد. ارفعها مرة وتُقرأ تلقائياً.";
+    health();
   }
+  // ---------- CV health: the ATS check's rules on the newest CV, three fixes by points ----------
+  const HEALTH = {
+    no_text: "معلوماتك قليلة على أي نظام فرز: أضف خبراتك ومشاريعك بالتفصيل، أو ارفع سيرتك في صانع السيرة.",
+    results: "أضف أرقاماً حقيقية لنقاط خبرتك: كم تقرير، كم ساعة وفّرت، كم نسبة.",
+    verbs: "ابدأ كل نقطة بفعل إنجاز مثل Built أو Analyzed (أو طوّرت، حلّلت).",
+    weak: "بدّل عبارات المهام مثل Responsible for بما حققته فعلاً.",
+    long: "قصّر النقاط الطويلة إلى سطر أو سطرين.",
+    pronouns: "احذف I وmy من نقاط الخبرة.",
+    summary: "اكتب المسمى الذي تستهدفه في ملفك لتأخذ سيرتك نبذة في أولها.",
+    skill_count: "اكتب ست مهارات على الأقل مما تعرفه فعلاً.",
+    linkedin: "أضف رابط حسابك في LinkedIn.",
+    email: "أضف إيميلك.", phone: "أضف رقم جوالك.", name: "أضف اسمك.",
+    experience: "أضف خبرة أو تدريباً أو مشروعاً.", education: "أضف جامعتك وتخصصك.", skills: "أضف مهاراتك.",
+    dates: "اكتب مدة كل خبرة، مثل Jun 2025 - Aug 2025.", length: "أضف مشروعاً أو تدريباً أو عملاً تطوعياً لم تذكره.",
+    arabic_pdf: "أرسل النسخة العربية بصيغة Word، لأن أنظمة الفرز تقرأ العربي داخل PDF مقلوباً.",
+  };
+  const LEVEL = { good: "ممتازة", fair: "جيدة", work: "تحتاج شغل", poor: "ضعيفة" };
+  function health() {
+    const me = window.MasarATS && MasarATS.myCV();
+    $("health").hidden = !me;
+    if (!me) return;
+    const read = MasarATS.analyze({ text: me.text, kind: me.lang === "ar" ? "masar-ar" : "masar" });
+    const said = MasarATS.content(me.text);
+    const score = MasarATS.overall(read.score, said.score, null);
+    const lvl = read.score === 0 ? "poor" : MasarATS.level(score);
+    $("health-score").textContent = `${score}٪`;
+    $("health-level").textContent = LEVEL[lvl];
+    $("health-level").className = `ats-level lvl-${lvl}`;
+    $("health-from").textContent = me.from === "cv" ? `من آخر سيرة جهّزتها${me.label ? `: ${me.label}` : ""}` : "من معلومات ملفك، قبل ما تجهّز سيرة.";
+    const fixes = [...read.checks, ...said.checks].filter((c) => !c.ok && c.weight && HEALTH[c.id])
+      .sort((a, b) => b.weight - a.weight).slice(0, 3);
+    $("health-fixes").replaceChildren(...(fixes.length ? fixes.map((c) => {
+      const li = el("li", null, HEALTH[c.id]);
+      li.append(" ", el("span", "ats-points", `+${Math.max(1, Math.round(c.weight / 2))}`));
+      return li;
+    }) : [el("li", null, "ما لقينا شيئاً ينقصها. جهّز منها سيرة لكل إعلان تقدّم عليه.")]));
+  }
+
   let saveTimer = null;
   form.addEventListener("input", () => {
     clearTimeout(saveTimer);
@@ -67,6 +106,7 @@
       Masar.store.set("masar.profile", JSON.stringify(profile));
       Masar.store.set("masar.me", JSON.stringify(me));
       $("me-status").textContent = "حُفظ.";
+      health();
       setTimeout(() => { $("me-status").textContent = ""; }, 1500);
     }, 400);
   });
