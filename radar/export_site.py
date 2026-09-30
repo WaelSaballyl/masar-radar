@@ -199,11 +199,13 @@ def build_sitemap(jobs: dict, pages: list[str] = ()) -> str:
 
     postings = jobs["postings"]
     urls = ["", "guide.html", "jobs.html", "dashboard.html", "cv.html", "swipe.html", "employers.html", "privacy.html",
-            "terms.html", "support.html", "ats.html",
+            "terms.html", "support.html", "ats.html", "companies.html",
             "jobs.html?type=training"]
     urls += [f"jobs.html?where={c}" for c in sorted(GULF) if any(c in p["countries"] for p in postings)]
     top = Counter(s for p in postings for s, required in p["skills"] if required)
     urls += [f"jobs.html?q={quote(s)}" for s, n in top.most_common(20) if n >= 3]
+    companies = Counter(p["company"] for p in postings if p.get("company"))
+    urls += [f"companies.html?c={quote(c)}" for c, n in companies.most_common(30) if n >= 3]
     urls += list(pages)
     day = (jobs["updated_at"] or "")[:10]
     rows = "".join(f"<url><loc>{escape(SITE + u)}</loc>{f'<lastmod>{day}</lastmod>' if day else ''}</url>\n" for u in urls)

@@ -1466,3 +1466,16 @@ input[type=date]:focus-visible, input[type=date]:focus { outline: 3px solid var(
   html:not(.has-tabbar) .topbar .nav a { white-space: nowrap; padding: 10px 10px; font-size: .9rem; }
 }
 .swipe-try { margin: 14px 0 0; }
+
+/* companies */
+.companies-tools { display: flex; flex-wrap: wrap; gap: 10px; }
+.companies-tools input { flex: 1 1 260px; }
+.co-grid { list-style: none; margin: 0 0 40px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.co-card { padding: 16px; border: 1px solid var(--hairline); border-radius: 14px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.co-card p { margin: 0; }
+.co-link { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; min-height: 44px; }
+.co-link:hover .co-name, .co-link:focus-visible .co-name { text-decoration: underline; text-underline-offset: 4px; }
+.co-name { unicode-bidi: plaintext; overflow-wrap: anywhere; }
+.co-one { padding-block: 28px 40px; }
+.co-title { display: flex; align-items: center; gap: 14px; font-family: var(--kufi); font-size: clamp(1.5rem, 4vw, 2.2rem); margin: 14px 0 6px; }
+.co-follow { margin-top: 24px; }
