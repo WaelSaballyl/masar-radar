@@ -13,6 +13,7 @@ from collections import Counter
 from html import escape
 from pathlib import Path
 
+from .interview import GENERAL, QUESTIONS
 from .skills import FIELDS
 
 DOCS = Path(__file__).resolve().parent.parent / "docs"
@@ -43,7 +44,6 @@ def _place(p: dict) -> str:
 
 
 def _page(title: str, lede: str, postings: list[dict], related: list[tuple[str, str]], more: str, day: str) -> str:
-    css, core = _version("masar.css"), _version("core.js")
     rows = []
     for p in postings[:MAX_LISTED]:
         kind = KIND_AR.get(p.get("employment") or "", "")
@@ -54,6 +54,19 @@ def _page(title: str, lede: str, postings: list[dict], related: list[tuple[str, 
             f'<span class="land-meta">{escape(_place(p))}{" | " + kind if kind else ""}</span></a></li>')
     chips = "".join(f'<a class="chip" href="l/{escape(href)}">{escape(label)}</a>' for href, label in related)
     desc = f"{lede} آخر تحديث {day}."
+    return _shell(title, desc, f"""  <main class="landing">
+    <div class="page-head">
+      <h1>{escape(title)}</h1>
+      <p class="section-lede">{escape(desc)}</p>
+      <a class="btn btn-primary" href="{escape(more)}">افتحها في صفحة الإعلانات مع الفلاتر</a>
+    </div>
+    <ul class="land-list">{"".join(rows)}</ul>
+    {f'<section class="land-related"><h2>صفحات قريبة</h2><div class="chips">{chips}</div></section>' if chips else ""}
+  </main>""")
+
+
+def _shell(title: str, desc: str, main: str) -> str:
+    css, core = _version("masar.css"), _version("core.js")
     return f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -78,15 +91,7 @@ def _page(title: str, lede: str, postings: list[dict], related: list[tuple[str, 
     <nav class="nav" aria-label="الأقسام"></nav>
     <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
   </header>
-  <main class="landing">
-    <div class="page-head">
-      <h1>{escape(title)}</h1>
-      <p class="section-lede">{escape(desc)}</p>
-      <a class="btn btn-primary" href="{escape(more)}">افتحها في صفحة الإعلانات مع الفلاتر</a>
-    </div>
-    <ul class="land-list">{"".join(rows)}</ul>
-    {f'<section class="land-related"><h2>صفحات قريبة</h2><div class="chips">{chips}</div></section>' if chips else ""}
-  </main>
+{main}
 </div>
 <script src="assets/core.js?v={core}"></script>
 <script>Masar.initTheme();</script>
@@ -154,4 +159,51 @@ def write(jobs: dict) -> list[str]:
         if name.startswith("skill-"):
             related = [x for x in skill_links if x[0] != name][:12] + field_links
         (OUT / name).write_text(_page(title, lede, rows, related, more, day), encoding="utf-8")
-    return [f"l/{name}" for name in pages]
+    return [f"l/{name}" for name in pages] + _interviews(postings, day)
+
+
+ROLE_AR = {"Data Analyst": "محلل بيانات", "Data Engineer": "مهندس بيانات", "Data Scientist": "عالم بيانات",
+           "ML Engineer": "مهندس تعلّم آلة", "BI Developer": "مطوّر ذكاء أعمال", "Business Analyst": "محلل أعمال",
+           "Analytics Engineer": "مهندس تحليلات", "Software & IT": "مطوّر برمجيات وتقنية",
+           "Accounting & Finance": "محاسب ومحلل مالي", "Engineering": "مهندس", "Marketing": "أخصائي تسويق",
+           "Human Resources": "أخصائي موارد بشرية"}
+INTERVIEW_SKILLS = 8
+
+
+def _interviews(postings: list[dict], day: str) -> list[str]:
+    """One interview page per role with enough postings: its most-required
+    skills (share of the role's postings), one question for each we have
+    written, then the questions every interview has."""
+    roles = Counter(p["role"] for p in postings if p.get("role") in ROLE_AR)
+    made = [(r, f"interview-{slug(r)}.html") for r, n in roles.most_common() if n >= MIN_POSTINGS * 2]
+    for role, name in made:
+        rows = [p for p in postings if p.get("role") == role]
+        top = Counter(s for p in rows for s, required in p["skills"] if required)
+        asked = [(s, n) for s, n in top.most_common() if s in QUESTIONS][:INTERVIEW_SKILLS]
+        job = ROLE_AR[role]
+        title = f"أسئلة مقابلة {job}"
+        desc = (f"أسئلة مقابلة {job} مبنية على إعلاناته المفتوحة الآن ({_count(len(rows))}): المهارات التي تطلبها أكثر، "
+                f"ولكل واحدة سؤال شائع، وماذا يختبر، وكيف تجاوب. آخر تحديث {day}.")
+        skills = "".join(
+            f'<section class="iv-q"><h3><span class="iv-skill" dir="ltr">{escape(s)}</span> '
+            f'<span class="muted small">تطلبها {round(100 * n / len(rows))}٪ من الإعلانات</span></h3>'
+            f'<p class="iv-ask">{escape(QUESTIONS[s][0])}</p>'
+            f'<p><strong>ماذا يختبرون:</strong> {escape(QUESTIONS[s][1])}</p>'
+            f'<p><strong>كيف تجاوب:</strong> {escape(QUESTIONS[s][2])}</p></section>' for s, n in asked)
+        general = "".join(f'<li><p class="iv-ask">{escape(q)}</p><p>{escape(a)}</p></li>' for q, a in GENERAL)
+        others = "".join(f'<a class="chip" href="l/{escape(n)}">أسئلة مقابلة {escape(ROLE_AR[r])}</a>' for r, n in made if n != name)
+        main = f"""  <main class="landing interview">
+    <div class="page-head">
+      <h1>{escape(title)}</h1>
+      <p class="section-lede">{escape(desc)}</p>
+      <a class="btn btn-primary" href="cv.html">جهّز سيرتك وأسئلة مقابلة لإعلان محدد</a>
+    </div>
+    <h2>أسئلة المهارات التي تطلبها الإعلانات</h2>
+    {skills}
+    <h2>أسئلة تُسأل في كل مقابلة</h2>
+    <ol class="iv-general">{general}</ol>
+    <p class="muted">الأسئلة من كتابة مسار، والنسب من إعلانات {escape(job)} المفتوحة في مسار اليوم. <a href="jobs.html?role={escape(role)}">شوف هذه الإعلانات</a>.</p>
+    {f'<section class="land-related"><h2>أدوار أخرى</h2><div class="chips">{others}</div></section>' if others else ""}
+  </main>"""
+        (OUT / name).write_text(_shell(title, desc, main), encoding="utf-8")
+    return [f"l/{name}" for _, name in made]

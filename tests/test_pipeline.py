@@ -229,3 +229,26 @@ class JsPatternTest(unittest.TestCase):
         self.assertEqual(set(skills.js_patterns()), set(skills.SKILL_PATTERNS))
         with self.assertRaises(ValueError):
             skills.js_pattern("[a-z]")
+
+
+class InterviewTest(unittest.TestCase):
+    def test_every_question_names_a_rule(self):
+        from radar import interview
+        self.assertFalse(set(interview.QUESTIONS) - set(skills.SKILL_PATTERNS))
+
+    def test_page_per_role_with_its_skills(self):
+        from radar import landing
+        post = lambda i: {"id": str(i), "title": "Data Analyst", "company": "X", "location": "", "countries": ["SA"],
+                          "role": "Data Analyst", "skills": [["SQL", 1], ["Excel", 1 if i % 2 else 0]], "field": "data"}
+        with tempfile.TemporaryDirectory() as d:
+            old = landing.OUT
+            landing.OUT = Path(d)
+            try:
+                made = landing._interviews([post(i) for i in range(6)], "2026-09-30")
+                self.assertEqual(made, ["l/interview-data-analyst.html"])
+                page = (Path(d) / "interview-data-analyst.html").read_text(encoding="utf-8")
+            finally:
+                landing.OUT = old
+        self.assertIn("تطلبها 100٪ من الإعلانات", page)          # SQL in all six
+        self.assertIn("تطلبها 50٪ من الإعلانات", page)           # Excel required in three
+        self.assertLess(page.index("SQL"), page.index("Excel"))   # most asked first
