@@ -1361,6 +1361,10 @@ html.motion .foot-mark.in span { transform: none; }
 .ats-total { grid-column: 1 / -1; border-bottom: 1px solid var(--p-line); }
 .ats-total .ats-num { font-size: clamp(4rem, 13vw, 6.5rem); }
 .ats-total .ats-label { font-size: 1.1rem; }
+.ats-level { display: inline-block; margin-inline-start: 8px; padding: 2px 12px; border-radius: 999px; font-size: .9rem; font-weight: 600;
+  border: 1px solid var(--p-line); color: var(--p-text); vertical-align: middle; }
+.ats-level:empty { display: none; }
+.ats-report[data-level="good"] .ats-level { background: var(--p-btn); border-color: var(--p-btn); color: var(--p-on-btn); }
 .ats-total + .ats-score { border-inline-start: 0; }
 .ats-label { font-weight: 600; margin: 2px 0 0; }
 .ats-sub { color: var(--muted); margin: 0; font-size: .92rem; min-height: 1.4em; }

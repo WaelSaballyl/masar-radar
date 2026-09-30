@@ -120,6 +120,94 @@
     return { score, checks, fields };
   }
 
+  // ---------- what the CV says: the part a recruiter scores after the system has read it ----------
+  // Reading is pass/fail, so any tidy file reads 100; this is graded. Points are
+  // the ones recruiters' guides give: results with numbers, a verb leading each
+  // point, no duty phrases, a summary, a real skills list, a LinkedIn link.
+  const VERBS_EN = new Set(("accelerated achieved advised analysed analyzed assessed assisted audited automated boosted built "
+    + "calculated cleaned cleansed coached collaborated collected compiled completed conducted configured constructed contributed "
+    + "coordinated created cut defined delivered deployed designed developed directed documented drafted drove earned edited "
+    + "engineered established evaluated executed expanded extracted facilitated forecasted founded generated grew handled "
+    + "identified implemented improved increased initiated installed integrated interviewed introduced launched led maintained "
+    + "managed mapped measured mentored migrated modeled modelled monitored negotiated operated optimised optimized organised "
+    + "organized oversaw owned participated performed piloted planned prepared presented processed produced programmed published "
+    + "queried raised ranked reconciled recommended redesigned reduced refactored researched resolved reviewed ran saved scaled "
+    + "scraped secured segmented served shipped simplified solved standardized streamlined supervised supported surveyed taught "
+    + "tested tracked trained transformed translated validated visualised visualized won wrote").split(" "));
+  const arKey = (w) => w.replace(/[ً-ْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ى$/, "ي");
+  const VERBS_AR = new Set(("طورت حللت صممت بنيت اعددت نفذت قدت ادرت انشات جمعت نظفت رفعت خفضت حسنت اطلقت دربت قدمت كتبت "
+    + "شاركت ساهمت نظمت اتممت انجزت راجعت اشرفت تابعت حققت وفرت اتمتت استخرجت عرضت وثقت نشرت درست قست ربطت اختبرت "
+    + "تطوير تحليل تصميم بناء اعداد تنفيذ قيادة ادارة انشاء جمع تنظيف تحسين خفض رفع اطلاق تدريب تقديم كتابة مشاركة "
+    + "المشاركة المساهمة مساهمة تنظيم انجاز مراجعة الاشراف اشراف متابعة اتمتة تحقيق توفير استخراج عرض توثيق قياس ربط اختبار "
+    + "اعد بني طور حلل صمم نفذ قاد ادار انشا جمع حسن").split(" "));
+  const WEAK = /\b(?:responsible for|duties (?:included|include)|tasked with|worked on|helped (?:with|to)|in charge of|involved in)\b|مسؤول(?:ة)? عن|كنت مسؤول|من مهامي|ساعدت في/gi;
+  const PRONOUN = /(?:^|\s)(?:I|my|me)(?=\s|$)/;
+  // a number that is a result, not a year or a date: 30%, 1,200, 3x, ١٥
+  const YEARISH = /^(?:19|20)\d\d$/;
+
+  // the lines under Experience / Projects / Volunteering: role lines (short, with a date) are not points
+  function points(lines) {
+    const out = [];
+    let inside = false;
+    for (const raw of lines) {
+      const h = headingOf(raw);
+      if (h) { inside = ["experience", "projects", "volunteering"].includes(h); continue; }
+      if (!inside) continue;
+      const line = raw.replace(/^[\s•●▪◦‣∙·*\-–]+/, "").trim();
+      const n = words(line).length;
+      DATE.lastIndex = 0;
+      // "Sales Dashboard, Power BI, SQL": a name and its tools, not a point
+      if (n < 4 || (DATE.test(line) && n < 12) || (n <= 8 && (line.match(/[,،|]/g) || []).length >= 2)) continue;
+      out.push(line);
+    }
+    return out;
+  }
+  const hasResult = (p) => {
+    const nums = p.replace(DATE, " ").match(/[٠-٩]+|\d+(?:[.,]\d+)*/g) || [];
+    return /%|٪/.test(p) || nums.some((d) => !YEARISH.test(d));
+  };
+  const leadsWithVerb = (p) => {
+    const first = (p.match(/^[\p{L}\p{M}]+/u) || [""])[0];
+    return VERBS_EN.has(first.toLowerCase()) || VERBS_AR.has(arKey(first));
+  };
+
+  function content(text) {
+    const lines = (text || "").split("\n").map((l) => l.trim()).filter(Boolean);
+    const pts = points(lines);
+    const sections = new Set(lines.map(headingOf).filter(Boolean));
+    const checks = [];
+    // graded: the share of the target reached earns that share of the points
+    const graded = (id, share, target, weight, info) => {
+      const lost = Math.round(weight * (1 - Math.min(1, share / target)));
+      checks.push({ id, ok: lost === 0, weight: lost, info });
+    };
+    const n = pts.length;
+    const numbered = pts.filter(hasResult).length;
+    const verbed = pts.filter(leadsWithVerb).length;
+    graded("results", n ? numbered / n : 0, 0.5, 30, [numbered, n]);
+    graded("verbs", n ? verbed / n : 0, 0.7, 20, [verbed, n]);
+    const weak = [...new Set((pts.join("\n").match(WEAK) || []).map((w) => w.toLowerCase()))];
+    checks.push({ id: "weak", ok: !weak.length, weight: Math.min(10, weak.length * 5), info: weak });
+    const long = pts.filter((p) => words(p).length > 35).length;
+    checks.push({ id: "long", ok: !long, weight: Math.min(10, long * 5), info: long });
+    const pron = pts.filter((p) => PRONOUN.test(p)).length;
+    checks.push({ id: "pronouns", ok: !pron, weight: pron ? 5 : 0, info: pron });
+    checks.push({ id: "summary", ok: sections.has("summary"), weight: sections.has("summary") ? 0 : 10 });
+    // skills listed: the lines under the Skills heading, split on commas, bullets and bars
+    let inSkills = false;
+    const skills = [];
+    for (const l of lines) {
+      const h = headingOf(l);
+      if (h) { inSkills = h === "skills"; continue; }
+      if (inSkills) skills.push(...l.split(/[,،•|;/]|\s{2,}|\t/).map((s) => s.replace(/^[^:]{0,30}:\s*/, "").trim()).filter((s) => s && words(s).length <= 5));
+    }
+    graded("skill_count", skills.length, 6, 10, skills.length);
+    const linked = /linkedin\.com\/in\//i.test(text || "");
+    checks.push({ id: "linkedin", ok: linked, weight: linked ? 0 : 5 });
+    const score = Math.max(0, 100 - checks.reduce((s, c) => s + c.weight, 0));
+    return { score, checks, points: n };
+  }
+
   // job: { title, required: [skill], preferred: [skill] } from a Masar posting,
   // or { description } pasted: its skills are the rules that match it.
   // patterns: docs/data/skills.json (radar.skills.js_pattern of each rule).
@@ -156,9 +244,12 @@
     };
   }
 
-  // The one percentage: half how the file reads, half how it matches the
-  // posting. A file the system cannot read scores nothing, whatever it says.
-  const overall = (read, matchScore) => (read === 0 ? 0 : matchScore == null ? read : Math.round((read + matchScore) / 2));
+  // The one percentage. With a posting: 30% how the file reads, 30% what it
+  // says, 40% how it matches the posting; without one, reading and content
+  // half each. A file the system cannot read scores nothing, whatever it says.
+  const overall = (read, said, matchScore) => (read === 0 ? 0 : matchScore == null
+    ? Math.round((read + said) / 2) : Math.round(read * 0.3 + said * 0.3 + matchScore * 0.4));
+  const level = (score) => (score >= 85 ? "good" : score >= 70 ? "fair" : score >= 50 ? "work" : "poor");
 
-  window.MasarATS = { analyze, match, overall, twoColumns, headingOf, SECTIONS, DATE };
+  window.MasarATS = { analyze, content, match, overall, level, twoColumns, headingOf, SECTIONS, DATE };
 })();

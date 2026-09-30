@@ -211,14 +211,26 @@
     dates: ["ما لقينا تواريخ", "اكتب مدة كل خبرة بصيغة يفهمها النظام، مثل Jun 2025 - Aug 2025."],
     length: ["النص قليل", "سيرة الطالب عادة بين 300 و600 كلمة. عدد الكلمات التي قرأها النظام: "],
     pages: ["أطول من صفحتين", "للطالب وحديث التخرج صفحة واحدة، وصفحتان كحد أقصى. عدد الصفحات: "],
+    results: ["نقاط بلا أرقام", "مسؤول التوظيف يبحث عن نتيجة، لا عن مهمة. اكتب رقماً حقيقياً في نصف نقاطك على الأقل: كم تقرير، كم ساعة وفّرت، كم نسبة تحسّن. نقاط فيها رقم: "],
+    verbs: ["نقاط لا تبدأ بفعل", "ابدأ كل نقطة بفعل إنجاز مثل Built أو Analyzed أو Automated (أو طوّرت، حلّلت)، لا بوصف أو اسم. نقاط تبدأ بفعل: "],
+    weak: ["عبارات مهام لا إنجازات", "هذه العبارات تقول إن الشيء كان من واجبك، لا ماذا حققت فيه. بدّلها بفعل ونتيجة: "],
+    long: ["نقاط طويلة", "النقطة الجيدة سطر أو سطران (أقل من 35 كلمة). قسّم الطويلة أو اختصرها. عددها: "],
+    pronouns: ["ضمير المتكلم في النقاط", "لا تكتب I أو my في نقاط الخبرة؛ ابدأ بالفعل مباشرة. عدد النقاط: "],
+    summary: ["ما في نبذة", "سطران أو ثلاثة في أول السيرة تحت عنوان Summary: من أنت، وماذا تستهدف، وأقوى مهاراتك."],
+    skill_count: ["مهارات قليلة", "اكتب ست مهارات على الأقل مما تعرفه فعلاً، مفصولة بفواصل، بنفس أسمائها في الإعلانات. عدد المهارات: "],
+    linkedin: ["ما في رابط LinkedIn", "أضف رابط حسابك (linkedin.com/in/...) مع بيانات التواصل."],
   };
   const OK = {
     garbled: "كل الحروف تُقرأ", arabic_pdf: "النص يُقرأ بترتيبه الصحيح", columns: "عمود واحد",
     tables: "بلا جداول", textboxes: "بلا مربعات نص", email: "الإيميل موجود", phone: "رقم الجوال موجود",
     name: "الاسم في أول سطر", experience: "قسم الخبرات أو المشاريع", education: "قسم التعليم",
     skills: "قسم المهارات", dates: "التواريخ مقروءة", length: "طول مناسب", pages: "عدد الصفحات مناسب",
+    results: "نقاطك فيها أرقام", verbs: "النقاط تبدأ بأفعال", weak: "بلا عبارات مهام", long: "النقاط قصيرة وواضحة",
+    pronouns: "بلا ضمير المتكلم", summary: "النبذة موجودة", skill_count: "قائمة مهارات كافية", linkedin: "رابط LinkedIn موجود",
     images: "في الملف صور أو أيقونات، والنظام يتجاهلها. لا بأس ما دام كل شيء مهم مكتوباً نصاً.",
   };
+
+  const LEVEL = { good: "ممتازة", fair: "جيدة", work: "تحتاج شغل", poor: "ضعيفة" };
 
   function renderChecks(checks) {
     const bad = checks.filter((c) => !c.ok).sort((a, b) => b.weight - a.weight);
@@ -226,7 +238,8 @@
     const items = bad.map((c) => {
       const li = el("li", "bad");
       const [title, fix] = BAD[c.id];
-      const detail = Array.isArray(c.info) ? fix + c.info.join("، ") : typeof c.info === "number" && /: $/.test(fix) ? fix + c.info : fix;
+      const detail = ["results", "verbs"].includes(c.id) ? `${fix}${c.info[0]} من ${c.info[1]}.`
+        : Array.isArray(c.info) ? fix + c.info.join("، ") : typeof c.info === "number" && /: $/.test(fix) ? fix + c.info : fix;
       const head = el("p", "ats-check-title");
       head.append(el("strong", null, title), el("span", "ats-points", `−${c.weight}`));
       const p = el("p", null, detail);
@@ -234,7 +247,7 @@
       li.append(head, p);
       return li;
     });
-    if (!bad.length) items.push(el("li", "ok-all", "ما لقينا شيئاً يمنع النظام من قراءة سيرتك."));
+    if (!bad.length) items.push(el("li", "ok-all", "ما لقينا شيئاً ينقص سيرتك في القراءة أو المحتوى."));
     const oks = el("li", "ok-list");
     oks.append(...good.map((c) => el("span", c.note ? "note" : "ok", OK[c.id])));
     $("checks").replaceChildren(...items, oks);
@@ -295,14 +308,21 @@
       say("نقرأ ملفك…");
       const doc = await readFile(file);
       const result = MasarATS.analyze(doc);
+      const said = MasarATS.content(doc.text);
       const m = job ? MasarATS.match(doc.text, job, patterns) : null;
+      const hasMatch = m && m.score !== null;
       $("read-score").textContent = String(result.score);
       $("read-sub").textContent = "من 100";
-      const total = MasarATS.overall(result.score, m ? m.score : null);
+      $("content-score").textContent = String(said.score);
+      $("content-sub").textContent = said.points ? `من 100. نقاط الخبرة التي قرأناها: ${said.points}` : "من 100، ما لقينا نقاط خبرة";
+      const total = MasarATS.overall(result.score, said.score, hasMatch ? m.score : null);
+      const level = result.score === 0 ? "poor" : MasarATS.level(total);
       $("total-score").textContent = `${total}٪`;
-      $("total-sub").textContent = m && m.score !== null ? "نصفها قراءة الملف ونصفها التطابق" : "قراءة الملف فقط، بدون إعلان";
-      $("report").dataset.level = total >= 85 ? "good" : total >= 60 ? "fair" : "poor";
-      renderChecks(result.checks);
+      $("total-level").textContent = LEVEL[level];
+      $("total-sub").textContent = hasMatch ? "٣٠٪ قراءة الملف، ٣٠٪ المحتوى، ٤٠٪ التطابق مع الإعلان"
+        : "نصفها قراءة الملف ونصفها المحتوى. اختر إعلاناً لتعرف تطابقك معه.";
+      $("report").dataset.level = level;
+      renderChecks(result.score === 0 ? result.checks : [...result.checks, ...said.checks]);
       renderFields(result.fields);
       renderMatch(m);
       $("raw").textContent = doc.text.trim() || "(لا شيء)";

@@ -99,7 +99,10 @@ show as a parser gets them), docx straight from its XML (own unzip; tables, text
 header/footer parts) - and scores it by fixed rules with fixed weights (`analyze`), plus a posting match (`match`)
 using `docs/data/skills.json`: `skills.js_pattern` rewrites each `SKILL_PATTERNS` rule for a JS RegExp (`u` flag, no
 `i`: letters folded as [xX] outside `(?-i:...)`, Unicode \b and \w), written by export_site; worker/test.mjs runs the
-JS rules. There is no single ATS: the page says the score is rules, not a prediction. Measured facts behind the rules:
+JS rules. There is no single ATS: the page says the score is rules, not a prediction. Reading is pass/fail, so any tidy file
+read 100 and the owner saw "always 100%"; `content(text)` adds a graded content score (share of experience points with a
+result number, share led by an action verb EN/AR, duty phrases, long points, "I", summary, >=6 skills, LinkedIn).
+`overall(read, content, match)`: without a posting half/half, with one 30/30/40; `level()` 85/70/50. Measured facts behind the rules:
 an Arabic PDF (Chrome's print or Word's own export) extracts reversed/broken ("خلال" -> "خالل"), so Arabic CVs go out as
 Word; `.paper:lang(en)` turns ligatures off or "Certifications" reaches a parser as "Certiﬁcations". The CV builder
 shows the check under each CV (run after `#result` is visible - a hidden paper's innerText has no line breaks) and

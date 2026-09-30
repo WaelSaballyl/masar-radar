@@ -369,6 +369,11 @@
     experience: "أضف خبرة أو مشروعاً في الخطوة الأولى.", education: "أضف جامعتك وتخصصك في الخطوة الأولى.",
     skills: "أضف مهاراتك في الخطوة الأولى.", dates: "اكتب مدة كل خبرة في الخطوة الأولى، مثل Jun 2025 - Aug 2025.",
     length: "السيرة قصيرة على أنظمة الفرز. إذا عندك مشروع أو تدريب أو عمل تطوعي لم تذكره، أضفه في الخطوة الأولى.",
+    results: "أغلب نقاط خبرتك بلا أرقام، وهذا أكثر ما ينزّل المحتوى. إذا عندك رقم حقيقي (كم تقرير، كم ساعة وفّرت، كم نسبة) أضفه لخبراتك في الخطوة الأولى. لا نخترع أرقاماً.",
+    summary: "السيرة بلا نبذة. اكتب المسمى الذي تستهدفه في المعلومات الإضافية وجهّزها من جديد.",
+    skill_count: "مهاراتك أقل من ست. أضف ما تعرفه فعلاً في الخطوة الأولى.",
+    linkedin: "أضف رابط LinkedIn في الخطوة الأولى.",
+    weak: "بعض النقاط تصف مهمة (Responsible for) لا إنجازاً. اكتب في خبراتك ماذا حققت فيها وجهّز السيرة من جديد.",
   };
   async function checkATS(job, lang) {
     const text = $("cv-paper").innerText;
@@ -379,9 +384,11 @@
       m = MasarATS.match(text, job, patterns);
     }
     const hasMatch = m && m.score !== null;
-    $("ats-line").textContent = `نتيجة ATS لهذه السيرة: ${MasarATS.overall(result.score, hasMatch ? m.score : null)}٪ `
-      + (hasMatch ? `(قراءة الأنظمة ${result.score} من 100، والتطابق مع الإعلان ${m.score}٪).` : `(قراءة الأنظمة ${result.score} من 100).`);
-    const notes = result.checks.filter((c) => !c.ok && FIX[c.id]).map((c) => FIX[c.id]);
+    const said = MasarATS.content(text);
+    $("ats-line").textContent = `نتيجة ATS لهذه السيرة: ${MasarATS.overall(result.score, said.score, hasMatch ? m.score : null)}٪ `
+      + `(قراءة الأنظمة ${result.score} من 100، والمحتوى ${said.score} من 100`
+      + (hasMatch ? `، والتطابق مع الإعلان ${m.score}٪).` : ").");
+    const notes = [...result.checks, ...said.checks].filter((c) => !c.ok && FIX[c.id]).map((c) => FIX[c.id]);
     if (m && m.title && !m.titleHit) notes.push(`المسمى «${m.core}» غير مكتوب في سيرتك، والنظام يبحث به. إذا كان يصف ما تعمله فعلاً، اكتبه في «المسمى الذي تستهدفه» في المعلومات الإضافية وجهّز السيرة من جديد.`);
     const li = el("li");
     const a = el("a", null, "افحص الملف نفسه بعد حفظه");
