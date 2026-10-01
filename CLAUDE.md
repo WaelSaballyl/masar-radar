@@ -135,6 +135,11 @@ company posts (`POST /board/postings` refuses without an employer session: `comp
 choice (job seeker -> student Google sign-in, `?as=student` skips it; company -> employer.html, `?next=post` returns to the form).
 Postings sent earlier by link keep their private applicants links.
 
+CV file reading (pdf.js text layer, docx XML) lives in `assets/cvread.js` (`MasarRead.readFile`), shared by ats.js and
+the home page's "how many openings fit you?" (`assets/fit.js`, after uptal.com/auto-apply: fits = at least half the
+required skills, found skills merged into `masar.profile.skills`). The CV page opens on two cards (upload / from scratch)
+for a visitor with no profile.
+
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
 to `jobs.html?q=Skill`). `radar/traits.py` decides type and years by fixed rules at export:
