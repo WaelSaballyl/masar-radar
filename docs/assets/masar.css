@@ -1655,3 +1655,19 @@ a.start-card { text-decoration: none; }
 #choose .cv-start { margin-bottom: 8px; }
 .emp-gate { padding: 22px; border: 1px solid var(--brand); border-radius: 16px; background: color-mix(in srgb, var(--brand) 9%, var(--surface)); color: var(--text); }
 .emp-gate p { margin: 0 0 14px; max-width: 70ch; line-height: 1.8; }
+
+/* home: how many postings fit your CV */
+.fit-drop { margin: 8px auto 40px; max-width: 880px; padding: 24px; border: 1px solid var(--hairline); border-radius: 20px; background: var(--surface);
+  display: grid; grid-template-columns: 1fr auto; gap: 12px 20px; align-items: center; }
+.fit-ask h2 { margin: 0 0 4px; font-family: var(--kufi); font-size: 1.35rem; }
+.fit-ask p { margin: 0; }
+.fit-pick { cursor: pointer; }
+.fit-out { grid-column: 1 / -1; }
+.fit-out:empty { display: none; }
+.fit-num { margin: 6px 0 10px; font-size: 1.1rem; }
+.fit-num strong { font-family: var(--kufi); font-size: 2.6rem; color: var(--mint-text); vertical-align: middle; }
+.fit-list { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 6px; }
+.fit-list li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: 12px; }
+.fit-list a { font-weight: 600; unicode-bidi: plaintext; }
+.fit-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+@media (max-width: 640px) { .fit-drop { grid-template-columns: 1fr; } }
