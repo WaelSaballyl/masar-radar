@@ -170,7 +170,27 @@
   });
   $("cv-file").addEventListener("change", (e) => {
     e.target.nextElementSibling.textContent = e.target.files[0]?.name || "اختر ملف PDF أو Word";
+    // picked from the start card: read it straight away
+    if (e.target.files[0] && fromStart) { fromStart = false; $("read-cv").click(); }
   });
+
+  // ---------- the first visit: two ways in, like the big CV sites ----------
+  // Someone with no profile yet chooses: upload a CV, or fill it in from scratch.
+  // A returning student (or one sent here for a posting) goes straight to the form.
+  let fromStart = false;
+  const hasProfile = () => FIELDS.some((f) => form.elements[f] && form.elements[f].value.trim());
+  const params = new URLSearchParams(location.search);
+  function begin(upload) {
+    $("cv-start").hidden = true;
+    for (const id of ["step1", "s2", "s3"]) { const sec = $(id)?.closest("section"); if (sec) sec.hidden = false; }
+    if (upload) { fromStart = true; $("cv-file").click(); } else form.elements.name.focus();
+  }
+  if (!hasProfile() && !params.has("job") && !params.has("ex")) {
+    $("cv-start").hidden = false;
+    for (const id of ["step1", "s2", "s3"]) { const sec = $(id)?.closest("section"); if (sec) sec.hidden = true; }
+    $("start-upload").onclick = () => begin(true);
+    $("start-scratch").onclick = () => begin(false);
+  }
 
   // ---------- choosing the posting ----------
 
