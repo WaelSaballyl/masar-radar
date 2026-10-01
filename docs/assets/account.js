@@ -14,12 +14,17 @@
   };
   const status = (text) => { $("status").textContent = text || ""; };
 
+  let chosen = false;
+  $("as-student").onclick = () => { chosen = true; show(); };
   function show() {
     const u = account.user;
-    $("signed-out").hidden = !!u;
+    // signed out: first the choice between a job seeker's and a company's account
+    const asStudent = chosen || new URLSearchParams(location.search).get("as") === "student";
+    $("choose").hidden = !!u || asStudent;
+    $("signed-out").hidden = !!u || !asStudent;
     $("signed-in").hidden = !u;
     Masar.accountButton();
-    if (!u) { google(); return; }
+    if (!u) { if (asStudent) google(); return; }
     $("who-name").textContent = u.name || u.email;
     $("who-email").textContent = u.email;
     const avatar = $("avatar");

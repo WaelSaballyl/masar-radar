@@ -1651,3 +1651,7 @@ html .topbar .wordmark .logo-on-light { display: none !important; }
 .ats-how summary h2 { margin: 0; }
 .ats-how summary h2::after { content: " ▾"; color: var(--muted); font-size: .9em; }
 .ats-how[open] summary h2::after { content: " ▴"; }
+a.start-card { text-decoration: none; }
+#choose .cv-start { margin-bottom: 8px; }
+.emp-gate { padding: 22px; border: 1px solid var(--brand); border-radius: 16px; background: color-mix(in srgb, var(--brand) 9%, var(--surface)); color: var(--text); }
+.emp-gate p { margin: 0 0 14px; max-width: 70ch; line-height: 1.8; }

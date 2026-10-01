@@ -20,7 +20,7 @@
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/masar.css?v=70">
+<link rel="stylesheet" href="assets/masar.css?v=71">
 </head>
 <body>
 <div class="wrap">
@@ -32,9 +32,24 @@
 
   <main class="account">
     <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <section class="account-card" id="choose" hidden>
+      <h1>أهلاً في مسار</h1>
+      <p class="section-lede">كيف تبي تستخدم مسار؟</p>
+      <div class="cv-start">
+        <button class="start-card" type="button" id="as-student">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 8L4 18l20 10 20-10zM12 22v10c0 3 6 6 12 6s12-3 12-6V22M44 18v12"/></svg>
+          <strong>أبحث عن تدريب أو وظيفة</strong><span>سيرتك وطلباتك وتنبيهاتك في حساب واحد.</span>
+        </button>
+        <a class="start-card" href="employer.html">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40V14h20v26M28 22h12v18M14 20h4M14 27h4M14 34h4M34 28h2M34 34h2M4 40h40"/></svg>
+          <strong>شركة وأبي أوظّف</strong><span>انشر إعلاناتك وتابع المتقدمين من لوحة الشركة.</span>
+        </a>
+      </div>
+    </section>
+
     <section class="account-card" id="signed-out" hidden>
-      <h1>حسابك في مسار</h1>
-      <p class="section-lede">سجّل مرة، وتبقى سيرتك وطلباتك معك على كل أجهزتك.</p>
+      <h1>حساب الباحث عن عمل</h1>
+      <p class="section-lede">سجّل مرة، وتبقى سيرتك وطلباتك معك على كل أجهزتك. <a href="employer.html">شركة؟ ادخل من هنا</a></p>
       <div id="google-btn" class="google-btn"></div>
       <p class="status" id="status" role="status"></p>
       <ul class="account-facts">
@@ -146,8 +161,8 @@
     </section>
   </main>
 </div>
-<script src="assets/core.js?v=61"></script>
+<script src="assets/core.js?v=63"></script>
 <script src="assets/atskit.js?v=5"></script>
-<script src="assets/account.js?v=7"></script>
+<script src="assets/account.js?v=8"></script>
 </body>
 </html>

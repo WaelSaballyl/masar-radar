@@ -375,6 +375,7 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   const ad = { company: "Acme", website: "acme.sa", contact_email: "someone@else.com", title: "Data Analyst Co-op", city: "Riyadh", country: "SA",
     workplace: "onsite", employment: "coop", level: "Intern", field: "data", required: "SQL, Excel",
     description: "Join our analytics team as a co-op trainee. You will clean sales data in SQL, build weekly Excel reports and present findings to the regional managers every month." };
+  await assert.rejects(board(new Request("https://w/board/postings", { method: "POST", body: JSON.stringify(ad) }), env, "/board/postings"), /company_account/, "no posting without a company account");
   const posted = await board(new Request("https://w/board/postings", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(ad) }), env, "/board/postings");
   const row = env.DB.raw.prepare("SELECT owner_id, contact_email, verified FROM postings WHERE id = ?").get(posted.id);
   assert.equal(row.contact_email, "hr@acme.sa", "the confirmed work email, not the typed one");
