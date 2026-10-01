@@ -278,6 +278,10 @@ import vm from "node:vm";
   const nice = match(body, { description: "Data Analyst\nMust know SQL and Excel. Nice to have: Looker, dbt. " + "x ".repeat(40) }, rules);
   assert.deepEqual([...nice.required].sort(), ["Excel", "SQL"]);
   assert.deepEqual([...nice.preferred].sort(), ["Looker", "dbt"]);
+  // "X is an advantage" in its own point is preferred even before the other requirements
+  const adv = match(body, { description: ["Employee Relations Specialist", "- Experience with SAP is an advantage.", "- Strong Excel skills.", "x ".repeat(40)].join("\n") }, rules);
+  assert.ok(adv.required.includes("Excel") && !adv.required.includes("SAP"));
+  assert.deepEqual([...adv.preferred], ["SAP"]);
 }
 
 // ---- D1 in memory (node:sqlite, the whole schema.sql) for the database paths ----
