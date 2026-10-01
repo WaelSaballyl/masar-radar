@@ -82,8 +82,9 @@
     const fields = { name, email, phone, links: [...new Set(text.match(LINK) || [])], sections, dates, words: count,
                      pages: doc.pages || 0, kind: doc.kind };
 
-    // nothing to read: every other check would be about an empty page
-    if (count < 40) {
+    // nothing to read (a scan, an image): every other check would be about an empty page; a short
+    // but readable CV is scored, and loses its points on length and missing sections instead
+    if (count < 12) {
       add("no_text", false, 100);
       return { score: 0, checks, fields };
     }

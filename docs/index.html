@@ -19,7 +19,7 @@
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/masar.css?v=71">
+<link rel="stylesheet" href="assets/masar.css?v=72">
 </head>
 <body class="home">
 <div class="wrap">
@@ -59,6 +59,15 @@
         <li><a href="jobs.html?where=remote" data-i18n="q_remote">عن بُعد</a></li>
       </ul>
       <p class="meta" id="hero-meta" aria-live="polite"></p>
+    </section>
+
+    <section class="fit-drop" id="fit" aria-labelledby="fit-title">
+      <div class="fit-ask">
+        <h2 id="fit-title" data-i18n="fit_title">كم فرصة تناسبك؟</h2>
+        <p class="muted" data-i18n="fit_lede">ارفع سيرتك ونقول لك خلال ثوانٍ. تُقرأ في جهازك ولا تُرفع.</p>
+      </div>
+      <label class="btn btn-primary fit-pick"><input type="file" id="fit-file" accept=".pdf,.docx" hidden><span data-i18n="fit_btn">ارفع سيرتك (PDF أو Word)</span></label>
+      <div class="fit-out" id="fit-out" aria-live="polite"></div>
     </section>
 
     <section class="rail-section" aria-labelledby="rail-title">
@@ -180,6 +189,7 @@
 
 </div>
 <script src="assets/core.js?v=63"></script>
-<script src="assets/masar.js?v=41"></script>
+<script src="assets/masar.js?v=42"></script>
+<script src="assets/fit.js?v=1"></script>
 </body>
 </html>
