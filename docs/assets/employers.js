@@ -110,15 +110,38 @@
     return n;
   }
 
-  $("af-run").addEventListener("click", async () => {
-    const text = $("af-text").value.trim();
+  // "#Employee_Relations_Specialist" is a title written as a hashtag
+  const cleanTitle = (t) => String(t || "").replace(/^[#\s•*-]+/, "").replace(/_/g, " ").replace(/\s+/g, " ").trim();
+  // one ad often lists several jobs under their own headings (#Title, or a short line then points):
+  // each becomes its own posting, with the ad's opening and its "to apply" part
+  function splitJobs(text) {
+    const lines = text.split("\n");
+    const heads = lines.map((l, i) => (/^\s*#\s*\S/.test(l) && cleanTitle(l).split(" ").length <= 8 ? i : -1)).filter((i) => i >= 0);
+    if (heads.length < 2) return [];
+    const applyAt = lines.findIndex((l, i) => i > heads[heads.length - 1] && /^\s*(?:to apply|how to apply|apply|للتقديم|طريقة التقديم)\b/i.test(l));
+    const tail = applyAt >= 0 ? lines.slice(applyAt).join("\n") : "";
+    const intro = lines.slice(0, heads[0]).join("\n").trim();
+    return heads.map((h, n) => {
+      const stop = n + 1 < heads.length ? heads[n + 1] : applyAt >= 0 ? applyAt : lines.length;
+      return { title: cleanTitle(lines[h]), text: [intro, lines.slice(h, stop).join("\n").trim(), tail].filter(Boolean).join("\n\n") };
+    });
+  }
+  // the level follows the years asked when the ad states them: "2–3 years" is mid, not senior
+  function levelFromYears(text) {
+    const m = text.match(/(\d{1,2})\s*(?:\+|[-–—]\s*\d{1,2})?\s*(?:years?|yrs?|سنوات|سنة|سنين)/i);
+    if (!m) return "";
+    const y = Number(m[1]);
+    return y <= 1 ? "Junior" : y <= 5 ? "Mid" : "Senior";
+  }
+
+  async function autofill(text) {
     const st = $("af-status");
-    if (text.length < 80) { st.textContent = "الصق نص الإعلان كاملاً، مع المهام والمتطلبات."; st.classList.add("bad"); return; }
     st.classList.remove("bad");
     st.textContent = "نقرأ إعلانك…";
     $("af-run").disabled = true;
     form.querySelectorAll(".autofilled").forEach((f) => f.classList.remove("autofilled"));
     const rules = byRules(text);
+    if (rules.title) rules.title = cleanTitle(rules.title);
     // skills by the radar's own rules: before "nice to have" they are required
     const m = MasarATS.match("", { description: text }, await skillsJson());
     rules.required = m.required.join(", ");
@@ -130,13 +153,49 @@
       if (r.ok) model = (await r.json()).draft || {};
     } catch { /* the rules alone still filled the form */ }
     delete model.description;
+    if (model.title) model.title = cleanTitle(model.title);
+    if (model.company && model.company.length < 3) delete model.company;
     fill(model);
+    const years = levelFromYears(text);
+    if (years && form.elements.employment.value !== "coop" && form.elements.employment.value !== "internship") fill({ level: years });
+    // Masar takes work email only: a personal address in the ad is shown, not filled
+    const notes = [];
+    const mail = form.elements.contact_email;
+    if (!mail.readOnly && /@(gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|me|aol|proton|protonmail|gmx|yandex|mail)\.[a-z.]+$/i.test(mail.value)) {
+      notes.push(`الإيميل في الإعلان شخصي (${mail.value})، ومسار يقبل إيميل عمل الشركة فقط حتى يعرف الطلاب أن الإعلان حقيقي. اكتب إيميل الشركة.`);
+      mail.value = "";
+      mail.classList.remove("autofilled");
+    }
     const filled = form.querySelectorAll(".autofilled").length;
-    const empty = ["company", "title", "city"].filter((k) => !form.elements[k].value.trim());
+    const empty = ["company", "title", "city", "contact_email"].filter((k) => !form.elements[k].value.trim());
+    const NAMES = { company: "اسم الشركة", title: "المسمى", city: "المدينة", contact_email: "إيميل العمل" };
     st.textContent = `الخانات التي عبّيناها من إعلانك: ${filled}، وهي معلّمة بإطار ملوّن. راجعها قبل الإرسال.`
-      + (empty.length ? ` ما لقينا في النص: ${empty.map((k) => ({ company: "اسم الشركة", title: "المسمى", city: "المدينة" })[k]).join("، ")}، فاكتبها بنفسك.` : "");
+      + (empty.length ? ` اكتب بنفسك: ${empty.map((k) => NAMES[k]).join("، ")}.` : "") + (notes.length ? ` ${notes.join(" ")}` : "");
     $("af-run").disabled = false;
     (empty.length ? form.elements[empty[0]] : form.elements.title).focus();
+  }
+
+  $("af-run").addEventListener("click", () => {
+    const text = $("af-text").value.trim();
+    const st = $("af-status");
+    $("af-jobs")?.remove();
+    if (text.length < 80) { st.textContent = "الصق نص الإعلان كاملاً، مع المهام والمتطلبات."; st.classList.add("bad"); return; }
+    const jobs = splitJobs(text);
+    if (jobs.length < 2) { autofill(text); return; }
+    // several jobs: the employer picks one; each is published as its own posting
+    const box = el("div", "af-jobs");
+    box.id = "af-jobs";
+    box.append(el("p", null, `في الإعلان ${jobs.length === 2 ? "وظيفتان" : `${jobs.length} وظائف`}. كل وظيفة تُنشر إعلاناً لحالها، حتى يتقدّم لها الطالب بسيرة معدّلة عليها. اختر واحدة نعبّي خاناتها، وبعد ما ترسلها ارجع واختر التالية:`));
+    jobs.forEach((j) => {
+      const b = el("button", "btn btn-quiet btn-small", j.title);
+      b.type = "button";
+      b.dir = "auto";
+      b.onclick = () => { box.querySelectorAll("button").forEach((x) => x.classList.remove("on")); b.classList.add("on"); autofill(j.text); };
+      box.append(b);
+    });
+    st.textContent = "";
+    st.before(box);
+    box.querySelector("button").click();
   });
   form.addEventListener("input", (e) => e.target.classList.remove("autofilled"));
 

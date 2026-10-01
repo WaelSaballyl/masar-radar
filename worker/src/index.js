@@ -215,8 +215,12 @@ export function cleanDraft(out, text) {
   const email = (text.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/) || [""])[0];
   const site = inText(String(o.website || "").replace(/^https?:\/\/(www\.)?/i, "").replace(/\/.*$/, ""), 120);
   const date = /^\d{4}-\d{2}-\d{2}$/.test(o.deadline || "") ? o.deadline : "";
+  // "We", "our company" or "شركة" is not a name: an ad that names no company leaves it empty
+  const name = inText(o.company, 120);
+  const company = name.length >= 3 && !/^(?:we|us|our|the|a|an|company|our company|the company|شركة|شركتنا|الشركة|مؤسسة)$/i.test(name)
+    && new RegExp(`(?:^|[^\\p{L}])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:$|[^\\p{L}])`, "iu").test(text) ? name : "";
   return {
-    company: inText(o.company, 120), website: site, contact_email: email,
+    company, website: site, contact_email: email,
     title: inText(o.title, 140), city: inText(o.city, 80),
     country: pick("country"), field: pick("field"), employment: pick("employment"), workplace: pick("workplace"), level: pick("level"),
     salary: inText(o.salary, 80), deadline: date, apply_url: inText(o.apply_url, 300),
