@@ -247,7 +247,12 @@ export async function board(request, env, path) {
     ).bind(today).all();
     return { postings: results };
   }
-  if (path === "/board/postings" && request.method === "POST") return submit(await body(request), env, await employerOf(request, env));
+  // only a signed-in company account posts (the owner's decision, 2026-10-01)
+  if (path === "/board/postings" && request.method === "POST") {
+    const company = await employerOf(request, env);
+    if (!company) throw refuse("company_account", 401);
+    return submit(await body(request), env, company);
+  }
   if (path === "/board/apply" && request.method === "POST") return apply(await body(request), env);
   if (path === "/board/mine" && request.method === "POST") return mine(await body(request), env);
   if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request), env);

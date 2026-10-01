@@ -44,11 +44,13 @@
     form.elements.contact_email.value = company.email;
     form.elements.contact_email.readOnly = true;
   } else {
-    const p = el("p", null, "عندك حساب Google لعمل شركتك؟ ");
-    const a = el("a", null, "ادخل بحساب الشركة");
-    a.href = "employer.html";
-    p.append(a, " لتتابع كل إعلاناتك ومتقدميها من لوحة واحدة. أو انشر بدون حساب، ونعطيك رابطاً خاصاً للمتقدمين.");
-    box.append(p);
+    // posting needs a company account: the form waits behind the sign-in
+    form.hidden = true;
+    document.querySelector(".autofill").hidden = true;
+    box.classList.add("emp-gate");
+    const a = el("a", "btn btn-primary", "ادخل بحساب الشركة وانشر");
+    a.href = "employer.html?next=post";
+    box.append(el("p", null, "النشر بحساب الشركة فقط، حتى يعرف الطلاب أن الإعلان حقيقي. ادخل بحساب Google الخاص بعمل شركتك (مثل hr@company.com)، وبعدها تلصق إعلانك ونعبّي الخانات لك."), a);
   }
 
   // ---------- paste the ad, fill the form ----------

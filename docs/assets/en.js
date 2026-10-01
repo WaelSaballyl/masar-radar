@@ -994,7 +994,19 @@ window.MASAR_EN = {
     "عندك سيرة جاهزة؟ ارفعها ونعبّي الخانات منها.": "Have a CV already? Upload it and we fill the fields from it.",
     "أسئلة متوقعة لهذا الإعلان وكيف تجاوبها.": "Likely questions for this posting and how to answer them.",
     "كيف نحسب؟": "How we score",
-    "ملفك يُقرأ في جهازك، ولا يُرفع.": "Your file is read on your device and never uploaded."
+    "ملفك يُقرأ في جهازك، ولا يُرفع.": "Your file is read on your device and never uploaded.",
+    "أهلاً في مسار": "Welcome to Masar",
+    "كيف تبي تستخدم مسار؟": "How do you want to use Masar?",
+    "أبحث عن تدريب أو وظيفة": "I'm looking for an internship or a job",
+    "سيرتك وطلباتك وتنبيهاتك في حساب واحد.": "Your CV, applications and alerts in one account.",
+    "شركة وأبي أوظّف": "I'm a company hiring",
+    "انشر إعلاناتك وتابع المتقدمين من لوحة الشركة.": "Post your jobs and follow applicants from the company dashboard.",
+    "حساب الباحث عن عمل": "Job seeker account",
+    "شركة؟ ادخل من هنا": "A company? Sign in here",
+    "ادخل بحساب الشركة وانشر": "Sign in as a company and post",
+    "النشر بحساب الشركة فقط، حتى يعرف الطلاب أن الإعلان حقيقي. ادخل بحساب Google الخاص بعمل شركتك (مثل hr@company.com)، وبعدها تلصق إعلانك ونعبّي الخانات لك.": "Posting needs a company account, so students know the posting is real. Sign in with your company's work Google account (like hr@company.com), then paste your ad and we fill the fields.",
+    "تبحث عن وظيفة؟": "Looking for a job?",
+    "من هنا": "here"
   },
   patterns: [
     ["^الخانات التي عبّيناها من إعلانك: (\\d+)، وهي معلّمة بإطار ملوّن\\. راجعها قبل الإرسال\\.(.*)$", "Fields filled from your ad: $1, marked with a coloured border. Check them before sending.$2"],

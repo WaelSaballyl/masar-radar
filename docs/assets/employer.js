@@ -121,6 +121,8 @@
       store.set(KEY, out.token);
       store.set(WHO, JSON.stringify(out.employer));
       $("out-status").textContent = "";
+      // came here to post: back to the form
+      if (new URLSearchParams(location.search).get("next") === "post") { location.href = "employers.html#post"; return; }
       show();
     } catch {
       $("out-status").textContent = "تعذّر الاتصال. جرّب مرة ثانية.";

@@ -130,7 +130,10 @@ Employer side (`employerSide`: employers.html, employer.html, applicants.html) g
 `owner()` and talent `employer()` accept the owning company's session as well as the manage token), dashboard
 `employer.html`/`employer.js` (session in local-only `masar.employerSession`). Posting form autofill: rules in
 employers.js (email, site, city/country, type, level, field, title, company; skills via `MasarATS.match`), then
-worker `POST /draft` (Gemini; `cleanDraft` drops any value the ad does not contain).
+worker `POST /draft` (Gemini; `cleanDraft` drops any value the ad does not contain). Since 2026-10-01 only a signed-in
+company posts (`POST /board/postings` refuses without an employer session: `company_account`), and account.html opens on a
+choice (job seeker -> student Google sign-in, `?as=student` skips it; company -> employer.html, `?next=post` returns to the form).
+Postings sent earlier by link keep their private applicants links.
 
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
