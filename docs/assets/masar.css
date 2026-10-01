@@ -1635,3 +1635,19 @@ html .topbar .wordmark .logo-on-light { display: none !important; }
 .af-jobs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 4px; }
 .af-jobs p { flex: 1 0 100%; margin: 0 0 4px; }
 .af-jobs .btn.on { border-color: var(--mint); background: color-mix(in srgb, var(--mint) 18%, transparent); font-weight: 700; }
+
+/* the CV page's two ways in */
+.cv-start { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 8px 0 40px; }
+.start-card { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--hairline); border-radius: 20px;
+  padding: 32px 24px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; cursor: pointer;
+  transition: border-color .15s, transform .15s; }
+.start-card:hover, .start-card:focus-visible { border-color: var(--brand); transform: translateY(-2px); }
+.start-card svg { width: 64px; height: 64px; fill: none; stroke: var(--mint); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 6px; }
+.start-card strong { font-size: 1.25rem; }
+.start-card span { color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .start-card { transition: none; } }
+.ats-how summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; }
+.ats-how summary::-webkit-details-marker { display: none; }
+.ats-how summary h2 { margin: 0; }
+.ats-how summary h2::after { content: " ▾"; color: var(--muted); font-size: .9em; }
+.ats-how[open] summary h2::after { content: " ▴"; }
