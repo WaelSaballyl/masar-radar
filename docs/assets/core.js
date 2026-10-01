@@ -389,41 +389,106 @@ window.Masar = (() => {
   };
 
   // One menu for every page, so no page forgets a section. The home page
-  // calls nav(lang) again when its language changes.
+  // calls nav(lang) again when its language changes. The student's own pages
+  // (applications, alerts, saved) live in the account menu, not here; the
+  // employer pages get their own menu, like a separate site for companies.
   const NAV = [
     ["jobs.html", "الإعلانات", "Postings"],
     ["swipe.html", "قدّم بالسحب", "Swipe to apply"],
     ["cv.html", "سيرتك", "Your CV"],
     ["ats.html", "فحص ATS", "ATS check"],
-    ["applications.html", "طلباتي", "My applications"],
+    ["companies.html", "الشركات", "Companies"],
     ["dashboard.html", "مؤشر السوق", "Market index"],
-    ["employers.html", "للشركات", "Employers"],
+    ["premium.html", "المميّز ✦", "Premium ✦"],
+  ];
+  const EMPLOYER_NAV = [
+    ["employers.html", "الرئيسية", "Home"],
+    ["employers.html#post", "أعلن عن وظيفتك", "Post a job"],
+    ["employer.html", "لوحة الشركة", "Company dashboard"],
+    ["employer.html#talent", "ابحث عن مرشحين", "Find candidates"],
   ];
   const here = location.pathname.split("/").pop() || "index.html";
+  const employerSide = ["employers.html", "employer.html", "applicants.html"].includes(here);
+  if (employerSide) html.classList.add("employer-side");
   function nav(lang = "ar") {
     const box = document.querySelector(".topbar .nav");
     if (!box) return;
-    box.replaceChildren(...NAV.map(([href, ar, en]) => {
+    box.replaceChildren(...(employerSide ? EMPLOYER_NAV : NAV).map(([href, ar, en]) => {
       const a = el("a", null, lang === "en" ? en : ar);
       a.href = href;
-      if (href === here) a.setAttribute("aria-current", "page");
+      if (href === here || href === here + location.hash) a.setAttribute("aria-current", "page");
       return a;
     }));
+    // the other side of the site, at the end of the bar (Bayt's "for employers")
+    const tools = document.querySelector(".topbar .tools");
+    if (tools) {
+      let other = tools.querySelector(".side-link");
+      if (!other) { other = el("a", "side-link"); tools.append(other); }
+      other.href = employerSide ? "./" : "employers.html";
+      other.textContent = employerSide ? (lang === "en" ? "For job seekers ›" : "للباحثين عن عمل ‹") : (lang === "en" ? "For employers ›" : "للشركات ‹");
+    }
+    const mark = document.querySelector(".topbar .wordmark");
+    if (mark && employerSide && !mark.querySelector(".side-tag")) mark.append(el("span", "side-tag", lang === "en" ? "Employers" : "للشركات"));
   }
   nav();
 
-  // the account button: "دخول" when signed out, the student's initial when in
+  // The account menu: the student's own pages, signed in or not (applications
+  // and alerts work from this browser too). On the employer side it is the
+  // company's account instead.
   function accountButton(lang = store.get("masar.lang") === "en" && document.getElementById("lang-toggle") ? "en" : "ar") {
     const tools = document.querySelector(".topbar .tools");
     if (!tools) return;
-    let a = tools.querySelector(".account-btn");
-    if (!a) { a = el("a", "tool account-btn"); a.href = "account.html"; tools.prepend(a); }
-    const u = account.user;
-    a.classList.toggle("in", !!u);
     const en = lang === "en";
-    a.textContent = u ? (u.name || u.email || "?").trim().charAt(0).toUpperCase() : en ? "Sign in" : "دخول";
-    a.setAttribute("aria-label", u ? `${en ? "Your account" : "حسابك"}: ${u.name || u.email}` : en ? "Sign in" : "تسجيل الدخول");
-    if (here === "account.html") a.setAttribute("aria-current", "page");
+    tools.querySelector(".account-menu")?.remove();
+    if (employerSide) {
+      const co = readJson("masar.employer", "null");
+      const a = el("a", `tool account-btn${co ? " in" : ""}`, co ? (co.company || co.email || "?").trim().charAt(0).toUpperCase() : en ? "Sign in" : "دخول");
+      a.href = "employer.html";
+      a.classList.add("account-menu");
+      a.setAttribute("aria-label", co ? `${en ? "Company account" : "حساب الشركة"}: ${co.company || co.email}` : en ? "Company sign in" : "دخول الشركات");
+      tools.prepend(a);
+      return;
+    }
+    const u = account.user;
+    const box = el("div", "account-menu");
+    const btn = el("button", `tool account-btn${u ? " in" : ""}`, u ? (u.name || u.email || "?").trim().charAt(0).toUpperCase() : en ? "Sign in" : "دخول");
+    btn.type = "button";
+    btn.setAttribute("aria-haspopup", "true");
+    btn.setAttribute("aria-expanded", "false");
+    btn.setAttribute("aria-label", u ? `${en ? "Your account" : "حسابك"}: ${u.name || u.email}` : en ? "Sign in and your pages" : "الدخول وصفحاتك");
+    const menu = el("div", "account-pop");
+    menu.hidden = true;
+    if (u) {
+      const who = el("p", "account-pop-who");
+      who.append(el("strong", null, u.name || ""), el("span", null, u.email || ""));
+      who.lastChild.dir = "ltr";
+      menu.append(who);
+    }
+    const items = [
+      ["account.html", u ? (en ? "My profile" : "ملفي وحسابي") : (en ? "Sign in or create an account" : "الدخول أو إنشاء حساب")],
+      ["applications.html", en ? "My applications" : "طلباتي"],
+      ["alerts.html", en ? "Job alerts" : "تنبيهات الوظائف"],
+      ["jobs.html?saved=1", en ? "Saved postings" : "الإعلانات المحفوظة"],
+      ["tests.html", en ? "Skill tests" : "اختبارات المهارات"],
+    ];
+    items.forEach(([href, label]) => {
+      const a = el("a", null, label);
+      a.href = href;
+      if (href === here) a.setAttribute("aria-current", "page");
+      menu.append(a);
+    });
+    if (u) {
+      const out = el("button", "account-pop-out", en ? "Sign out" : "تسجيل الخروج");
+      out.type = "button";
+      out.onclick = async () => { await account.call("/auth/logout", {}).catch(() => {}); account.forget(); location.reload(); };
+      menu.append(out);
+    }
+    const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+    btn.onclick = (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute("aria-expanded", String(!menu.hidden)); if (!menu.hidden) menu.querySelector("a")?.focus(); };
+    document.addEventListener("click", (e) => { if (!box.contains(e.target)) close(); });
+    box.addEventListener("keydown", (e) => { if (e.key === "Escape") { close(); btn.focus(); } });
+    box.append(btn, menu);
+    tools.prepend(box);
   }
   accountButton();
 
@@ -436,11 +501,13 @@ window.Masar = (() => {
     swipe: "M7 4h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM10 12l2 2 3-4",
     cv: "M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5",
     apps: "M5 5h14M5 12h14M5 19h9M17 17l2 2 3-4",
+    me: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
   };
   const TABS = [["./", "home", "الرئيسية", "Home"], ["jobs.html", "jobs", "الإعلانات", "Postings"], ["swipe.html", "swipe", "سحب", "Swipe"],
-                ["cv.html", "cv", "سيرتك", "CV"], ["applications.html", "apps", "طلباتي", "Applied"]];
+                ["cv.html", "cv", "سيرتك", "CV"], ["account.html", "me", "حسابي", "Account"]];
   const english = () => store.get("masar.lang") === "en";
-  const noTabs = ["swipe.html", "admin.html", "applicants.html"].includes(here) || /[?&]embed=/.test(location.search);
+  const noFoot = ["swipe.html", "admin.html", "applicants.html"].includes(here) || /[?&]embed=/.test(location.search);
+  const noTabs = noFoot || employerSide;
   if (!noTabs && document.querySelector(".topbar")) {
     const bar = el("nav", "tabbar");
     bar.setAttribute("aria-label", "التنقل السريع");
@@ -464,7 +531,7 @@ window.Masar = (() => {
 
   // The name across the whole width at the bottom of every page, in the
   // wordmark's letters (Montserrat); each letter rises in when it is reached.
-  if (!noTabs && document.querySelector(".topbar")) {
+  if (!noFoot && document.querySelector(".topbar")) {
     // Montserrat 800 is declared in masar.css; the browser fetches it when these letters are drawn
     const mark = el("div", "foot-mark reveal");
     mark.setAttribute("aria-hidden", "true");
@@ -512,7 +579,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=10";
+    s.src = "assets/en.js?v=11";
     s.onload = translate;
     document.head.append(s);
   }

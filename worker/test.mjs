@@ -2,7 +2,7 @@
 // the audit on its own, then both endpoints with Gemini replaced by a stub.
 import assert from "node:assert/strict";
 import { audit, mentions } from "./src/audit.js";
-import worker from "./src/index.js";
+import worker, { cleanDraft } from "./src/index.js";
 
 // ---- mentions: short names must stand alone ----
 assert.ok(mentions("SQL, R and Python", "R"));
@@ -282,6 +282,8 @@ import vm from "node:vm";
 
 // ---- D1 in memory (node:sqlite, the whole schema.sql) for the database paths ----
 const { DatabaseSync } = await import("node:sqlite");
+// Workers' constant-time compare, which Node lacks
+crypto.subtle.timingSafeEqual ??= (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
 function memoryD1() {
   const db = new DatabaseSync(":memory:");
   db.exec(readFileSync(new URL("./schema.sql", import.meta.url), "utf8"));
@@ -355,5 +357,42 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   const low = Object.fromEntries(TESTS.excel.questions.map((x, i) => [i, i < 5 ? x.a : "x"]));
   assert.equal((await skilltests(as("/tests/excel", "POST", { answers: low }), env, "/tests/excel")).passed, false);
   await assert.rejects(skilltests(new Request("https://w/tests/sql", { method: "POST", body: "{}" }), env, "/tests/sql"), /session/);
+}
+// ---- company accounts: work Google accounts only; their postings open without the private link ----
+{
+  const { employer } = await import("./src/employer.js");
+  const env = { DB: memoryD1(), GOOGLE_CLIENT_ID: "x" };
+  const fake = (email) => async () => ({ sub: `g-${email}`, email, name: "HR" });
+  const signIn = (email) => employer(new Request("https://w/employer/google", { method: "POST", body: JSON.stringify({ credential: "t" }) }), env, "/employer/google", fake(email));
+  await assert.rejects(signIn("someone@gmail.com"), /work_email/, "free mail is not a company");
+  const { token, employer: co } = await signIn("hr@acme.sa");
+  assert.equal(co.domain, "acme.sa");
+  const auth = (path, method = "GET", data) => new Request(`https://w${path}`, { method, headers: { Authorization: `Bearer ${token}` }, ...(data ? { body: JSON.stringify(data) } : {}) });
+  const ad = { company: "Acme", website: "acme.sa", contact_email: "someone@else.com", title: "Data Analyst Co-op", city: "Riyadh", country: "SA",
+    workplace: "onsite", employment: "coop", level: "Intern", field: "data", required: "SQL, Excel",
+    description: "Join our analytics team as a co-op trainee. You will clean sales data in SQL, build weekly Excel reports and present findings to the regional managers every month." };
+  const posted = await board(new Request("https://w/board/postings", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(ad) }), env, "/board/postings");
+  const row = env.DB.raw.prepare("SELECT owner_id, contact_email, verified FROM postings WHERE id = ?").get(posted.id);
+  assert.equal(row.contact_email, "hr@acme.sa", "the confirmed work email, not the typed one");
+  assert.equal(row.verified, 1);
+  const me = await employer(auth("/employer/me"), env, "/employer/me");
+  assert.deepEqual(me.postings.map((p) => [p.id, p.applicants]), [[posted.id, 0]]);
+  const list = await board(auth(`/board/manage/${posted.id}`), env, `/board/manage/${posted.id}`);
+  assert.equal(list.applications.length, 0, "the owner opens applicants with the account");
+  const { token: other } = await signIn("hr@other.sa");
+  await assert.rejects(board(new Request(`https://w/board/manage/${posted.id}`, { headers: { Authorization: `Bearer ${other}` } }), env, `/board/manage/${posted.id}`), /manage/);
+}
+
+// ---- the employer's pasted ad: only what the ad says, only the form's options ----
+{
+  const ad = ["Lulu Hypermarket - Data Analyst Co-op Trainee", "Riyadh, Saudi Arabia. Apply: hr@luluhypermarket.com", "We need SQL and Excel."].join("\n");
+  const d = cleanDraft({ company: "Lulu Hypermarket", title: "Data Analyst Co-op Trainee", city: "Riyadh", country: "SA",
+    employment: "coop", level: "Wizard", workplace: "onsite", website: "https://www.lulu.example/jobs", salary: "5000 SAR" }, ad);
+  assert.equal(d.company, "Lulu Hypermarket");
+  assert.equal(d.contact_email, "hr@luluhypermarket.com", "the email comes from the text itself");
+  assert.equal(d.level, "", "a choice outside the form is dropped");
+  assert.equal(d.website, "", "a site the ad never names is dropped");
+  assert.equal(d.salary, "", "an invented salary is dropped");
+  assert.equal(d.description, ad);
 }
 console.log("worker tests passed");

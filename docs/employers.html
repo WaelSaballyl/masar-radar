@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>انشر إعلاناً — مسار</title>
+<title>مسار للشركات: وظّف الطلاب والخريجين — مسار</title>
 <meta name="description" content="انشر إعلان وظيفة أو تدريب تعاوني، يصل مباشرة إلى الطلاب والخريجين في السعودية والخليج: البيانات والبرمجة والمحاسبة والهندسة والتسويق والموارد البشرية.">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="مسار">
-<meta property="og:title" content="انشر إعلاناً — مسار">
+<meta property="og:title" content="مسار للشركات: وظّف الطلاب والخريجين — مسار">
 <meta property="og:description" content="انشر إعلان وظيفة أو تدريب تعاوني، يصل مباشرة إلى الطلاب والخريجين في السعودية والخليج: البيانات والبرمجة والمحاسبة والهندسة والتسويق والموارد البشرية.">
 <meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
 <meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/employers.html">
@@ -19,7 +19,7 @@
 <meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
 <link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/masar.css?v=66">
+<link rel="stylesheet" href="assets/masar.css?v=68">
 </head>
 <body>
 <div class="wrap">
@@ -34,19 +34,40 @@
     <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
   </header>
 
-  <main>
-    <div class="page-head">
-      <h1>انشر إعلانك على مسار</h1>
-      <p class="section-lede">إعلانك يظهر أعلى صفحة الإعلانات بشارة "حصري على مسار"، أمام الطلاب والخريجين في السعودية والخليج، في البيانات والبرمجة والمحاسبة والهندسة والتسويق والموارد البشرية. يتقدّم الطلاب من مسار مباشرة بسيرة معدّلة لإعلانك، وتراهم في صفحة خاصة مرتبين من الأقرب لمتطلباتك. نراجع كل إعلان قبل نشره، عادة خلال يوم عمل.</p>
-    </div>
-
-    <section class="pitch" aria-label="لماذا تنشر على مسار">
+  <main class="employers">
+    <section class="emp-hero">
+      <h1>وظّف أول فريقك من طلاب وخريجي السعودية والخليج</h1>
+      <p class="section-lede">انشر تدريبك التعاوني أو وظيفتك للمبتدئين مجاناً، ويتقدّم لك الطلاب بسيرة معدّلة لإعلانك، مرتّبين من الأقرب لمتطلباتك. البيانات والبرمجة والمحاسبة والهندسة والتسويق والموارد البشرية.</p>
+      <div class="emp-cta">
+        <a class="btn btn-primary" href="#post">أعلن عن وظيفتك مجاناً</a>
+        <a class="btn btn-quiet" href="employer.html#talent">ابحث عن مرشحين</a>
+      </div>
       <div class="pitch-facts" id="facts"></div>
+    </section>
+
+    <section class="emp-features" aria-label="ما تحصل عليه">
+      <article><h2>انشر بلصقة واحدة</h2><p>الصق نص إعلانك كما هو، ونعبّي الخانات كلها تلقائياً: المسمى والمدينة ونوع التوظيف والمهارات المطلوبة والمفضّلة. تراجعها وترسل.</p></article>
+      <article><h2>متقدمون مرتّبون حسب متطلباتك</h2><p>كل متقدم يرسل سيرة معدّلة لإعلانك من معلوماته فقط، وتعرف كم مهارة مطلوبة يملك. من أظهر «اهتماماً فعلياً» يظهر أولاً.</p></article>
+      <article><h2>ابحث عن المرشحين وادعُهم</h2><p>بطاقات طلاب اختاروا الظهور للشركات: التخصص والجامعة والمهارات والمدينة، ومهارات موثّقة باختبارات مسار. ادعُ من يناسبك للتقديم.</p></article>
+      <article><h2>لوحة واحدة لكل إعلاناتك</h2><p>ادخل بحساب Google الخاص بعمل شركتك، وتابع إعلاناتك ومتقدميها والجديد منهم من مكان واحد.</p></article>
+    </section>
+
+    <section class="pitch" aria-label="كيف يعمل">
       <ol class="pitch-steps">
         <li><strong>انشر الإعلان</strong><span>مجاناً خلال فترة الإطلاق. نراجعه وننشره خلال يوم عمل، وإذا كان إيميلك من دومين موقع شركتك يظهر بشارة "موثّقة".</span></li>
         <li><strong>يتقدّم الطلاب من مسار</strong><span>كل متقدم يرسل سيرة معدّلة لإعلانك، لا تضيف مهارات ليست عنده، وتعرف منها كم مهارة مطلوبة يملك.</span></li>
-        <li><strong>راجع المتقدمين في صفحتك</strong><span>مرتبين من الأقرب لمتطلباتك، مع السيرة جاهزة للطباعة وإيميل وجوال كل متقدم. أضف من يعجبك للقائمة المختصرة، ويرى الطالب ذلك.</span></li>
+        <li><strong>راجع المتقدمين في لوحتك</strong><span>مرتبين من الأقرب لمتطلباتك، مع السيرة جاهزة للطباعة وإيميل وجوال كل متقدم. أضف من يعجبك للقائمة المختصرة، ويرى الطالب ذلك.</span></li>
       </ol>
+    </section>
+
+    <h2 class="emp-form-title" id="post-title">أعلن عن وظيفتك</h2>
+    <div class="emp-account" id="emp-account"></div>
+    <section class="autofill" aria-labelledby="af-title">
+      <h3 id="af-title">الصق إعلانك ونعبّي الخانات لك</h3>
+      <p class="muted small">انسخ نص الإعلان كاملاً من أي مكان (موقعكم، LinkedIn، ملف Word) والصقه هنا. نعبّي ما نجده فيه فقط، وتراجع كل خانة قبل الإرسال.</p>
+      <textarea id="af-text" rows="7" dir="auto" placeholder="مثال: شركة ... تعلن عن تدريب تعاوني لمحلل بيانات في الرياض. المتطلبات: SQL وExcel ..." aria-labelledby="af-title"></textarea>
+      <div class="make-row"><button class="btn btn-primary" type="button" id="af-run">عبّئ الخانات تلقائياً</button></div>
+      <p class="status" id="af-status" aria-live="polite"></p>
     </section>
 
     <form id="post" class="step" novalidate>
@@ -112,7 +133,8 @@
 
   <footer><span>مسار مشروع مفتوح المصدر:</span> <a href="https://github.com/WaelSaballyl/masar-radar" rel="noopener">الشيفرة على GitHub</a></footer>
 </div>
-<script src="assets/core.js?v=58"></script>
-<script src="assets/employers.js?v=34"></script>
+<script src="assets/core.js?v=60"></script>
+<script src="assets/atskit.js?v=4"></script>
+<script src="assets/employers.js?v=36"></script>
 </body>
 </html>

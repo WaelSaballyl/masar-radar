@@ -121,6 +121,17 @@ applicants), skill tests = `src/skilltests.js` (answers stay on the worker, 6/8 
 D1 `verified_skills`/`test_attempts`, shown on account + talent cards). worker/test.mjs runs D1 paths on an
 in-memory node:sqlite built from schema.sql (`memoryD1`).
 
+Header v6 (2026-10-01, the owner's ask after Bayt): a full-width solid blue bar (`--brand` #0B5C8E, white type;
+`.topbar::before` spans the viewport) over the navy page - two colours. NAV in core.js has no "my applications": the
+student's pages sit in the account menu (`accountButton` builds `.account-menu`), the phone tab bar's last tab is حسابي.
+Employer side (`employerSide`: employers.html, employer.html, applicants.html) gets `EMPLOYER_NAV`, a deeper bar
+(--brand-deep), a "للشركات" tag and the company account button; `.side-link` switches sides. Company accounts:
+`worker/src/employer.js` (Google sign-in, free mail refused, D1 employers/employer_sessions, postings.owner_id; board
+`owner()` and talent `employer()` accept the owning company's session as well as the manage token), dashboard
+`employer.html`/`employer.js` (session in local-only `masar.employerSession`). Posting form autofill: rules in
+employers.js (email, site, city/country, type, level, field, title, company; skills via `MasarATS.match`), then
+worker `POST /draft` (Gemini; `cleanDraft` drops any value the ad does not contain).
+
 Postings page (`jobs.html`): filters for country, type (coop / internship / student / job),
 years asked, level, role, sort by fit, saved only - all mirrored in the URL (skill chips link
 to `jobs.html?q=Skill`). `radar/traits.py` decides type and years by fixed rules at export:

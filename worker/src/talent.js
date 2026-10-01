@@ -10,6 +10,8 @@
 //             GET  /talent/search?posting=<id>&field=&q=&country=  (posting's manage token) -> {cards}
 //             POST /talent/invite     (posting's manage token) {posting, card} -> {ok}
 
+import { employerOf } from "./employer.js";
+
 const FIELD = ["data", "tech", "finance", "engineering", "marketing", "hr"];
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM", "other"];
 const SEEKING = ["", "coop", "internship", "student", "job"];
@@ -52,8 +54,10 @@ export async function user(request, env) {
 
 async function employer(request, env, posting) {
   if (!/^[a-f0-9]{12}$/.test(posting || "")) throw refuse("manage", 401);
-  const row = await env.DB.prepare("SELECT manage_hash, status FROM postings WHERE id = ?").bind(posting).first();
-  if (!row || !row.manage_hash || !same(await sha(bearer(request)), row.manage_hash)) throw refuse("manage", 401);
+  const row = await env.DB.prepare("SELECT manage_hash, status, owner_id FROM postings WHERE id = ?").bind(posting).first();
+  if (!row) throw refuse("manage", 401);
+  const company = row.owner_id ? await employerOf(request, env) : null;
+  if (!(company && company.id === row.owner_id) && (!row.manage_hash || !same(await sha(bearer(request)), row.manage_hash))) throw refuse("manage", 401);
   // only a live posting may reach out: a rejected sender learns nothing new
   if (row.status !== "approved") throw refuse("not_live", 403);
 }
