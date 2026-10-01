@@ -216,11 +216,21 @@
     const has = (t, name) => { const r = rx(name); return r ? r.test(t) : t.toLowerCase().includes(name.toLowerCase()); };
     let { required = [], preferred = [], title = "" } = job;
     if (job.description) {
-      // skills named only after "nice to have" / "preferred" are preferred
+      // a skill is preferred when every sentence naming it says so ("SAP is an advantage"),
+      // or it sits under a "Nice to have:" heading; named anywhere else, it is required
       const d = job.description;
-      const cut = d.search(/nice[\s-]to[\s-]have|preferred|preferably|is a plus|are a plus|bonus|desirable|advantage|يفضّل|يفضل|ميزة إضافية|مهارات إضافية/i);
+      const PREF = /nice[\s-]to[\s-]have|preferred|preferably|is a plus|are a plus|bonus|desirable|advantage|يفضّل|يفضل|ميزة إضافية|مهارات إضافية/i;
       const all = Object.keys(patterns).filter((n) => has(d, n));
-      required = cut < 0 ? all : all.filter((n) => has(d.slice(0, cut), n));
+      const parts = [];
+      let under = false;
+      for (const line of d.split("\n")) {
+        const t = line.trim();
+        if (!t) continue;
+        // a heading line ("Nice to have:", "Requirements:") starts or ends a preferred block
+        if (/[:：]\s*$/.test(t) || /^#/.test(t)) under = PREF.test(t);
+        t.split(/(?<=[.!?؟])\s+/).forEach((s) => parts.push([s, under || PREF.test(s)]));
+      }
+      required = all.filter((n) => parts.some(([s, pref]) => !pref && has(s, n)));
       preferred = all.filter((n) => !required.includes(n));
       const head = job.description.split("\n").map((l) => l.trim()).find(Boolean) || "";
       title = head.split(/\s+[-–|،,]\s+/)[0];
