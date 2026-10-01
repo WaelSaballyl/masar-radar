@@ -8,7 +8,9 @@
   Masar.initTheme();
   const API = document.querySelector('meta[name="masar-api"]').content;
   const $ = (id) => document.getElementById(id);
-  const [id, token] = location.hash.slice(1).split(".");
+  // the private link carries the token; a signed-in company uses its account instead
+  const [id, linkToken] = location.hash.slice(1).split(".");
+  const token = linkToken || Masar.store.get("masar.employerSession") || "";
   const STATUS = { new: "جديد", shortlisted: "في القائمة المختصرة", rejected: "مستبعد" };
   const call = (path, method = "GET") => fetch(`${API}/board/manage/${id}${path}`, {
     method, headers: { Authorization: `Bearer ${token}` },
@@ -90,7 +92,13 @@
     window.print();
   });
 
-  if (!id || !token) { $("meta").textContent = "افتح الصفحة من الرابط الخاص الذي ظهر لك بعد نشر الإعلان."; return; }
+  if (!id || !token) {
+    $("meta").textContent = "افتح الصفحة من الرابط الخاص الذي ظهر لك بعد نشر الإعلان، أو ";
+    const a = el("a", null, "ادخل بحساب شركتك");
+    a.href = "employer.html";
+    $("meta").append(a, ".");
+    return;
+  }
   call("").then((r) => {
     if (!r.ok) {
       $("meta").textContent = r.status === 401 ? "الرابط غير صحيح أو قديم. إذا فقدته، راسلنا من إيميل العمل ونرسل لك رابطاً جديداً."
@@ -105,7 +113,12 @@
       + (apps.length ? `${Masar.count(apps.length, "applicant", "ar")}، الأقرب لمتطلباتك أولاً.` : "لم يتقدم أحد بعد.");
     render();
     // a live posting may also look for candidates who opted in
-    if (posting.status === "live") { $("talent").hidden = false; search(); }
+    if (posting.status === "live") {
+      $("talent").hidden = false;
+      search();
+      // the dashboard's "find candidates" opens straight on the search
+      if (new URLSearchParams(location.search).has("talent")) $("talent").scrollIntoView({ block: "start" });
+    }
   });
 
   // ---------- candidates who opted in ----------

@@ -162,3 +162,25 @@ CREATE TABLE IF NOT EXISTS test_attempts (
   at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS test_attempts_user ON test_attempts (user_id, skill, at);
+
+-- Company accounts (src/employer.js): HR signs in with a work Google account (no free mail);
+-- postings they send carry owner_id, and the dashboard opens them without the private link.
+CREATE TABLE IF NOT EXISTS employers (
+  id TEXT PRIMARY KEY,
+  google_sub TEXT UNIQUE NOT NULL,
+  email TEXT NOT NULL,
+  name TEXT,
+  domain TEXT NOT NULL,
+  company TEXT,
+  website TEXT,
+  created_at TEXT NOT NULL,
+  last_login TEXT
+);
+CREATE TABLE IF NOT EXISTS employer_sessions (
+  token_hash TEXT PRIMARY KEY,
+  employer_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL
+);
+ALTER TABLE postings ADD COLUMN owner_id TEXT;
+CREATE INDEX IF NOT EXISTS postings_owner ON postings (owner_id, created_at);

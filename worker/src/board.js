@@ -14,7 +14,8 @@
 // Anything a person typed is stored as text and returned as JSON; the pages
 // render it with textContent. The employer's email is never in a public reply.
 
-const FREE_MAIL = /@(gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|me|aol|proton|protonmail|gmx|yandex|mail)\.[a-z.]+$/i;
+import { employerOf, FREE_MAIL } from "./employer.js";
+
 const WORKPLACE = ["onsite", "hybrid", "remote"];
 const EMPLOYMENT = ["full_time", "part_time", "internship", "coop", "contract"];
 const LEVEL = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager"];
@@ -89,8 +90,12 @@ async function admin(request, env) {
 
 // the employer's private link carries a token; only its hash is stored
 async function owner(request, env, id) {
-  const row = await env.DB.prepare("SELECT manage_hash FROM postings WHERE id = ?").bind(id).first();
-  if (!row || !row.manage_hash || !same(await sha(bearer(request)), row.manage_hash)) throw refuse("manage", 401);
+  const row = await env.DB.prepare("SELECT manage_hash, owner_id FROM postings WHERE id = ?").bind(id).first();
+  if (!row) throw refuse("manage", 401);
+  // the company's own account opens all its postings; otherwise the posting's private link
+  const company = row.owner_id ? await employerOf(request, env) : null;
+  if (company && company.id === row.owner_id) return;
+  if (!row.manage_hash || !same(await sha(bearer(request)), row.manage_hash)) throw refuse("manage", 401);
 }
 
 // A student applies with the CV the builder made for this posting: contact
@@ -180,7 +185,7 @@ async function nudge(input, env) {
   return { ok: true };
 }
 
-async function submit(input, env) {
+async function submit(input, env, company = null) {
   const p = {
     company: text(input.company, 120), website: url(input.website), contact_email: text(input.contact_email, 160).toLowerCase(),
     title: text(input.title, 140), city: text(input.city, 80), country: text(input.country, 2).toUpperCase(),
@@ -189,6 +194,8 @@ async function submit(input, env) {
     salary: text(input.salary, 80), apply_url: url(input.apply_url),
     field: FIELD.includes(input.field) ? input.field : "data",
   };
+  // a signed-in company posts with the work email Google confirmed
+  if (company) p.contact_email = company.email;
   if (input.website_confirm) throw bad("bot");  // a hidden field only bots fill in
   for (const f of ["company", "title", "city"]) if (p[f].length < 2) throw bad(f);
   if (!EMAIL.test(p.contact_email)) throw bad("contact_email");
@@ -216,12 +223,12 @@ async function submit(input, env) {
   const id = newId(), manage = newToken();
   await env.DB.prepare(
     `INSERT INTO postings (id, status, created_at, reviewed_at, expires_at, company, website, contact_email, title, city,
-       country, workplace, employment, level, description, required, preferred, salary, apply_url, risk, reasons, manage_hash, verified, field)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       country, workplace, employment, level, description, required, preferred, salary, apply_url, risk, reasons, manage_hash, verified, field, owner_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(id, status, now.toISOString(), status === "pending" ? null : now.toISOString(), expires.toISOString().slice(0, 10),
     p.company, p.website, p.contact_email, p.title, p.city, p.country, p.workplace, p.employment, p.level,
     p.description, p.required, p.preferred, p.salary, p.apply_url, risk, reasons.join("\n"), await sha(manage),
-    sameDomain(p.contact_email.split("@")[1] || "", host(p.website)) ? 1 : 0, p.field).run();
+    sameDomain(p.contact_email.split("@")[1] || "", host(p.website)) ? 1 : 0, p.field, company ? company.id : null).run();
   // the same answer whatever the verdict: a rejected scammer learns nothing
   return { id, manage };
 }
@@ -240,7 +247,7 @@ export async function board(request, env, path) {
     ).bind(today).all();
     return { postings: results };
   }
-  if (path === "/board/postings" && request.method === "POST") return submit(await body(request), env);
+  if (path === "/board/postings" && request.method === "POST") return submit(await body(request), env, await employerOf(request, env));
   if (path === "/board/apply" && request.method === "POST") return apply(await body(request), env);
   if (path === "/board/mine" && request.method === "POST") return mine(await body(request), env);
   if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request), env);

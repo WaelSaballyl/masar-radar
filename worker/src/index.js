@@ -17,6 +17,7 @@ import { support } from "./support.js";
 import { stats } from "./stats.js";
 import { talent } from "./talent.js";
 import { skilltests } from "./skilltests.js";
+import { employer } from "./employer.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -56,6 +57,14 @@ export default {
       if (request.method === "POST" && path === "/talent/invite" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
       try { return reply(200, (await talent(request, env, path)) || { error: "path" }); }
       catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
+    }
+    // company accounts (HR with a work Google account), apart from student accounts
+    if (path.startsWith("/employer/")) {
+      if (path === "/employer/google" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      try {
+        const out = await employer(request, env, path);
+        return out ? reply(200, out) : reply(404, { error: "path" });
+      } catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
     }
     // skill tests: questions without answers, scored here; passing marks the skill verified
     if (path === "/tests" || path.startsWith("/tests/")) {
@@ -100,7 +109,7 @@ export default {
       }
     }
     if (request.method !== "POST") return reply(405, { error: "method" });
-    if (!["/parse", "/tailor", "/interview", "/linkedin"].includes(path)) return reply(404, { error: "path" });
+    if (!["/parse", "/tailor", "/interview", "/linkedin", "/draft"].includes(path)) return reply(404, { error: "path" });
     if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
 
     const raw = await request.text();
@@ -109,7 +118,7 @@ export default {
     try { input = JSON.parse(raw); } catch { return reply(400, { error: "json" }); }
 
     try {
-      const handle = { "/parse": parse, "/tailor": tailor, "/interview": interview, "/linkedin": linkedin }[path];
+      const handle = { "/parse": parse, "/tailor": tailor, "/interview": interview, "/linkedin": linkedin, "/draft": draft }[path];
       return reply(200, await handle(input, env));
     } catch (e) {
       if (!e.code) console.error(e.stack || e); // a bug here, not an upstream answer
@@ -189,6 +198,51 @@ ${text}`);
   } };
 }
 
+// An employer pastes a whole job ad; this fills the posting form from it. The
+// model only picks values: anything it names that the ad does not contain
+// (company, title, city, email, site) is dropped, the choices must be one of
+// the form's options, and the description stays the employer's own text.
+const DRAFT = {
+  country: ["SA", "AE", "QA", "KW", "BH", "OM"], field: ["data", "tech", "finance", "engineering", "marketing", "hr"],
+  employment: ["coop", "internship", "full_time", "part_time", "contract"], workplace: ["onsite", "hybrid", "remote"],
+  level: ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager"],
+};
+export function cleanDraft(out, text) {
+  const o = out && typeof out === "object" ? out : {};
+  const lower = text.toLowerCase();
+  const inText = (v, max) => { const t = str(v, max); return t && lower.includes(t.toLowerCase()) ? t : ""; };
+  const pick = (k) => (DRAFT[k].includes(o[k]) ? o[k] : "");
+  const email = (text.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/) || [""])[0];
+  const site = inText(String(o.website || "").replace(/^https?:\/\/(www\.)?/i, "").replace(/\/.*$/, ""), 120);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(o.deadline || "") ? o.deadline : "";
+  return {
+    company: inText(o.company, 120), website: site, contact_email: email,
+    title: inText(o.title, 140), city: inText(o.city, 80),
+    country: pick("country"), field: pick("field"), employment: pick("employment"), workplace: pick("workplace"), level: pick("level"),
+    salary: inText(o.salary, 80), deadline: date, apply_url: inText(o.apply_url, 300),
+    description: text.slice(0, 6000),
+  };
+}
+async function draft(input, env) {
+  const text = str(input?.text, 12_000);
+  if (text.length < 80) throw fail(400, "too_short");
+  const out = await gemini(env, `An employer pasted a job ad. Fill the posting form from it. Copy values exactly as they appear in the ad (company name, job title, city, salary, website, apply link); leave a value "" when the ad does not state it. Never invent.
+
+country: one of SA AE QA KW BH OM (the country of the job; Saudi cities mean SA).
+field: one of data tech finance engineering marketing hr.
+employment: one of coop (co-op / تدريب تعاوني), internship, full_time, part_time, contract.
+workplace: one of onsite hybrid remote.
+level: one of Intern Junior Mid Senior Lead Manager.
+deadline: YYYY-MM-DD if the ad gives a closing date, else "".
+
+Return JSON only:
+{"company":"","website":"","title":"","city":"","country":"","field":"","employment":"","workplace":"","level":"","salary":"","deadline":"","apply_url":""}
+
+Ad:
+${text}`);
+  return { draft: cleanDraft(out, text) };
+}
+
 // the student's profile (no contact fields) and the posting, as both /tailor and /interview read them
 function inputs(input) {
   const p = input?.profile || {};
@@ -246,6 +300,8 @@ const FACTS = `Masar (مسار) is a free site for students and new graduates in
 - Companies page (companies.html): every company with an open posting, its countries, most-asked skills and postings; follow a company to get its new postings as alerts.
 - Job alerts (alerts.html): save a search (from the postings page filters or the form) or follow a company; new matching postings show on the next visit and on the postings page. Email alerts are not available yet.
 - Interview questions: pages per role (for example l/interview-data-analyst.html) with a common question for each skill the role's postings ask most, what it tests and how to answer, plus the general questions. The CV builder also writes interview questions for a specific posting.
+- Employers have their own side of the site (employers.html, employer.html), apart from students: a company signs in with its work Google account (Google Workspace; Gmail and other free mail are refused) and sees all its postings, applicants and candidate search on the company dashboard (employer.html). Without an account it can still post with a work email and gets a private applicants link. On the posting form, pasting the whole ad fills the fields automatically, to be checked before sending.
+- The student's own pages (my applications, job alerts, saved postings, skill tests, profile) are in the account menu at the top (the "دخول" button or the student's initial), and on phones under "حسابي" in the bottom bar.
 - Premium (premium.html): free during the trial. It covers swipe to apply, "really interested" (3 a month: the application shows first in the employer's list with a badge, from the my applications page), seeing when the company opened your CV and a reminder after a week, skill tests, the talent card, the LinkedIn writer. No payment is asked; a price would be announced on that page first.
 - Skill tests (tests.html): 8 questions each in SQL, Excel, Python, Power BI, Statistics and Financial Reporting; 6 right passes and marks the skill verified on the account and talent card. Needs sign-in; one attempt per skill a day.
 - ATS check (ats.html): upload a PDF or Word CV and optionally pick a posting or paste a description; it shows exactly the text a screening system reads, what breaks it (a scanned image, two columns, tables, text boxes, contact in the page header, joined letters like fi, Arabic inside a PDF, missing sections, dates or contact) with fixed points for each, a content score (numbers and results in the experience points, points starting with an action verb, no duty phrases like "Responsible for", a summary, at least six skills, a LinkedIn link), and which of the posting's skills are found. The ATS score is half reading and half content without a posting, and 30% reading, 30% content, 40% match with one; 85+ is excellent, 70+ good, 50+ needs work. The file is read in the browser and never uploaded. There is no single ATS; the score is fixed rules, not a prediction of any company's system.

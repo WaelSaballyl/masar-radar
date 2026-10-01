@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة الشركة — مسار</title>
+<meta name="description" content="لوحة الشركة في مسار: إعلاناتك ومتقدموها والبحث عن المرشحين، بحساب Google الخاص بعمل شركتك.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="لوحة الشركة — مسار">
+<meta property="og:description" content="لوحة الشركة في مسار: إعلاناتك ومتقدموها والبحث عن المرشحين، بحساب Google الخاص بعمل شركتك.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/employer.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B1219">
+<meta name="robots" content="noindex">
+<meta name="masar-api" content="https://masar-cv.masar-cv.workers.dev">
+<link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/masar.css?v=68">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام"></nav>
+    <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
+  </header>
+
+  <main class="employer-dash">
+    <section class="account-card" id="out" hidden>
+      <h1>دخول الشركات</h1>
+      <p class="section-lede">حساب الشركة منفصل عن حسابات الطلاب. ادخل بحساب Google الخاص بعمل شركتك (Google Workspace)، مثل hr@company.com، لا بإيميل Gmail شخصي. هكذا نعرف أن الحساب لشركة حقيقية.</p>
+      <div id="google-btn" class="google-btn"></div>
+      <p class="status" id="out-status" role="status"></p>
+      <ul class="account-facts">
+        <li><strong>كل إعلاناتك في مكان واحد</strong><span>حالة كل إعلان، وعدد المتقدمين، والجديد منهم.</span></li>
+        <li><strong>بلا روابط تضيع</strong><span>تفتح المتقدمين من حسابك، والرابط الخاص لكل إعلان يبقى يعمل.</span></li>
+        <li><strong>ابحث عن مرشحين</strong><span>بطاقات طلاب اختاروا الظهور، وادعُ من يناسبك.</span></li>
+        <li><strong>إيميل غير Google؟</strong><span>انشر من <a href="employers.html#post">صفحة الشركات</a> بإيميل العمل، ونعطيك رابطاً خاصاً للمتقدمين.</span></li>
+      </ul>
+    </section>
+
+    <section id="in" hidden>
+      <div class="dash-head">
+        <div>
+          <h1 id="co-name">لوحة الشركة</h1>
+          <p class="muted" id="co-email" dir="ltr"></p>
+        </div>
+        <div class="dash-actions">
+          <a class="btn btn-primary" href="employers.html#post">أعلن عن وظيفة</a>
+          <button class="btn btn-quiet" type="button" id="logout">تسجيل الخروج</button>
+        </div>
+      </div>
+      <form class="co-profile" id="co-profile">
+        <label class="field">اسم الشركة كما يظهر للطلاب<input name="company" required maxlength="120"></label>
+        <label class="field">موقع الشركة<input name="website" dir="ltr" placeholder="company.com"></label>
+        <button class="btn btn-quiet btn-small" type="submit">احفظ</button>
+        <p class="status" id="co-status" role="status"></p>
+      </form>
+      <h2>إعلاناتك</h2>
+      <div class="dash-stats" id="stats"></div>
+      <ul class="dash-postings" id="postings"></ul>
+      <section class="dash-talent" id="talent">
+        <h2>ابحث عن مرشحين</h2>
+        <p class="muted">البحث في بطاقات الطلاب يكون باسم إعلان منشور، حتى تصل دعوتك للتقديم عليه. اختر الإعلان:</p>
+        <div class="dash-talent-row"><select id="talent-posting" aria-label="الإعلان"></select><a class="btn btn-primary" id="talent-go" href="#">ابحث في المرشحين</a></div>
+        <p class="muted small" id="talent-note"></p>
+      </section>
+    </section>
+  </main>
+</div>
+<script src="assets/core.js?v=60"></script>
+<script src="assets/employer.js?v=1"></script>
+</body>
+</html>
