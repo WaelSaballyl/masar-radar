@@ -394,5 +394,9 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   assert.equal(d.website, "", "a site the ad never names is dropped");
   assert.equal(d.salary, "", "an invented salary is dropped");
   assert.equal(d.description, ad);
+  // an ad that names no company: "We" or a word inside another word is not a name
+  const anon = "automotive sector company in Jeddah is looking for an Employee Relations Specialist. We need HR experience.";
+  assert.equal(cleanDraft({ company: "We" }, anon).company, "");
+  assert.equal(cleanDraft({ company: "Rela" }, anon).company, "");
 }
 console.log("worker tests passed");

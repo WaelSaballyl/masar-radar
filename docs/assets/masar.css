@@ -1632,3 +1632,6 @@ html .topbar .wordmark .logo-on-light { display: none !important; }
 .co-profile input, .dash-talent select { font: inherit; font-size: 0.95rem; color: var(--text); background: var(--bg); width: 100%;
   border: 1px solid var(--hairline); border-radius: 10px; padding: 9px 12px; min-height: 44px; }
 .co-profile input:focus-visible, .dash-talent select:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.af-jobs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 4px; }
+.af-jobs p { flex: 1 0 100%; margin: 0 0 4px; }
+.af-jobs .btn.on { border-color: var(--mint); background: color-mix(in srgb, var(--mint) 18%, transparent); font-weight: 700; }
