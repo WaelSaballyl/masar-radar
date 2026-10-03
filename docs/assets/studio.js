@@ -174,26 +174,74 @@
     save();
     paintUndo();
   }
-  // the CV page's profile, in its own field format, so "tailor to a posting" works from here
-  function toProfile() {
-    let old = {};
-    try { old = JSON.parse(store.get("masar.profile") || "{}") || {}; } catch { /* start fresh */ }
+  // the CV's facts in the CV page's field format, without contact details
+  function facts() {
     const e = S.education[0] || {};
-    const P = S.personal;
     const para = (head, b) => [head, ...b].filter(Boolean).join("\n");
-    const prof = {
-      ...old, name: P.name, email: P.email, phone: P.phone, city: P.city, link: P.link,
+    return {
       university: e.school || "", degree: e.degree || "", major: e.major || "", graduation: e.dates || "", gpa: e.gpa || "",
       skills: S.skills.join(", "),
       experience: S.experience.map((x) => para([[x.title, x.org, x.location].filter(Boolean).join(" - "), x.dates].filter(Boolean).join(", "), x.bullets)).join("\n\n"),
       projects: S.projects.map((x) => para([[x.name, x.tools].filter(Boolean).join(" - "), x.dates].filter(Boolean).join(", "), x.bullets)).join("\n\n"),
       certificates: S.certificates.join("\n"),
       languages: S.languages.join("، "),
-      other: [P.headline && (S.lang === "ar" ? `المسمى الذي أستهدفه: ${P.headline}` : `Target role: ${P.headline}`), ...S.additional].filter(Boolean).join("\n"),
+      other: [S.personal.headline && (S.lang === "ar" ? `المسمى الذي أستهدفه: ${S.personal.headline}` : `Target role: ${S.personal.headline}`), ...S.additional].filter(Boolean).join("\n"),
+    };
+  }
+  // the CV page's profile, in its own field format, so "tailor to a posting" works from here
+  function toProfile() {
+    let old = {};
+    try { old = JSON.parse(store.get("masar.profile") || "{}") || {}; } catch { /* start fresh */ }
+    const P = S.personal;
+    const prof = {
+      ...old, name: P.name, email: P.email, phone: P.phone, city: P.city, link: P.link, ...facts(),
       worklinks: [old.worklinks, ...S.projects.map((x) => x.link)].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join("\n"),
     };
     store.set("masar.profile", JSON.stringify(prof));
   }
+
+  // ---------- reading how the student talks ----------
+  const API = document.querySelector('meta[name="masar-api"]')?.content;
+  const NO_CONTACT = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+|\b(?:https?:\/\/|www\.)\S+|(?:\+|\b00|\b0)\d[\d\s-]{7,14}\d/g;
+  // without the worker: traits from the words they use, tone from how long their sentences run
+  function readLocally(text) {
+    const t = text.toLowerCase();
+    const CUES = {
+      analytical: /رقم|ارقام|أرقام|بيانات|داتا|تحليل|حلل|نسب|data|number|analy|excel|sql/,
+      creative: /فكر|افكار|أفكار|صمم|تصميم|ابتكر|ابداع|إبداع|design|idea|creat/,
+      leader: /فريق|قدت|قيادة|مسؤول|اشرفت|أشرفت|team|led|lead/,
+      organised: /نظم|تنظيم|خطة|خطه|موعد|مواعيد|ترتيب|plan|organi|schedul/,
+      communicator: /تكلم|كلمت|عرض|تواصل|اقنع|أقنع|ناس|عملاء|present|talk|client|customer/,
+      learner: /تعلم|اتعلم|دورة|دوره|كورس|جديد|learn|course|new/,
+    };
+    const traits = Object.entries(CUES).map(([k, rx]) => [k, (t.match(new RegExp(rx, "g")) || []).length]).filter(([, n]) => n).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k]) => k);
+    const sentences = text.split(/[.!؟?\n]+/).map((x) => x.trim()).filter(Boolean);
+    const avg = sentences.reduce((n, x) => n + x.split(/\s+/).length, 0) / Math.max(1, sentences.length);
+    const tone = /!|😀|😂|🔥|يا سلام|حماس|exciting|love/i.test(text) ? "energetic" : avg <= 9 ? "direct" : avg >= 20 ? "calm" : "warm";
+    const line = { energetic: L("تكتب بحماس وطاقة", "You write with energy"), direct: L("تكتب بجمل قصيرة ومباشرة", "You write in short, direct sentences"),
+      calm: L("تكتب بهدوء وتفصيل", "You write calmly and in detail"), warm: L("تكتب بأسلوب ودود وواضح", "You write in a warm, clear way") }[tone];
+    return { tone, traits, voice: line, verbs_ar: [], verbs_en: [], words: [], summary: "", local: true };
+  }
+  async function readVoice(sample, withSummary) {
+    const clean = sample.replace(NO_CONTACT, " ").trim();
+    try {
+      const r = await fetch(`${API}/voice`, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sample: clean, lang: S.lang, ...(withSummary ? { profile: facts() } : {}) }) });
+      if (!r.ok) throw new Error(String(r.status));
+      return await r.json();
+    } catch {
+      return readLocally(clean);
+    }
+  }
+  const TONE_NAMES = { formal: L("رسمي", "Formal"), warm: L("ودود", "Warm"), direct: L("مباشر", "Direct"), energetic: L("متحمّس", "Energetic"), calm: L("هادئ", "Calm") };
+  const PROMPTS = [
+    [L("احكيلنا عن شي عملته وكنت فخور فيه. بأي طريقة بتحب، باللهجة عادي.", "Tell us about something you did and were proud of. Any way you like."),
+      L("مثلاً: بالجامعة سوّيت مشروع مع ربعي…", "e.g. At uni my friends and I built…")],
+    [L("لو صاحبك سألك: شو بتحب تشتغل وليش؟ شو بتقلّه؟", "If a friend asked what work you'd love and why, what would you say?"),
+      L("بحب الشغل اللي فيه…", "I like work where…")],
+    [L("احكيلنا عن موقف صعب صار معك وكيف تصرّفت.", "Tell us about a hard moment and how you handled it."),
+      L("مرة بالتدريب صار…", "Once during my internship…")],
+  ];
 
   // ---------- the paper ----------
   const paper = $("paper");
@@ -662,7 +710,8 @@
 
   function bulletWizard(x, textarea, paint) {
     const traits = (S.style?.traits?.length ? S.style.traits : ["analytical", "learner"]);
-    const verbs = [...new Set(traits.flatMap((t) => VERBS[t]).map(([a, e]) => (S.lang === "ar" ? a : e)))];
+    const own = (S.style?.voice?.[S.lang === "ar" ? "verbs_ar" : "verbs_en"]) || [];
+    const verbs = [...new Set([...own, ...traits.flatMap((t) => VERBS[t]).map(([a, e]) => (S.lang === "ar" ? a : e))])].slice(0, 8);
     const st = { verb: verbs[0], what: "", tool: "", result: "" };
     const out = h("p", { class: "st-wiz-out", dir: "auto" });
     const compose = () => {
@@ -772,7 +821,8 @@
       st.traits.forEach((t) => s.push(TRAITS[t][2]));
       return s.join(" ");
     };
-    const paint = () => { out.textContent = write(); };
+    let voiced = "";
+    const paint = () => { voiced = ""; out.textContent = write(); };
     const pick = (opts, key, max) => {
       const box = h("div", { class: "st-chips" });
       const draw = () => box.replaceChildren(...opts.map(([v, label]) => {
@@ -800,8 +850,21 @@
           oninput: (e) => { st.ach = e.target.value; paint(); } })),
       q("٥", L("ماذا يميّزك؟ اختر اثنين", "What sets you apart? Pick two"), pick(Object.entries(TRAITS).map(([k, v]) => [k, v[0]]), "traits", 2)),
       ar() ? q("٦", L("صيغة الكتابة", "Wording"), pick([["m", "مذكّر"], ["f", "مؤنّث"]], "form")) : null,
+      S.voiceSample ? h("div", { class: "st-wiz-foot st-wiz-voice" },
+        h("p", { class: "st-hint" }, L("أو خلّينا نكتبها بأسلوبك أنت، من الكلام اللي كتبته لنا.", "Or let us write it in your own voice, from what you wrote us.")),
+        h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: async (e) => {
+          const b = e.currentTarget;
+          b.disabled = true;
+          b.textContent = L("نكتبها بأسلوبك…", "Writing in your voice…");
+          const v = await readVoice(S.voiceSample, true);
+          b.disabled = false;
+          b.textContent = L("اكتبها بأسلوبي", "Write it in my voice");
+          if (v.summary) { out.textContent = v.summary; voiced = v.summary; }
+          else toast(v.local ? L("ما قدرنا نوصل للخادم الآن. جرّب بعد شوي.", "Couldn't reach the server. Try again shortly.")
+            : L("نحتاج معلومات أكثر في سيرتك لنكتبها بأسلوبك.", "We need more in your CV to write it in your voice."));
+        } }, L("اكتبها بأسلوبي", "Write it in my voice"))) : null,
       h("div", { class: "st-wiz-foot" }, out, h("button", { type: "button", class: "btn btn-primary btn-small", onclick: () => {
-        S.summary = write();
+        S.summary = voiced || write();
         if (st.target && !S.personal.headline) S.personal.headline = st.target;
         S.style = { ...(S.style || {}), stage: st.stage, traits: st.traits, form: st.form };
         writeMe({ style: S.style, styleAsked: true });
@@ -836,6 +899,7 @@
       ["one", L("صفحة واحدة مركّزة", "One focused page"), L("ينصح بها لطالب أو حديث تخرّج", "Advised for students and new grads")],
       ["full", L("مفصّلة", "Detailed"), L("عندي خبرات ومشاريع كثيرة", "I have a lot to show")]] },
     { id: "form", when: (a) => a.lang === "ar", q: L("صيغة الكتابة بالعربي", "Arabic wording"), opts: [["m", "مذكّر", ""], ["f", "مؤنّث", ""]] },
+    { id: "voice", free: true, q: L("اختياري: احكيلنا بكلامك", "Optional: tell us in your own words"), opts: [] },
   ];
   function recommend(a) {
     const traits = a.traits || [];
@@ -854,7 +918,8 @@
       [L("الترتيب", "Order"), early ? L("التعليم والمشاريع أولاً، لأنها أقوى ما عندك الآن.", "Education and projects first: your strongest proof right now.")
         : L("الخبرات أولاً، لأنها أول ما يبحث عنه المسؤول.", "Experience first: it is what recruiters look for first.")],
       [L("الطول", "Length"), a.length === "one" ? L("صفحة واحدة بمسافات مضغوطة.", "One page, tight spacing.") : L("مسافات عادية، وصفحتان مقبولتان مع الخبرة.", "Normal spacing; two pages are fine with experience.")],
-      [L("الكلمات", "Words"), traits.length ? L(`أفعال تناسبك: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[0])).join("، ")}.`, `Verbs that fit you: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[1])).join(", ")}.`)
+      [L("الكلمات", "Words"), a.voice?.verbs_ar?.length ? L(`من كلامك: ${a.voice.verbs_ar.slice(0, 4).join("، ")}${a.voice.words?.length ? `، وكلماتك: ${a.voice.words.slice(0, 3).join("، ")}` : ""}.`,
+        `From how you talk: ${a.voice.verbs_en.slice(0, 4).join(", ")}${a.voice.words?.length ? `; your words: ${a.voice.words.slice(0, 3).join(", ")}` : ""}.`) : traits.length ? L(`أفعال تناسبك: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[0])).join("، ")}.`, `Verbs that fit you: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[1])).join(", ")}.`)
         : L("أفعال عامة قوية في كل نقطة.", "Strong general verbs in each point.")],
     ];
     return {
@@ -925,6 +990,7 @@
     }
     if (step >= list.length) return paintResult();
     const q = list[step];
+    if (q.free) return paintVoice(list, q);
     const chosen = q.multi ? (answers[q.id] || []) : answers[q.id];
     const next = h("button", { type: "button", class: "btn btn-primary", disabled: q.multi ? !chosen.length : !chosen, onclick: () => go(step + 1) },
       step === list.length - 1 ? L("اعرض أسلوبي", "Show my style") : L("التالي", "Next"));
@@ -956,12 +1022,80 @@
     if (dir) enter();
     else play(dlg.querySelector(".st-opt[aria-pressed=true]"), [{ transform: "scale(0.95)" }, { transform: "scale(1)" }], { duration: 220 });
   }
+  // the free-writing step: type or speak a few lines; mistakes and dialect are welcome
+  let prompt = 0;
+  function paintVoice(list, q) {
+    const [ask, hint] = PROMPTS[prompt % PROMPTS.length];
+    const ta = h("textarea", { rows: 6, dir: "auto", class: "st-voice-in", placeholder: hint, value: S.voiceSample || "",
+      "aria-label": ask, oninput: () => paintCount() });
+    const count = h("p", { class: "st-hint" });
+    const paintCount = () => {
+      const n = ta.value.trim().split(/\s+/).filter(Boolean).length;
+      count.textContent = n < 12 ? L(`${n} كلمة. اكتب 12 كلمة على الأقل، وكل ما زاد كان أدق.`, `${n} words. Write at least 12; more reads better.`)
+        : L(`${n} كلمة. ممتاز.`, `${n} words. Great.`);
+      read.disabled = n < 12;
+    };
+    const status = h("p", { class: "st-hint", role: "status" });
+    const read = h("button", { type: "button", class: "btn btn-primary", onclick: async () => {
+      read.disabled = true;
+      status.textContent = L("نقرأ أسلوبك…", "Reading your style…");
+      S.voiceSample = ta.value.trim();
+      const v = await readVoice(S.voiceSample, true);
+      answers.voice = { tone: v.tone, traits: v.traits, voice: v.voice, verbs_ar: v.verbs_ar, verbs_en: v.verbs_en, words: v.words, summary: v.summary || "" };
+      if (!(answers.traits || []).length && v.traits?.length) answers.traits = v.traits;
+      go(step + 1);
+    } }, icon("M24 6l4 12h12l-10 8 4 12-10-8-10 8 4-12-10-8h12z"), L("اقرأ أسلوبي", "Read my style"));
+    // speaking instead of typing, where the browser can turn speech into text
+    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    const mic = Rec ? h("button", { type: "button", class: "btn btn-quiet st-mic", "aria-pressed": "false", onclick: () => {
+      if (rec) { rec.stop(); return; }
+      rec = new Rec();
+      rec.lang = (answers.lang || S.lang) === "en" ? "en-US" : "ar-SA";
+      rec.interimResults = false;
+      rec.continuous = true;
+      const base = ta.value;
+      let said = "";
+      rec.onresult = (e) => {
+        said = [...e.results].map((r) => r[0].transcript).join(" ");
+        ta.value = `${base}${base && said ? " " : ""}${said}`;
+        paintCount();
+      };
+      rec.onend = () => { rec = null; mic.setAttribute("aria-pressed", "false"); mic.lastChild.textContent = L("احكِ بصوتك", "Speak instead"); };
+      rec.onerror = () => { status.textContent = L("ما قدرنا نسمعك. اسمح للمتصفح باستخدام الميكروفون، أو اكتب.", "We couldn't hear you. Allow the microphone, or type."); };
+      rec.start();
+      mic.setAttribute("aria-pressed", "true");
+      mic.lastChild.textContent = L("نسمعك… اضغط للإيقاف", "Listening… press to stop");
+    } }, icon("M24 30a6 6 0 0 0 6-6V12a6 6 0 0 0-12 0v12a6 6 0 0 0 6 6zM14 22a10 10 0 0 0 20 0M24 32v8"), h("span", null, L("احكِ بصوتك", "Speak instead"))) : null;
+    dlg.replaceChildren(h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×"),
+      h("div", { class: "st-quiz-in st-voice" },
+        h("div", { class: "st-progress", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(list.length), "aria-valuenow": String(step + 1) },
+          h("i", { style: `width:${((step + 1) / list.length) * 100}%` })),
+        h("p", { class: "st-step" }, L(`سؤال ${step + 1} من ${list.length}، اختياري`, `Question ${step + 1} of ${list.length}, optional`)),
+        h("h2", null, q.q),
+        h("p", { class: "st-voice-ask" }, ask, " ",
+          h("button", { type: "button", class: "st-link", onclick: () => { prompt += 1; S.voiceSample = ta.value; paintQuiz(); } }, L("سؤال غيره", "Another question"))),
+        ta, count,
+        h("p", { class: "st-voice-note" }, L("اكتب على راحتك، الأخطاء الإملائية واللهجة ما بتفرق. نقرأ أسلوبك لنكتب سيرتك بكلامك، والسيرة نفسها تطلع بإملاء سليم.",
+          "Write freely: spelling and dialect don't matter. We read your style to write your CV in your words, with correct spelling.")),
+        status,
+        h("div", { class: "st-quiz-acts" },
+          h("button", { type: "button", class: "btn btn-quiet", onclick: () => go(step - 1) }, L("السابق", "Back")),
+          h("span", { class: "st-voice-acts" }, mic,
+            h("button", { type: "button", class: "btn btn-quiet", onclick: () => go(step + 1) }, L("تخطَّ", "Skip")), read))));
+    paintCount();
+    if (dir) enter();
+    ta.focus();
+  }
+
   function paintResult() {
     const rec = recommend(answers);
     dlg.replaceChildren(h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×"),
       h("div", { class: "st-quiz-in st-result" },
         h("p", { class: "st-step" }, L("أسلوبك", "Your style")),
         h("h2", null, styleLine(answers)),
+        answers.voice?.voice ? h("p", { class: "st-voice-out" }, h("strong", null, L("أسلوبك بالكلام: ", "How you talk: ")), answers.voice.voice,
+          answers.voice.tone ? h("span", { class: "st-chip on" }, TONE_NAMES[answers.voice.tone]) : null) : null,
         h("div", { class: "st-result-grid" },
           h("span", { class: `tpl-thumb big tpl-${rec.template}`, style: `--accent:${rec.accent}`, "aria-hidden": "true" },
             h("i", { class: "n" }), h("i", { class: "c" }), h("i", { class: "hd" }), h("i", null), h("i", null), h("i", { class: "s" }), h("i", { class: "hd" }), h("i", null), h("i", { class: "s" })),
@@ -972,10 +1106,12 @@
             Object.assign(S, { template: rec.template, accent: rec.accent, font: rec.font, density: rec.density, lang: rec.lang,
               order: [...rec.order], style: { ...answers } });
             writeMe({ style: { ...answers }, styleAsked: true });
+            if (answers.voice?.summary && !S.summary.trim()) S.summary = answers.voice.summary;
             dlg.close();
             buildBar();
             commit({ now: true, design: true });
             select(S.personal.name ? (S.summary.trim() ? "experience" : "summary") : "personal");
+            store.set(KEY, JSON.stringify(S));
             toast(L("طبّقنا أسلوبك. الأسئلة داخل كل قسم تكمل الباقي.", "Your style is on. The questions in each section do the rest."));
           } }, L("طبّق أسلوبي", "Apply my style")))));
     dlg.querySelector(".btn-primary").focus();

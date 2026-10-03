@@ -39,9 +39,9 @@ assert.deepEqual(audit({ summary: "خدمت ٣ فروع." }, "3 فروع", []), 
 
 // ---- endpoints, with Gemini stubbed ----
 const env = { GEMINI_API_KEY: "test", ALLOWED_ORIGINS: "https://waelsaballyl.github.io" };
-let reply = {};
-globalThis.fetch = async () => new Response(JSON.stringify(
-  { candidates: [{ content: { parts: [{ text: JSON.stringify(reply) }] } }] }), { status: 200 });
+let reply = {}, lastPrompt = "";
+globalThis.fetch = async (url, init) => (lastPrompt = String(init?.body || ""), new Response(JSON.stringify(
+  { candidates: [{ content: { parts: [{ text: JSON.stringify(reply) }] } }] }), { status: 200 }));
 const call = (path, body, origin = "https://waelsaballyl.github.io") => worker.fetch(
   new Request(`https://w.example${path}`, { method: "POST", headers: { Origin: origin }, body: JSON.stringify(body) }), env);
 
@@ -153,6 +153,28 @@ assert.equal(out.headline, "Data Analyst | Excel, SQL");
 assert.deepEqual(out.skills, ["SQL", "Excel"]);
 reply = { about: "x" };
 r = await call("/linkedin", { profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." } });
+assert.equal(r.status, 502);
+
+// voice: style from free writing; a summary number the student never gave is dropped
+reply = { tone: "direct", traits: ["analytical", "x"], voice: "تكتب بجمل قصيرة", verbs_ar: ["حلّلت"], verbs_en: ["Analyzed"], words: ["أرقام"],
+  summary: "Information systems student. Cut report time by 90%." };
+r = await call("/voice", { sample: "انا احب الارقام وسويت داشبورد للمبيعات بالاكسل ووفرت وقت كثير على الفريق", lang: "en",
+  profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." } });
+out = await r.json();
+assert.equal(r.status, 200);
+assert.equal(out.tone, "direct");
+assert.deepEqual(out.traits, ["analytical"]);
+assert.equal(out.summary, "", "90 is in neither the profile nor the sample");
+reply = { tone: "warm", traits: ["learner"], voice: "دافئ", summary: "Student who cleaned sales data in SQL." };
+r = await call("/voice", { sample: "my email is me@x.com and I love learning new tools every week honestly", lang: "en",
+  profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." } });
+out = await r.json();
+assert.equal(out.summary, "Student who cleaned sales data in SQL.");
+assert.ok(!/me@x\.com/.test(lastPrompt || ""), "contact details never reach the model");
+r = await call("/voice", { sample: "قصير" });
+assert.equal(r.status, 400);
+reply = { nothing: true };
+r = await call("/voice", { sample: "this is a long enough sample about me and my work" });
 assert.equal(r.status, 502);
 
 import { sameDomain } from "./src/board.js";
