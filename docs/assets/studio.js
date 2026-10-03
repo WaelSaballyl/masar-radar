@@ -712,7 +712,8 @@
 
   function bulletWizard(x, textarea, paint) {
     const traits = (S.style?.traits?.length ? S.style.traits : ["analytical", "learner"]);
-    const own = (S.style?.voice?.[S.lang === "ar" ? "verbs_ar" : "verbs_en"]) || [];
+    // the student's own verbs first, when a recruiter reads them as achievements
+    const own = ((S.style?.voice?.[S.lang === "ar" ? "verbs_ar" : "verbs_en"]) || []).filter((v) => MasarATS.leadsWithVerb(`${v} x`));
     const verbs = [...new Set([...own, ...traits.flatMap((t) => VERBS[t]).map(([a, e]) => (S.lang === "ar" ? a : e))])].slice(0, 8);
     const st = { verb: verbs[0], what: "", tool: "", result: "" };
     const out = h("p", { class: "st-wiz-out", dir: "auto" });
@@ -933,10 +934,14 @@
       lang: a.lang || S.lang,
     };
   }
+  // the same labels for a woman, when she picked feminine wording
+  const FEM = { "طالب": "طالبة", "حديث تخرّج": "حديثة تخرّج", "تحليلي": "تحليلية", "مبدع": "مبدعة", "قيادي": "قيادية",
+    "منظّم": "منظّمة", "متواصل": "متواصلة", "سريع التعلّم": "سريعة التعلّم" };
   function styleLine(st) {
-    const stage = QUIZ[0].opts.find((o) => o[0] === st.stage)?.[1];
+    const f = (x) => (!EN && st.form === "f" && FEM[x]) || x;
+    const stage = f(QUIZ[0].opts.find((o) => o[0] === st.stage)?.[1]);
     const field = QUIZ[1].opts.find((o) => o[0] === st.field)?.[1];
-    const traits = (st.traits || []).map((t) => TRAITS[t][0]).join(L(" و", " & "));
+    const traits = (st.traits || []).map((t) => f(TRAITS[t][0])).join(L(" و", " & "));
     return [stage, field, traits].filter(Boolean).join(L("، ", ", "));
   }
   const dlg = $("st-quiz");
