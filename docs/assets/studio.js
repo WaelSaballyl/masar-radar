@@ -331,7 +331,8 @@
     brk.style.top = `${A4H * scale}px`;
     const pages = Math.ceil((tall - 2) / A4H);
     const p = $("st-pages");
-    p.textContent = pages <= 1 ? L("صفحة واحدة. ممتاز لطالب أو حديث تخرّج.", "One page. Right for a student or new graduate.")
+    const early = !S.style?.stage || ["student", "fresh"].includes(S.style.stage);
+    p.textContent = pages <= 1 ? (early ? L("صفحة واحدة. ممتاز لطالب أو حديث تخرّج.", "One page. Right for a student or new graduate.") : L("صفحة واحدة.", "One page."))
       : L(`${pages === 2 ? "صفحتان" : `${pages} صفحات`}: جرّب القالب المضغوط أو اختصر النقاط.`, `${pages} pages: try the compact template or trim points.`);
     p.classList.toggle("warn", pages > 1);
     $("st-zoom-val").textContent = `${Math.round(scale * 100)}٪`;
@@ -921,9 +922,10 @@
       [L("الترتيب", "Order"), early ? L("التعليم والمشاريع أولاً، لأنها أقوى ما عندك الآن.", "Education and projects first: your strongest proof right now.")
         : L("الخبرات أولاً، لأنها أول ما يبحث عنه المسؤول.", "Experience first: it is what recruiters look for first.")],
       [L("الطول", "Length"), a.length === "one" ? L("صفحة واحدة بمسافات مضغوطة.", "One page, tight spacing.") : L("مسافات عادية، وصفحتان مقبولتان مع الخبرة.", "Normal spacing; two pages are fine with experience.")],
-      [L("الكلمات", "Words"), a.voice?.verbs_ar?.length ? L(`من كلامك: ${a.voice.verbs_ar.slice(0, 4).join("، ")}${a.voice.words?.length ? `، وكلماتك: ${a.voice.words.slice(0, 3).join("، ")}` : ""}.`,
-        `From how you talk: ${a.voice.verbs_en.slice(0, 4).join(", ")}${a.voice.words?.length ? `; your words: ${a.voice.words.slice(0, 3).join(", ")}` : ""}.`) : traits.length ? L(`أفعال تناسبك: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[0])).join("، ")}.`, `Verbs that fit you: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[1])).join(", ")}.`)
-        : L("أفعال عامة قوية في كل نقطة.", "Strong general verbs in each point.")],
+      [L("الكلمات", "Words"), a.voice?.[(a.lang || S.lang) === "en" ? "verbs_en" : "verbs_ar"]?.length
+        ? L(`من كلامك: ${a.voice[(a.lang || S.lang) === "en" ? "verbs_en" : "verbs_ar"].slice(0, 4).join("، ")}${a.voice.words?.length ? `، وكلماتك: ${a.voice.words.slice(0, 3).join("، ")}` : ""}.`,
+          `From how you talk: ${a.voice[(a.lang || S.lang) === "en" ? "verbs_en" : "verbs_ar"].slice(0, 4).join(", ")}${a.voice.words?.length ? `; your words: ${a.voice.words.slice(0, 3).join(", ")}` : ""}.`) : traits.length ? L(`أفعال تناسبك: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[(a.lang || S.lang) === "en" ? 1 : 0])).join("، ")}.`, `Verbs that fit you: ${traits.flatMap((t) => VERBS[t].slice(0, 2).map((v) => v[1])).join(", ")}.`)
+                : L("أفعال عامة قوية في كل نقطة.", "Strong general verbs in each point.")],
     ];
     return {
       template, why,
