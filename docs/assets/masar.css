@@ -2003,3 +2003,20 @@ html[dir="ltr"] .st-tpl .tpl-thumb i, html[dir="ltr"] .st-show .tpl-thumb i { tr
   .st-show-0, .st-show-2, .st-show .st-quiz-mark, .studio-paper li.st-new, .st-tpl[aria-pressed="true"] .tpl-thumb i { animation: none; }
   .st-tool, .st-chip, .st-sec, .st-tpl, .st-swatch { transition: none; }
 }
+
+/* the free-writing step of the style questions */
+.st-voice-ask { margin: -8px 0 10px; color: var(--muted); line-height: 1.7; }
+.st-link { font: inherit; background: none; border: 0; padding: 0; color: var(--mint); text-decoration: underline; cursor: pointer; }
+.st-voice-in { font: inherit; width: 100%; box-sizing: border-box; color: var(--text); background: var(--bg); border: 1px solid var(--st-line);
+  border-radius: 14px; padding: 12px 14px; line-height: 1.8; resize: vertical; }
+.st-voice-in:focus { outline: 2px solid var(--focus); border-color: transparent; }
+.st-voice-note { font-size: 0.8rem; color: var(--muted); margin: 6px 0 0; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, var(--mint) 8%, transparent); }
+.st-voice-acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.st-voice .st-quiz-acts { flex-wrap: wrap; }
+.st-mic { display: inline-flex; align-items: center; gap: 6px; }
+.st-mic[aria-pressed="true"] { border-color: #E5484D; color: #E5484D; animation: st-rec 1.2s ease-in-out infinite; }
+@keyframes st-rec { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, #E5484D 18%, transparent); } }
+.st-voice-out { margin: -6px 0 16px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--mint) 10%, transparent);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; line-height: 1.7; }
+.st-wiz-voice { border-top: 1px dashed color-mix(in srgb, var(--mint) 30%, transparent); padding-bottom: 0; }
+@media (prefers-reduced-motion: reduce) { .st-mic[aria-pressed="true"] { animation: none; } }

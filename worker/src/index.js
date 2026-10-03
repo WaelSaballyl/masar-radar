@@ -109,7 +109,7 @@ export default {
       }
     }
     if (request.method !== "POST") return reply(405, { error: "method" });
-    if (!["/parse", "/tailor", "/interview", "/linkedin", "/draft"].includes(path)) return reply(404, { error: "path" });
+    if (!["/parse", "/tailor", "/interview", "/linkedin", "/draft", "/voice"].includes(path)) return reply(404, { error: "path" });
     if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
 
     const raw = await request.text();
@@ -118,7 +118,7 @@ export default {
     try { input = JSON.parse(raw); } catch { return reply(400, { error: "json" }); }
 
     try {
-      const handle = { "/parse": parse, "/tailor": tailor, "/interview": interview, "/linkedin": linkedin, "/draft": draft }[path];
+      const handle = { "/parse": parse, "/tailor": tailor, "/interview": interview, "/linkedin": linkedin, "/draft": draft, "/voice": voice }[path];
       return reply(200, await handle(input, env));
     } catch (e) {
       if (!e.code) console.error(e.stack || e); // a bug here, not an upstream answer
@@ -300,6 +300,7 @@ const FACTS = `Masar (مسار) is a free site for students and new graduates in
 - Postings: internships, co-op (تدريب تعاوني), part-time for students and entry-level jobs in data, software and IT, accounting and finance, engineering, marketing and HR. Collected daily from open job platforms and Google Jobs for Saudi Arabia; each links to its source. Exclusive postings come straight from companies and are reviewed before they go live. Postings page: jobs.html, with filters for field, country, type, experience and level, and a "saved" filter.
 - Masar never asks for fees. A posting that asks for money, an ID copy or contact on WhatsApp/Telegram is a scam: report it through support.
 - CV builder (cv.html): upload a PDF or Word CV (a scanned image cannot be read - paste the text instead) or fill the form; it tailors the CV to a posting using only the student's own facts, removes what they lack, and shows what the posting asks that they do not have. Save as PDF or as Word (docx; use Word for an Arabic CV, because screening systems read Arabic inside a PDF reversed), earlier CVs are kept, interview questions, LinkedIn headline and About. Each finished CV shows its ATS check.
+- Style questions (asked once, right after a student first signs up, and from "Find my style" in the CV studio): stage, field, where they apply, two traits, language, length; an optional last step lets them write or say a few lines in their own words (dialect and spelling mistakes are fine) about something they did, and the site reads their tone, verbs and favourite words to write the summary and suggest point verbs in their voice. The lines go to the worker for that reading only and are not stored there; they stay in the browser.
 - CV studio (studio.html): design your own CV - six one-column templates (classic, modern, professional, elegant, minimal, compact), an accent colour, type and spacing, sections that can be hidden or reordered, a live A4 preview you click to edit, undo, a strength score from the ATS content rules, PDF and Word. Six quick questions about your style (stage, field, where you apply, what describes you, language, length) pick the template, colour and section order; question flows write the summary and each experience point (verb, what, tool, result with a number). Kept in the browser; 'Tailor to a job' takes it to the CV builder.
 - Each posting page shows "your match with this posting" from the newest CV the student made (or the profile), and the account page shows CV health with the three biggest fixes. Both are computed in the browser.
 - Companies page (companies.html): every company with an open posting, its countries, most-asked skills and postings; follow a company to get its new postings as alerts.
@@ -344,6 +345,45 @@ ${q}`);
 // A LinkedIn headline and About section from the student's own profile. No
 // posting: the profile is aimed at the role the student targets (other, or
 // what the experience shows). The same rules as the CV: nothing invented.
+// How a student talks, from a few free lines in their own words (spelling
+// mistakes and dialect welcome): tone, two traits, the verbs and words they
+// lean on, and - when the profile is there - a CV summary in that voice, built
+// only from facts in the profile or the sample. Nothing is stored here.
+export const TONES = ["formal", "warm", "direct", "energetic", "calm"];
+export const TRAIT_IDS = ["analytical", "creative", "leader", "organised", "communicator", "learner"];
+const CONTACT_RX = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+|\b(?:https?:\/\/|www\.)\S+|(?:\+|\b00|\b0)\d[\d\s-]{7,14}\d/g;
+async function voice(input, env) {
+  const sample = str(input?.sample, 3000).replace(CONTACT_RX, " ");
+  if (sample.replace(/\s/g, "").length < 25) throw fail(400, "too_short");
+  let source = "";
+  try { source = inputs(input).source; } catch { /* no profile: style only */ }
+  const lang = input?.lang === "en" ? "English" : "Arabic";
+  const out = await gemini(env, `You are reading how a student talks, to write their CV in their own voice. Return JSON only:
+{"tone":"","traits":[""],"voice":"","verbs_ar":[""],"verbs_en":[""],"words":[""],"summary":""}
+
+Rules:
+- SAMPLE is the student's own free writing, maybe in a dialect, maybe with spelling mistakes. Judge the style, never the spelling.
+- tone: one of ${TONES.join(", ")}.
+- traits: the 1-2 that SAMPLE shows best, from: ${TRAIT_IDS.join(", ")}.
+- voice: one short sentence in Arabic (Gulf-friendly, plain) describing how they express themselves, addressed to them ("تكتب بجمل قصيرة ومباشرة وتحب الأرقام").
+- verbs_ar / verbs_en: up to 6 first-person past-tense action verbs that match what and how they talk (Arabic like "طوّرت", English like "Built"), correctly spelled.
+- words: up to 6 words or short phrases they lean on, correctly spelled, no names or contact details.
+- summary: ${source ? `2-3 sentences for the top of their CV, in ${lang}, in the student's voice (their tone, sentence length and favourite words), spelling corrected. Third person without pronouns for Arabic is fine. Use only facts found in PROFILE or SAMPLE; never add a skill, employer, number or achievement neither states. No stock phrases ("passionate", "results-driven", "team player", "hard-working").` : "an empty string."}
+
+SAMPLE:
+${sample}
+${source ? `\nPROFILE:\n${source}` : ""}`);
+  const tone = TONES.includes(out?.tone) ? out.tone : "";
+  const traits = strings(out?.traits, 4).filter((t) => TRAIT_IDS.includes(t)).slice(0, 2);
+  const line = str(out?.voice, 240);
+  if (!tone && !traits.length && !line) throw fail(502, "bad_json");
+  // a number the student never gave is not theirs to claim
+  let summary = source ? str(out?.summary, 700) : "";
+  const known = new Set(numbersIn(`${source}\n${sample}`));
+  if (summary && numbersIn(summary).some((n) => !known.has(n))) summary = "";
+  return { tone, traits, voice: line, verbs_ar: strings(out?.verbs_ar, 6), verbs_en: strings(out?.verbs_en, 6), words: strings(out?.words, 6), summary };
+}
+
 async function linkedin(input, env) {
   const { source, lang } = inputs({ ...input, job: { description: "none" } });
   const out = await gemini(env, `You are writing a student's LinkedIn profile text. Return JSON only:

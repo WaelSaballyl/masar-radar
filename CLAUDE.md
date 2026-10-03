@@ -144,7 +144,7 @@ for the per-point coach). The paper keeps renderCV's DOM (h1, p.cv-headline/cont
 also rewrites `masar.profile` (merged) so "tailor to a job" on cv.html works. Style quiz (stage, field, where they apply, two
 traits, language, length, Arabic wording m/f) picks template/colour/order/density; answers in synced `masar.me.style`
 (`styleAsked` once skipped). A student's sign-in on account.html with no answers yet goes to `studio.html?start=1`, so the
-questions come right after signing up. Question flows write the summary (third person, m/f) and each point (verb + what + tool +
+questions come right after signing up. Their optional last step ("tell us in your own words": type, or speak through the browser's SpeechRecognition) sends the lines, contact stripped, to worker `POST /voice` (Gemini: tone, two traits, verbs, words, and a summary in that voice from PROFILE/SAMPLE facts only; a number in neither is dropped); without the worker `readLocally` guesses traits/tone from keywords. The sample stays in local `masar.studio.voiceSample`; the reading goes into `masar.me.style.voice`. Question flows write the summary (third person, m/f) and each point (verb + what + tool +
 result). Motion: Web Animations via `play()`, all off under prefers-reduced-motion. The root is `translate="no"`; the page
 renders its own English with `L(ar, en)`.
 
