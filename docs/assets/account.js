@@ -199,6 +199,10 @@
       if (!r.ok) { status(ERRORS[out.error] || ERRORS.token); return; }
       status("");
       await account.signedIn(out.token, out.user).catch(() => {});
+      // the first sign-in starts with the style questions (asked once per account, kept in the synced masar.me)
+      let me = {};
+      try { me = JSON.parse(Masar.store.get("masar.me") || "{}") || {}; } catch { /* none yet */ }
+      if (!me.style && !me.styleAsked) { location.href = "studio.html?start=1"; return; }
       show();
     } catch {
       status("تعذّر الاتصال. جرّب مرة ثانية.");

@@ -1006,7 +1006,19 @@ window.MASAR_EN = {
     "ادخل بحساب الشركة وانشر": "Sign in as a company and post",
     "النشر بحساب الشركة فقط، حتى يعرف الطلاب أن الإعلان حقيقي. ادخل بحساب Google الخاص بعمل شركتك (مثل hr@company.com)، وبعدها تلصق إعلانك ونعبّي الخانات لك.": "Posting needs a company account, so students know the posting is real. Sign in with your company's work Google account (like hr@company.com), then paste your ad and we fill the fields.",
     "تبحث عن وظيفة؟": "Looking for a job?",
-    "من هنا": "here"
+    "من هنا": "here",
+    "صمّمها بالقوالب": "Design it from templates",
+    "ست أسئلة عن أسلوبك، وقوالب وألوان ومعاينة حيّة.": "Six questions about your style, templates, colours and a live preview.",
+    "معلوماتك مرة واحدة، وسيرة معدّلة لكل إعلان. لا نضيف شيئاً ليس عندك. أو": "Your details once, and a CV tailored to each posting. We never add anything you don't have. Or",
+    "صمّمها بنفسك في الاستوديو": "design it yourself in the studio",
+    "استوديو السيرة": "CV studio",
+    "التصميم": "Design",
+    "المعاينة": "Preview",
+    "المحتوى": "Content",
+    "اعرف أسلوبك": "Find your style",
+    "ما تكتبه في صفحة سيرتك، والسير التي جهّزتها، والإعلانات التي حفظتها أو قدّمت عليها أو تخطيتها، محفوظة في متصفحك فقط. تمسحها بزر \"امسح معلوماتي من هذا المتصفح\" في صفحة سيرتك، أو بمسح بيانات الموقع من المتصفح. وكذلك ما تصمّمه في": "What you write on your CV page, the CVs you made, and the postings you saved, applied to or skipped are kept in your browser only. Clear them with \"Clear my information from this browser\" on your CV page, or by clearing the site's data in your browser. The same goes for what you design in the",
+    ": يبقى في متصفحك، ومحتواه يُنسخ إلى معلومات صفحة سيرتك.": ": it stays in your browser, and its content is copied into your CV page information.",
+    "الحساب اختياري. تسجّل بحساب قوقل، فيصلنا منه اسمك وإيميلك وصورتك فقط، ولا نرى كلمة مرورك ولا نحفظ أي كلمة مرور. بعد التسجيل نحفظ نسخة مما في متصفحك حتى يظهر على أجهزتك الأخرى: معلومات صفحة سيرتك بما فيها بيانات التواصل، والسير التي جهّزتها، وإيصالات طلباتك، والإعلانات التي حفظتها أو قدّمت عليها أو تخطيتها، وتنبيهات الوظائف، وإجاباتك على أسئلة الأسلوب (مرحلتك ومجالك وأين تقدّم وما يصفك). لا تصل هذه النسخة لأي شركة. تحذف حسابك وكل ما حُفظ له بزر \"احذف حسابي وبياناتي\" في": "An account is optional. You sign in with Google, which gives us only your name, email and picture; we never see or store a password. After signing in, a copy of what is in your browser is kept so it appears on your other devices: your CV page information including contact details, the CVs you made, your application receipts, the postings you saved, applied to or skipped, your job alerts, and your answers to the style questions (your stage, field, where you apply and what describes you). This copy never reaches any company. Delete your account and everything kept for it with \"Delete my account and data\" on"
   },
   patterns: [
     ["^الخانات التي عبّيناها من إعلانك: (\\d+)، وهي معلّمة بإطار ملوّن\\. راجعها قبل الإرسال\\.(.*)$", "Fields filled from your ad: $1, marked with a coloured border. Check them before sending.$2"],

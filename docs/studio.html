@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>استوديو السيرة — مسار</title>
+<meta name="description" content="صمّم سيرتك بقوالب جاهزة ومعاينة حيّة، وأسئلة تعرف أسلوبك وتكتب معك النبذة والإنجازات.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png?v=2">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="مسار">
+<meta property="og:title" content="استوديو السيرة — مسار">
+<meta property="og:description" content="صمّم سيرتك بقوالب جاهزة ومعاينة حيّة، وأسئلة تعرف أسلوبك وتكتب معك النبذة والإنجازات.">
+<meta property="og:image" content="https://waelsaballyl.github.io/masar-radar/assets/brand/og.png">
+<meta property="og:url" content="https://waelsaballyl.github.io/masar-radar/studio.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B1219">
+<link rel="preload" href="assets/fonts/ibm-plex-sans-arabic-arabic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/noto-kufi-arabic-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/masar.css?v=74">
+</head>
+<body class="studio-page">
+<div class="wrap">
+
+  <header class="topbar">
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <nav class="nav" aria-label="الأقسام">
+      <a href="jobs.html">الإعلانات</a>
+      <a href="dashboard.html">مؤشر السوق</a>
+      <a href="cv.html">سيرتك</a>
+      <a href="employers.html">للشركات</a>
+    </nav>
+    <div class="tools">
+      <button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button>
+    </div>
+  </header>
+
+  <main class="studio" id="studio" translate="no" data-tab="edit">
+    <h1 class="sr-only">استوديو السيرة</h1>
+    <div class="st-bar" id="st-bar"></div>
+    <div class="st-tabs" id="st-tabs" role="tablist"></div>
+    <div class="st-grid">
+      <aside class="st-design" id="st-design" aria-label="التصميم"></aside>
+      <section class="st-preview" id="st-preview" aria-label="المعاينة">
+        <div class="st-zoom">
+          <button type="button" class="st-mini" id="st-zoom-out" aria-label="تصغير">−</button>
+          <button type="button" class="st-mini st-zoom-val" id="st-zoom-fit" title="ملء العرض"><span id="st-zoom-val">100٪</span></button>
+          <button type="button" class="st-mini" id="st-zoom-in" aria-label="تكبير">+</button>
+        </div>
+        <div class="st-sizer" id="st-sizer"><article class="paper studio-paper" id="paper"></article><div class="st-break" id="st-break" hidden><span>نهاية الصفحة الأولى</span></div></div>
+        <p class="st-pages" id="st-pages"></p>
+      </section>
+      <aside class="st-edit" id="st-edit" aria-label="المحتوى"></aside>
+    </div>
+    <dialog class="st-quiz" id="st-quiz" aria-label="اعرف أسلوبك"></dialog>
+    <p class="st-toast" id="st-toast" role="status" hidden></p>
+  </main>
+</div>
+<script src="assets/core.js?v=65"></script>
+<script src="assets/atskit.js?v=7"></script>
+<script src="assets/docx.js?v=1"></script>
+<script src="assets/studio.js?v=3"></script>
+</body>
+</html>
