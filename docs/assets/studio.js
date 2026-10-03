@@ -222,11 +222,11 @@
       calm: L("تكتب بهدوء وتفصيل", "You write calmly and in detail"), warm: L("تكتب بأسلوب ودود وواضح", "You write in a warm, clear way") }[tone];
     return { tone, traits, voice: line, verbs_ar: [], verbs_en: [], words: [], summary: "", local: true };
   }
-  async function readVoice(sample, withSummary) {
+  async function readVoice(sample, withSummary, form, lang) {
     const clean = sample.replace(NO_CONTACT, " ").trim();
     try {
       const r = await fetch(`${API}/voice`, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sample: clean, lang: S.lang, ...(withSummary ? { profile: facts() } : {}) }) });
+        body: JSON.stringify({ sample: clean, lang: lang || S.lang, form: form || S.style?.form, ...(withSummary ? { profile: facts() } : {}) }) });
       if (!r.ok) throw new Error(String(r.status));
       return await r.json();
     } catch {
@@ -856,7 +856,7 @@
           const b = e.currentTarget;
           b.disabled = true;
           b.textContent = L("نكتبها بأسلوبك…", "Writing in your voice…");
-          const v = await readVoice(S.voiceSample, true);
+          const v = await readVoice(S.voiceSample, true, st.form);
           b.disabled = false;
           b.textContent = L("اكتبها بأسلوبي", "Write it in my voice");
           if (v.summary) { out.textContent = v.summary; voiced = v.summary; }
@@ -1040,7 +1040,7 @@
       read.disabled = true;
       status.textContent = L("نقرأ أسلوبك…", "Reading your style…");
       S.voiceSample = ta.value.trim();
-      const v = await readVoice(S.voiceSample, true);
+      const v = await readVoice(S.voiceSample, true, answers.form, answers.lang);
       answers.voice = { tone: v.tone, traits: v.traits, voice: v.voice, verbs_ar: v.verbs_ar, verbs_en: v.verbs_en, words: v.words, summary: v.summary || "" };
       if (!(answers.traits || []).length && v.traits?.length) answers.traits = v.traits;
       go(step + 1);
