@@ -132,7 +132,7 @@
     + "identified implemented improved increased initiated installed integrated interviewed introduced launched led maintained "
     + "managed mapped measured mentored migrated modeled modelled monitored negotiated operated optimised optimized organised "
     + "organized oversaw owned participated performed piloted planned prepared presented processed produced programmed published "
-    + "compared communicated scheduled learned applied queried raised ranked reconciled recommended redesigned reduced refactored researched resolved reviewed ran saved scaled "
+    + "compared communicated scheduled posted made talked coded fixed checked engaged learned applied queried raised ranked reconciled recommended redesigned reduced refactored researched resolved reviewed ran saved scaled "
     + "scraped secured segmented served shipped simplified solved standardized streamlined supervised supported surveyed taught "
     + "tested tracked trained transformed translated validated visualised visualized won wrote").split(" "));
   const arKey = (w) => w.replace(/[ً-ْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ى$/, "ي");
@@ -140,7 +140,7 @@
     + "شاركت ساهمت نظمت اتممت انجزت راجعت اشرفت تابعت حققت وفرت اتمتت استخرجت عرضت وثقت نشرت درست قست ربطت اختبرت "
     + "تطوير تحليل تصميم بناء اعداد تنفيذ قيادة ادارة انشاء جمع تنظيف تحسين خفض رفع اطلاق تدريب تقديم كتابة مشاركة "
     + "المشاركة المساهمة مساهمة تنظيم انجاز مراجعة الاشراف اشراف متابعة اتمتة تحقيق توفير استخراج عرض توثيق قياس ربط اختبار "
-    + "اعد بني طور حلل صمم نفذ قاد ادار انشا جمع حسن قارنت ابتكرت جدولت نسقت تعلمت طبقت تواصلت").split(" "));
+    + "اعد بني طور حلل صمم نفذ قاد ادار انشا جمع حسن قارنت ابتكرت جدولت نسقت تعلمت طبقت تواصلت رتبت شرحت ساعدت راقبت").split(" "));
   const WEAK = /\b(?:responsible for|duties (?:included|include)|tasked with|worked on|helped (?:with|to)|in charge of|involved in)\b|مسؤول(?:ة)? عن|كنت مسؤول|من مهامي|ساعدت في/gi;
   const PRONOUN = /(?:^|\s)(?:I|my|me)(?=\s|$)/;
   // a number that is a result, not a year or a date: 30%, 1,200, 3x, ١٥

@@ -349,6 +349,8 @@ ${q}`);
 // mistakes and dialect welcome): tone, two traits, the verbs and words they
 // lean on, and - when the profile is there - a CV summary in that voice, built
 // only from facts in the profile or the sample. Nothing is stored here.
+// "worked", "helped": verbs that tell a recruiter nothing
+const WEAK_VERBS = /^(?:عملت|اشتغلت|ساعدت|شاركت|worked|helped|did|was)(?:\s|$)/i;
 export const TONES = ["formal", "warm", "direct", "energetic", "calm"];
 export const TRAIT_IDS = ["analytical", "creative", "leader", "organised", "communicator", "learner"];
 const CONTACT_RX = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+|\b(?:https?:\/\/|www\.)\S+|(?:\+|\b00|\b0)\d[\d\s-]{7,14}\d/g;
@@ -366,9 +368,9 @@ Rules:
 - tone: one of ${TONES.join(", ")}.
 - traits: the 1-2 that SAMPLE shows best, from: ${TRAIT_IDS.join(", ")}.
 - voice: one short sentence in Arabic (Gulf-friendly, plain) describing how they express themselves, addressed to them ("تكتب بجمل قصيرة ومباشرة وتحب الأرقام").
-- verbs_ar / verbs_en: up to 6 first-person past-tense action verbs that match what and how they talk (Arabic like "طوّرت", English like "Built"), correctly spelled.
-- words: up to 6 words or short phrases they lean on, correctly spelled, no names or contact details.
-- summary: ${source ? `2-3 sentences for the top of their CV, in ${lang}, in the student's voice (their tone, sentence length and favourite words), spelling corrected. Third person without pronouns for Arabic is fine. Use only facts found in PROFILE or SAMPLE; never add a skill, employer, number or achievement neither states. No stock phrases ("passionate", "results-driven", "team player", "hard-working").` : "an empty string."}
+- verbs_ar / verbs_en: up to 6 first-person PAST-tense action verbs (never present tense) for CV points, matching what and how they talk: Arabic in Modern Standard spelling with no vowel marks except shadda ("طوّرت", "تابعت", not "راجعْتُ" or "أستمع"); English capitalised ("Built"). Only actions SAMPLE describes.
+- words: up to 6 words or short phrases they lean on, in correct standard spelling even if SAMPLE misspells them ("السلامه" -> "السلامة"), no names or contact details, no filler ("tbh", "honestly").
+- summary: ${source ? `2-3 sentences for the top of their CV, in ${lang}${lang === "Arabic" && ["m", "f"].includes(input?.form) ? `, grammatically ${input.form === "f" ? "feminine (طالبة، تجيد)" : "masculine (طالب، يجيد)"}` : ""}, in the student's voice (their tone, sentence length and favourite words), spelling corrected. Third person without pronouns for Arabic is fine. Use only facts found in PROFILE or SAMPLE; never add a skill, employer, number or achievement neither states, and tie a tool to a project or job only where PROFILE or SAMPLE says it was used there (a skills list is not proof). No stock phrases ("passionate", "results-driven", "team player", "hard-working").` : "an empty string."}
 
 SAMPLE:
 ${sample}
@@ -381,7 +383,8 @@ ${source ? `\nPROFILE:\n${source}` : ""}`);
   let summary = source ? str(out?.summary, 700) : "";
   const known = new Set(numbersIn(`${source}\n${sample}`));
   if (summary && numbersIn(summary).some((n) => !known.has(n))) summary = "";
-  return { tone, traits, voice: line, verbs_ar: strings(out?.verbs_ar, 6), verbs_en: strings(out?.verbs_en, 6), words: strings(out?.words, 6), summary };
+  const bare = (v) => v.replace(/[ً-ِْ]/g, "");
+  return { tone, traits, voice: line, verbs_ar: strings(out?.verbs_ar, 6).map(bare).filter((v) => /ت$/.test(v.split(/\s+/)[0]) && !WEAK_VERBS.test(v)), verbs_en: strings(out?.verbs_en, 6).filter((v) => !WEAK_VERBS.test(v)), words: strings(out?.words, 6), summary };
 }
 
 async function linkedin(input, env) {

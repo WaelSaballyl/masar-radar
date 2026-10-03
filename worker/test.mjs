@@ -156,7 +156,7 @@ r = await call("/linkedin", { profile: { skills: "SQL, Excel", experience: "Inte
 assert.equal(r.status, 502);
 
 // voice: style from free writing; a summary number the student never gave is dropped
-reply = { tone: "direct", traits: ["analytical", "x"], voice: "تكتب بجمل قصيرة", verbs_ar: ["حلّلت"], verbs_en: ["Analyzed"], words: ["أرقام"],
+reply = { tone: "direct", traits: ["analytical", "x"], voice: "تكتب بجمل قصيرة", verbs_ar: ["حلّلت", "راجعْتُ", "أستمع", "عملت"], verbs_en: ["Analyzed", "Worked"], words: ["أرقام"],
   summary: "Information systems student. Cut report time by 90%." };
 r = await call("/voice", { sample: "انا احب الارقام وسويت داشبورد للمبيعات بالاكسل ووفرت وقت كثير على الفريق", lang: "en",
   profile: { skills: "SQL, Excel", experience: "Intern at Retail Co, cleaned sales data in SQL." } });
@@ -164,6 +164,8 @@ out = await r.json();
 assert.equal(r.status, 200);
 assert.equal(out.tone, "direct");
 assert.deepEqual(out.traits, ["analytical"]);
+assert.deepEqual(out.verbs_ar, ["حلّلت", "راجعت"], "vowel marks go (shadda stays), present tense and weak verbs go");
+assert.deepEqual(out.verbs_en, ["Analyzed"]);
 assert.equal(out.summary, "", "90 is in neither the profile nor the sample");
 reply = { tone: "warm", traits: ["learner"], voice: "دافئ", summary: "Student who cleaned sales data in SQL." };
 r = await call("/voice", { sample: "my email is me@x.com and I love learning new tools every week honestly", lang: "en",
