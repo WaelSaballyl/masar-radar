@@ -198,7 +198,7 @@ def build_sitemap(jobs: dict, pages: list[str] = ()) -> str:
     from urllib.parse import quote
 
     postings = jobs["postings"]
-    urls = ["", "guide.html", "jobs.html", "dashboard.html", "cv.html", "swipe.html", "employers.html", "privacy.html",
+    urls = ["", "guide.html", "jobs.html", "dashboard.html", "cv.html", "studio.html", "swipe.html", "employers.html", "privacy.html",
             "terms.html", "support.html", "ats.html", "companies.html", "tests.html", "premium.html",
             "jobs.html?type=training"]
     urls += [f"jobs.html?where={c}" for c in sorted(GULF) if any(c in p["countries"] for p in postings)]

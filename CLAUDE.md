@@ -135,6 +135,19 @@ company posts (`POST /board/postings` refuses without an employer session: `comp
 choice (job seeker -> student Google sign-in, `?as=student` skips it; company -> employer.html, `?next=post` returns to the form).
 Postings sent earlier by link keep their private applicants links.
 
+CV studio (`studio.html`, `assets/studio.js`, 2026-10-03, after ResumeScale): six one-column templates (classic, modern,
+pro, elegant, minimal, compact; `.tpl-*` on `.studio-paper`), accent colour, serif/sans, three densities, sections hidden or
+reordered (drag or arrows), a real 794 px A4 sheet scaled into the pane (dashed line where page one ends), click the sheet to
+edit that part, undo/redo, strength = `MasarATS.content` on the CV as text (atskit now exports `hasResult`/`leadsWithVerb`/`WEAK`
+for the per-point coach). The paper keeps renderCV's DOM (h1, p.cv-headline/contact, h2, .cv-item > .cv-row, ul, p.cv-skill) so
+`MasarDocx.fromPaper` writes Word; `.ph` placeholders are cut before Word/print. State in local-only `masar.studio`; each save
+also rewrites `masar.profile` (merged) so "tailor to a job" on cv.html works. Style quiz (stage, field, where they apply, two
+traits, language, length, Arabic wording m/f) picks template/colour/order/density; answers in synced `masar.me.style`
+(`styleAsked` once skipped). A student's sign-in on account.html with no answers yet goes to `studio.html?start=1`, so the
+questions come right after signing up. Question flows write the summary (third person, m/f) and each point (verb + what + tool +
+result). Motion: Web Animations via `play()`, all off under prefers-reduced-motion. The root is `translate="no"`; the page
+renders its own English with `L(ar, en)`.
+
 CV file reading (pdf.js text layer, docx XML) lives in `assets/cvread.js` (`MasarRead.readFile`), shared by ats.js and
 the home page's "how many openings fit you?" (`assets/fit.js`, after uptal.com/auto-apply: fits = at least half the
 required skills, found skills merged into `masar.profile.skills`). The CV page opens on two cards (upload / from scratch)

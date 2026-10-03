@@ -541,7 +541,7 @@ window.Masar = (() => {
     const legal = el("p", "foot-legal");
     const link = (href, text) => { const a = el("a", null, text); a.href = href; return a; };
     legal.append(el("span", null, `© ${new Date().getFullYear()} مسار`), link("privacy.html", "الخصوصية"),
-      link("guide.html", "دليل التدريب التعاوني"), link("ats.html", "فحص ATS"), link("companies.html", "الشركات"), link("alerts.html", "تنبيهات الوظائف"), link("tests.html", "اختبارات المهارات"), link("premium.html", "مسار المميّز"), link("l/interview-data-analyst.html", "أسئلة المقابلات"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
+      link("guide.html", "دليل التدريب التعاوني"), link("ats.html", "فحص ATS"), link("studio.html", "استوديو السيرة"), link("companies.html", "الشركات"), link("alerts.html", "تنبيهات الوظائف"), link("tests.html", "اختبارات المهارات"), link("premium.html", "مسار المميّز"), link("l/interview-data-analyst.html", "أسئلة المقابلات"), link("employers.html", "للشركات"), link("support.html", "الدعم الفني"),
       link("terms.html", "الشروط"));
     const box = el("div", "foot-brand");
     box.append(mark, radar, legal);
@@ -579,7 +579,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=13";
+    s.src = "assets/en.js?v=15";
     s.onload = translate;
     document.head.append(s);
   }
