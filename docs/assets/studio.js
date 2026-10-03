@@ -465,9 +465,9 @@
           if (!box.hidden) paintFixes();
         } }, h("span", { class: "st-score-n", id: "st-score-n" }, "0"), h("span", { class: "st-score-l" }, L("القوة", "Strength"))),
         btn("st-style", L("اعرف أسلوبي", "Find my style"), "M24 6l4 12h12l-10 8 4 12-10-8-10 8 4-12-10-8h12z", () => openQuiz(false), "st-tool-accent"),
-        btn("st-lang", S.lang === "ar" ? "English CV" : "سيرة بالعربي", "M24 42a18 18 0 1 0 0-36 18 18 0 0 0 0 36zM6 24h36M24 6c6 6 6 30 0 36", () => {
+        btn("st-lang", S.lang === "ar" ? "English CV" : L("سيرة بالعربي", "Arabic CV"), "M24 42a18 18 0 1 0 0-36 18 18 0 0 0 0 36zM6 24h36M24 6c6 6 6 30 0 36", () => {
           S.lang = S.lang === "ar" ? "en" : "ar";
-          $("st-lang").querySelector("span").textContent = S.lang === "ar" ? "English CV" : "سيرة بالعربي";
+          $("st-lang").querySelector("span").textContent = S.lang === "ar" ? "English CV" : L("سيرة بالعربي", "Arabic CV");
           commit({ now: true, editor: true });
           toast(S.lang === "en" ? L("العناوين صارت بالإنجليزي. اكتب المحتوى بالإنجليزي، أو جهّزها لوظيفة بالإنجليزي.", "Headings are in English now. Write the content in English too, or tailor it to an English posting.")
             : L("العناوين صارت بالعربي.", "Headings are in Arabic now."));
