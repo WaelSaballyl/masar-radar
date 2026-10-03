@@ -226,7 +226,7 @@
     const clean = sample.replace(NO_CONTACT, " ").trim();
     try {
       const r = await fetch(`${API}/voice`, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sample: clean, lang: lang || S.lang, form: form || S.style?.form, ...(withSummary ? { profile: facts() } : {}) }) });
+        body: JSON.stringify({ sample: clean, lang: lang || S.lang, form: form || S.style?.form, stage: (dlg.open ? answers.stage : null) || S.style?.stage, ...(withSummary ? { profile: facts() } : {}) }) });
       if (!r.ok) throw new Error(String(r.status));
       return await r.json();
     } catch {
@@ -386,6 +386,8 @@
         if (k < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
+      // a hidden tab pauses animation frames: the right number lands anyway
+      setTimeout(() => { num.textContent = value; ring.style.setProperty("--v", value); }, 700);
     }
     ring.setAttribute("aria-label", L(`قوة سيرتك ${value} من 100. اعرض ما يرفعها`, `CV strength ${value} of 100. Show what raises it`));
     if (!$("st-fixes").hidden) paintFixes();
