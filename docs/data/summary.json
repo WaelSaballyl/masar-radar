@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-10-04T09:54:56+00:00",
- "active_postings": 889,
- "total_postings": 1600,
- "companies": 83,
+ "updated_at": "2026-10-05T10:37:24+00:00",
+ "active_postings": 683,
+ "total_postings": 1721,
+ "companies": 69,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,254 +10,254 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 128,
- "gulf_postings": 94,
+ "entry_postings": 94,
+ "gulf_postings": 81,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 16,
+  "postings": 13,
   "stops": [
-   {
-    "name": "SQL",
-    "postings": 6,
-    "share": 0.375
-   },
    {
     "name": "Excel",
     "postings": 5,
-    "share": 0.312
+    "share": 0.385
    },
    {
-    "name": "Python",
-    "postings": 4,
-    "share": 0.25
+    "name": "SQL",
+    "postings": 5,
+    "share": 0.385
    },
    {
     "name": "GenAI/LLM",
     "postings": 3,
-    "share": 0.188
+    "share": 0.231
+   },
+   {
+    "name": "Python",
+    "postings": 3,
+    "share": 0.231
    },
    {
     "name": "Git",
     "postings": 2,
-    "share": 0.125
+    "share": 0.154
    },
    {
     "name": "A/B Testing",
     "postings": 1,
-    "share": 0.062
+    "share": 0.077
    },
    {
-    "name": "C++",
+    "name": "Data Governance",
     "postings": 1,
-    "share": 0.062
+    "share": 0.077
    }
   ]
  },
  "routes": {
   "data": {
    "basis": "entry",
-   "postings": 16,
+   "postings": 13,
    "stops": [
-    {
-     "name": "SQL",
-     "postings": 6,
-     "share": 0.375
-    },
     {
      "name": "Excel",
      "postings": 5,
-     "share": 0.312
+     "share": 0.385
     },
     {
-     "name": "Python",
-     "postings": 4,
-     "share": 0.25
+     "name": "SQL",
+     "postings": 5,
+     "share": 0.385
     },
     {
      "name": "GenAI/LLM",
      "postings": 3,
-     "share": 0.188
+     "share": 0.231
+    },
+    {
+     "name": "Python",
+     "postings": 3,
+     "share": 0.231
     },
     {
      "name": "Git",
      "postings": 2,
-     "share": 0.125
+     "share": 0.154
     },
     {
      "name": "A/B Testing",
      "postings": 1,
-     "share": 0.062
+     "share": 0.077
     },
     {
-     "name": "C++",
+     "name": "Data Governance",
      "postings": 1,
-     "share": 0.062
+     "share": 0.077
     }
    ]
   },
   "tech": {
    "basis": "entry",
-   "postings": 50,
+   "postings": 33,
    "stops": [
     {
-     "name": "Testing/QA",
-     "postings": 13,
-     "share": 0.26
-    },
-    {
-     "name": "Git",
-     "postings": 11,
-     "share": 0.22
-    },
-    {
-     "name": "CI/CD",
-     "postings": 10,
-     "share": 0.2
-    },
-    {
      "name": "Python",
-     "postings": 9,
-     "share": 0.18
+     "postings": 7,
+     "share": 0.212
     },
     {
-     "name": "Docker",
-     "postings": 8,
-     "share": 0.16
-    },
-    {
-     "name": "Java",
-     "postings": 8,
-     "share": 0.16
+     "name": "Testing/QA",
+     "postings": 6,
+     "share": 0.182
     },
     {
      "name": "REST API",
-     "postings": 8,
-     "share": 0.16
+     "postings": 5,
+     "share": 0.152
+    },
+    {
+     "name": "Agile/Scrum",
+     "postings": 4,
+     "share": 0.121
+    },
+    {
+     "name": "SQL",
+     "postings": 4,
+     "share": 0.121
+    },
+    {
+     "name": "C++",
+     "postings": 3,
+     "share": 0.091
+    },
+    {
+     "name": "CI/CD",
+     "postings": 3,
+     "share": 0.091
     }
    ]
   },
   "finance": {
    "basis": "entry",
-   "postings": 19,
+   "postings": 14,
    "stops": [
     {
      "name": "Excel",
-     "postings": 10,
-     "share": 0.526
+     "postings": 8,
+     "share": 0.571
     },
     {
      "name": "Accounts Payable/Receivable",
-     "postings": 6,
-     "share": 0.316
-    },
-    {
-     "name": "Audit",
-     "postings": 6,
-     "share": 0.316
-    },
-    {
-     "name": "Budgeting",
      "postings": 5,
-     "share": 0.263
-    },
-    {
-     "name": "Financial Reporting",
-     "postings": 5,
-     "share": 0.263
+     "share": 0.357
     },
     {
      "name": "Reconciliation",
      "postings": 5,
-     "share": 0.263
+     "share": 0.357
     },
     {
-     "name": "Time Series",
-     "postings": 3,
-     "share": 0.158
+     "name": "Audit",
+     "postings": 4,
+     "share": 0.286
+    },
+    {
+     "name": "Budgeting",
+     "postings": 4,
+     "share": 0.286
+    },
+    {
+     "name": "Financial Reporting",
+     "postings": 4,
+     "share": 0.286
+    },
+    {
+     "name": "Tax/VAT/Zakat",
+     "postings": 2,
+     "share": 0.143
     }
    ]
   },
   "engineering": {
    "basis": "all",
-   "postings": 44,
+   "postings": 33,
    "stops": [
     {
      "name": "Testing/QA",
-     "postings": 9,
-     "share": 0.205
+     "postings": 6,
+     "share": 0.182
     },
     {
      "name": "CI/CD",
-     "postings": 5,
-     "share": 0.114
-    },
-    {
-     "name": "Cybersecurity",
      "postings": 3,
-     "share": 0.068
-    },
-    {
-     "name": "Data Modeling",
-     "postings": 3,
-     "share": 0.068
+     "share": 0.091
     },
     {
      "name": "HSE",
      "postings": 3,
-     "share": 0.068
+     "share": 0.091
     },
     {
      "name": "Audit",
      "postings": 2,
-     "share": 0.045
+     "share": 0.061
     },
     {
-     "name": "AutoCAD",
+     "name": "CAD",
      "postings": 2,
-     "share": 0.045
+     "share": 0.061
+    },
+    {
+     "name": "Data Modeling",
+     "postings": 2,
+     "share": 0.061
+    },
+    {
+     "name": "ETAP",
+     "postings": 2,
+     "share": 0.061
     }
    ]
   },
   "marketing": {
    "basis": "entry",
-   "postings": 26,
+   "postings": 19,
    "stops": [
     {
      "name": "Content Writing",
-     "postings": 14,
-     "share": 0.538
-    },
-    {
-     "name": "Excel",
-     "postings": 8,
-     "share": 0.308
+     "postings": 10,
+     "share": 0.526
     },
     {
      "name": "Social Media",
-     "postings": 8,
-     "share": 0.308
+     "postings": 7,
+     "share": 0.368
+    },
+    {
+     "name": "Excel",
+     "postings": 5,
+     "share": 0.263
     },
     {
      "name": "Market Research",
-     "postings": 5,
-     "share": 0.192
-    },
-    {
-     "name": "Canva",
-     "postings": 3,
-     "share": 0.115
+     "postings": 4,
+     "share": 0.211
     },
     {
      "name": "Adobe Creative Suite",
      "postings": 2,
-     "share": 0.077
+     "share": 0.105
     },
     {
-     "name": "Google Ads",
+     "name": "Canva",
      "postings": 2,
-     "share": 0.077
+     "share": 0.105
+    },
+    {
+     "name": "A/B Testing",
+     "postings": 1,
+     "share": 0.053
     }
    ]
   },
@@ -266,19 +266,24 @@
    "postings": 11,
    "stops": [
     {
+     "name": "Recruitment",
+     "postings": 5,
+     "share": 0.455
+    },
+    {
      "name": "Onboarding",
      "postings": 4,
      "share": 0.364
     },
     {
-     "name": "Recruitment",
-     "postings": 4,
-     "share": 0.364
+     "name": "Excel",
+     "postings": 1,
+     "share": 0.091
     },
     {
-     "name": "Excel",
-     "postings": 2,
-     "share": 0.182
+     "name": "GenAI/LLM",
+     "postings": 1,
+     "share": 0.091
     },
     {
      "name": "Google Sheets",
@@ -294,73 +299,68 @@
      "name": "Payroll",
      "postings": 1,
      "share": 0.091
-    },
-    {
-     "name": "Training & Development",
-     "postings": 1,
-     "share": 0.091
     }
    ]
   }
  },
  "fields": {
-  "data": 152,
-  "tech": 432,
-  "finance": 97,
-  "engineering": 44,
-  "marketing": 116,
-  "hr": 48
+  "data": 112,
+  "tech": 332,
+  "finance": 80,
+  "engineering": 33,
+  "marketing": 87,
+  "hr": 39
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 182,
-   "share": 0.205
+   "postings": 145,
+   "share": 0.212
   },
   {
    "name": "SQL",
-   "postings": 110,
+   "postings": 85,
    "share": 0.124
   },
   {
    "name": "Testing/QA",
-   "postings": 85,
-   "share": 0.096
-  },
-  {
-   "name": "CI/CD",
-   "postings": 81,
+   "postings": 62,
    "share": 0.091
   },
   {
-   "name": "Git",
-   "postings": 73,
-   "share": 0.082
+   "name": "Excel",
+   "postings": 59,
+   "share": 0.086
   },
   {
-   "name": "GenAI/LLM",
-   "postings": 72,
+   "name": "Financial Reporting",
+   "postings": 55,
    "share": 0.081
   },
   {
-   "name": "Excel",
-   "postings": 70,
+   "name": "GenAI/LLM",
+   "postings": 54,
    "share": 0.079
   },
   {
-   "name": "AWS",
-   "postings": 68,
+   "name": "CI/CD",
+   "postings": 52,
    "share": 0.076
   },
   {
    "name": "REST API",
-   "postings": 67,
+   "postings": 51,
    "share": 0.075
   },
   {
-   "name": "Kubernetes",
-   "postings": 65,
-   "share": 0.073
+   "name": "AWS",
+   "postings": 47,
+   "share": 0.069
+  },
+  {
+   "name": "Go",
+   "postings": 46,
+   "share": 0.067
   }
  ],
  "entry_jobs": [
@@ -371,14 +371,6 @@
    "url": "https://remoteOK.com/remote-jobs/remote-data-analyst-assistant-arabian-private-holdings-1136217",
    "level": "Junior",
    "posted_at": "2026-08-04"
-  },
-  {
-   "title": "Training Coordinator – Intern",
-   "company": "LAKEORA",
-   "location": "الرياض, SA",
-   "url": "https://sa.linkedin.com/jobs/view/training-coordinator-%E2%80%93-intern-at-lakeora-4473957299",
-   "level": "Intern",
-   "posted_at": ""
   },
   {
    "title": "Tamheer Opportunity – Accountant",
@@ -397,26 +389,10 @@
    "posted_at": ""
   },
   {
-   "title": "Sales & Marketing Specialist",
-   "company": "Kanz",
-   "location": "الرياض, SA",
-   "url": "https://sa.linkedin.com/jobs/view/sales-marketing-specialist-at-kanz-4409129199",
-   "level": "Junior",
-   "posted_at": ""
-  },
-  {
    "title": "Real Estate Marketing Specialist",
    "company": "Rasn Emaar for Real Estate Development",
    "location": "الرياض, SA",
    "url": "https://www.naukrigulf.com/real-estate-marketing-specialist-jobs-in-riyadh-saudi-arabia-in-rasn-emaar-for-real-estate-development-2-to-6-years-n-cd-374857-jid-290926000061",
-   "level": "Junior",
-   "posted_at": ""
-  },
-  {
-   "title": "QA/QC Civil Engineer - KSA",
-   "company": "MADKOUR",
-   "location": "",
-   "url": "https://sa.linkedin.com/jobs/view/qa-qc-civil-engineer-ksa-at-madkour-4474141577",
    "level": "Junior",
    "posted_at": ""
   },
@@ -437,14 +413,6 @@
    "posted_at": ""
   },
   {
-   "title": "Marketing Ops Specialist — Growth & Analytics",
-   "company": "RevOps Report",
-   "location": "الرياض, SA",
-   "url": "https://www.jobleads.com/sa/job/marketing-ops-specialist-growth-analytics--riyadh--e55de5bcb394dc193985dc0f5c8b6e604",
-   "level": "Junior",
-   "posted_at": ""
-  },
-  {
    "title": "Marketing & Partnerships Executive / Internship — Saudi Arabia (Part-Time)",
    "company": "Uncommon Format",
    "location": "",
@@ -459,48 +427,80 @@
    "url": "https://jobs.accaglobal.com/job/14176631/kpmg-audit-internship-program-accounting-graduates-jeddah-madinah-and-khobar-/?LinkSource=PremiumListing",
    "level": "Intern",
    "posted_at": ""
+  },
+  {
+   "title": "KPMG Audit Internship Program | Accounting Graduates (Jeddah, Madinah, and Khobar)",
+   "company": "KPMG Professional Services",
+   "location": "",
+   "url": "https://slccareers.kpmg.com/job/Medina-KPMG-Audit-Internship-Program-Accounting-Graduates-%28Jeddah%2C-Madinah%2C-and-Khobar%29/1368374723/",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
+   "title": "Graduate Software Engineer",
+   "company": "قوافل",
+   "location": "",
+   "url": "https://bebee.com/sa/jobs/graduate-software-engineer-qawafel-riyadh-riyadh--t7xk-858060683",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
+   "title": "Financial Analyst Intern, F/M",
+   "company": "VINCI Energies",
+   "location": "",
+   "url": "https://jobs.accaglobal.com/job/14178485/financial-analyst-intern-f-m/",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
+   "title": "Entry-Level Accountant — Visa Sponsorship in Yanbu",
+   "company": "BrightMark GmbH",
+   "location": "",
+   "url": "https://www.jobleads.com/sa/job/entry-level-accountant-visa-sponsorship-in-yanbu--saudi-arabia--e244c074da0e5e7b93462fc31ca7ba077",
+   "level": "Junior",
+   "posted_at": ""
   }
  ],
  "company_names": [
-  "BEC Arabia",
-  "Salla",
-  "Aramco",
-  "MADKOUR",
-  "Peroptyx",
-  "Abdullah Hashim Co. Ltd",
+  "Eram Talent",
   "YO AI Labs",
   "BrightMark GmbH",
-  "Eram Talent",
   "Jobmaze FZ LLC",
-  "Vanderlande Careers",
-  "RevOps Report",
-  "صالون تزيين نسائي",
-  "Assystem",
-  "YO IT Consulting",
-  "Saudi Aramco",
-  "Join Solutions",
-  "Patchi",
-  "مجموعة ريف",
-  "شركة الزاد الطازج",
-  "Opus",
-  "LAKEORA",
-  "Infosys",
-  "CDHORIZON Saudi Arabia",
-  "Smart Technology Solutions",
-  "Parsons Saudi Arabia",
-  "Hill International Limited",
-  "Kanz",
-  "Riyadh Holding Company",
-  "Logitera",
-  "Turner & Townsend",
-  "Air Arabia Kingdom of Saudi Arabia",
-  "Moyasar",
-  "GlobalProcure",
-  "شركة مركز الاركان المتخصصة للتدريب شركة شخص واحد",
-  "Satech",
-  "2Line Media",
+  "BMC Software",
+  "BEC Arabia",
+  "InterContinental 62s Group plc",
+  "Future Look ITC",
   "Capita Technologies",
   "Andurilindustries",
-  "KPMG"
+  "KPMG",
+  "Abdullah Hashim Co. Ltd",
+  "ByteGrid Talent Services",
+  "Innovation Team",
+  "Jobgether",
+  "Vrinda Global",
+  "Systems Arabia",
+  "Delta Retail Solution",
+  "leading-edge",
+  "Air Arabia",
+  "Figsoft - Loditech",
+  "alfanar",
+  "مراكز إرادة للتأهيل الطبي",
+  "Ecojob",
+  "Uae Job Alert",
+  "ALTAVE",
+  "Aramco",
+  "Unity Holding Company",
+  "KPMG Professional Services",
+  "ساج الركايا",
+  "BasharSoft",
+  "قوافل",
+  "Aljomaih Energy and Water Company",
+  "Medtronic plc",
+  "Rasn Emaar for Real Estate Development",
+  "Delivery Hero",
+  "VINCI Energies",
+  "Work standard",
+  "Siemens",
+  "TMC Middle East"
  ]
 }
