@@ -86,6 +86,14 @@ approved posting searches them on applicants.html and invites (30 a day per post
 the student's account page. The support assistant (`/support/ask`, `FACTS` in index.js) answers from
 fixed facts - keep FACTS true when the site changes. `/linkedin` writes headline/About from the profile.
 Visitor counts: `/hit` beacon from core.js (no cookie/IP), shown on admin.html.
+Security review (2026-10-06): 26 black-box probes (no token, fake tokens, forged Google JWTs, foreign Origin, oversized
+bodies, junk receipts) all refused; no innerHTML anywhere, links through safeUrl, CV blocks rebuilt from a tag whitelist.
+Rate limits are two layers: `limit(env, ip, kind)` in index.js uses Cloudflare `[[ratelimits]]` bindings counted across
+machines (AI_LIMIT 12/min on the Gemini paths, WRITE_LIMIT 20/min on other POSTs, HIT_LIMIT 40/min on `/hit`, ADMIN_LIMIT
+20/min on anything taking ADMIN_TOKEN - measured cutting in at ~19 guesses), with the old per-isolate count as backstop.
+`GET /board/postings` is served from Cloudflare's cache for 60 s. Open (owner's call): applying needs no proof of the email,
+so someone could apply first with another person's email (UNIQUE blocks the real one) - fix with email codes after Resend or
+by requiring sign-in; no retention limit on applications yet (PDPL); skill tests use a fixed 8-question bank.
 English: index.html and dashboard.html translate themselves (their own `lang-toggle`); every other
 page gets an EN/ع button from core.js, and in English `assets/en.js` (`exact` ar->en, `patterns`
 with $1 captures translated again, Arabic-comma lists split) swaps interface text in place,

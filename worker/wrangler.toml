@@ -23,3 +23,26 @@ enabled = true
 binding = "DB"
 database_name = "masar-board"
 database_id = "b9d7974f-7726-4a63-a7b2-301a65c585d0"
+
+# Per-IP limits counted across all of Cloudflare's machines (src/index.js limit()).
+# period is 10 or 60 seconds. ai: the Gemini paths; write: other POSTs; hit: page
+# views; admin: anything taking ADMIN_TOKEN (stops guessing it).
+[[ratelimits]]
+name = "AI_LIMIT"
+namespace_id = "1001"
+simple = { limit = 12, period = 60 }
+
+[[ratelimits]]
+name = "WRITE_LIMIT"
+namespace_id = "1002"
+simple = { limit = 20, period = 60 }
+
+[[ratelimits]]
+name = "HIT_LIMIT"
+namespace_id = "1003"
+simple = { limit = 40, period = 60 }
+
+[[ratelimits]]
+name = "ADMIN_LIMIT"
+namespace_id = "1004"
+simple = { limit = 20, period = 60 }

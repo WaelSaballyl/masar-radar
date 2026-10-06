@@ -49,7 +49,7 @@ async function thread(env, id) {
 export async function support(request, env, path, limited) {
   const now = new Date().toISOString();
   if (path === "/support/tickets" && request.method === "POST") {
-    if (limited()) throw refuse("rate", 429);
+    if (await limited()) throw refuse("rate", 429);
     const input = await body(request);
     const name = text(input.name, 80), email = text(input.email, 120), msg = text(input.text, 4000);
     const topic = TOPICS.includes(input.topic) ? input.topic : "other";
@@ -73,7 +73,7 @@ export async function support(request, env, path, limited) {
     if (!row || !same(await sha(bearer(request)), row.token_hash)) throw refuse("ticket", 401);
     if (request.method === "GET") return thread(env, own[1]);
     if (request.method === "POST") {
-      if (limited()) throw refuse("rate", 429);
+      if (await limited()) throw refuse("rate", 429);
       const msg = text((await body(request)).text, 4000);
       if (msg.length < 2) throw refuse("field:text", 400);
       await env.DB.batch([
