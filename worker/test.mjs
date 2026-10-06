@@ -179,6 +179,16 @@ reply = { nothing: true };
 r = await call("/voice", { sample: "this is a long enough sample about me and my work" });
 assert.equal(r.status, 502);
 
+// shared rate limits: a binding that says no wins; without bindings the backstop decides
+import { limit } from "./src/index.js";
+const no = { limit: async () => ({ success: false }) }, yes = { limit: async () => ({ success: true }) };
+assert.equal(await limit({ AI_LIMIT: no }, "1.2.3.4", "ai"), true);
+assert.equal(await limit({ ADMIN_LIMIT: no }, "1.2.3.4", "admin"), true);
+assert.equal(await limit({ ADMIN_LIMIT: yes }, "1.2.3.4", "admin"), false);
+assert.equal(await limit({}, "1.2.3.4", "hit"), false, "no binding: page views are not counted in memory");
+r = await worker.fetch(new Request("https://w.example/stats", { headers: { Origin: "https://waelsaballyl.github.io" } }), { ...env, ADMIN_LIMIT: no });
+assert.equal(r.status, 429, "guessing the admin token is cut off");
+
 import { sameDomain } from "./src/board.js";
 assert.ok(sameDomain("acme.sa", "acme.sa"));
 assert.ok(sameDomain("careers.acme.sa", "acme.sa"));

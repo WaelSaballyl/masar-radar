@@ -41,9 +41,14 @@ export default {
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Masar-Session", "Access-Control-Max-Age": "86400" } });
     }
     const path = new URL(request.url).pathname;
+    const ip = request.headers.get("CF-Connecting-IP") || "?";
+    // anything that takes the admin token: a handful of tries a minute, so it cannot be guessed
+    if ((path.includes("/admin") || path === "/stats") && await limit(env, ip, "admin")) return reply(429, { error: "rate" });
+    // page views: a flood is dropped quietly instead of filling the database
+    if (path === "/hit" && await limit(env, ip, "hit")) return reply(200, { ok: true });
     // student accounts; only signing in is rate limited, a signed-in device syncs freely
     if (path.startsWith("/auth/")) {
-      if (path === "/auth/google" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      if (path === "/auth/google" && await limit(env, ip, "write")) return reply(429, { error: "rate" });
       try {
         const out = await auth(request, env, path);
         return out ? reply(200, out) : reply(404, { error: "path" });
@@ -54,13 +59,13 @@ export default {
     }
     // opt-in student cards employers can search, and their invitations
     if (path === "/talent" || path.startsWith("/talent/")) {
-      if (request.method === "POST" && path === "/talent/invite" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      if (request.method === "POST" && path === "/talent/invite" && await limit(env, ip, "write")) return reply(429, { error: "rate" });
       try { return reply(200, (await talent(request, env, path)) || { error: "path" }); }
       catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
     }
     // company accounts (HR with a work Google account), apart from student accounts
     if (path.startsWith("/employer/")) {
-      if (path === "/employer/google" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      if (path === "/employer/google" && await limit(env, ip, "write")) return reply(429, { error: "rate" });
       try {
         const out = await employer(request, env, path);
         return out ? reply(200, out) : reply(404, { error: "path" });
@@ -68,7 +73,7 @@ export default {
     }
     // skill tests: questions without answers, scored here; passing marks the skill verified
     if (path === "/tests" || path.startsWith("/tests/")) {
-      if (request.method === "POST" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      if (request.method === "POST" && await limit(env, ip, "write")) return reply(429, { error: "rate" });
       try {
         const out = await skilltests(request, env, path);
         return out ? reply(200, out) : reply(404, { error: "path" });
@@ -81,7 +86,7 @@ export default {
     }
     // the support assistant answers from the facts below, rate limited like the CV tools
     if (path === "/support/ask" && request.method === "POST") {
-      if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      if (await limit(env, ip, "ai")) return reply(429, { error: "rate" });
       const raw = await request.text();
       if (raw.length > 3000) return reply(413, { error: "size" });
       try { return reply(200, await ask(JSON.parse(raw), env)); }
@@ -90,16 +95,29 @@ export default {
     // support conversations; opening one and writing in it are rate limited
     if (path.startsWith("/support/")) {
       try {
-        const out = await support(request, env, path, () => limited(request.headers.get("CF-Connecting-IP") || "?"));
+        const out = await support(request, env, path, () => limit(env, ip, "write"));
         return out ? reply(200, out) : reply(404, { error: "path" });
       } catch (e) {
         if (!e.code) console.error(e.stack || e);
         return reply(e.status || 500, { error: e.code || "server" });
       }
     }
-    // exclusive postings; reading the public list is not rate limited
+    // the public list is the same for everyone: served from Cloudflare's cache for a
+    // minute, so a flood of reads costs one database query, not thousands
+    if (path === "/board/postings" && request.method === "GET") {
+      const key = new Request(new URL("/board/postings", request.url).href);
+      const cache = globalThis.caches?.default;
+      const hit = cache && await cache.match(key);
+      if (hit) return reply(200, await hit.json());
+      try {
+        const out = await board(request, env, path);
+        if (cache) await cache.put(key, new Response(JSON.stringify(out), { headers: { "Cache-Control": "max-age=60" } }));
+        return reply(200, out);
+      } catch (e) { if (!e.code) console.error(e.stack || e); return reply(e.status || 500, { error: e.code || "server" }); }
+    }
+    // exclusive postings
     if (path.startsWith("/board/")) {
-      if (request.method === "POST" && limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+      if (request.method === "POST" && await limit(env, ip, "write")) return reply(429, { error: "rate" });
       try {
         const out = await board(request, env, path);
         return out ? reply(200, out) : reply(404, { error: "path" });
@@ -110,7 +128,7 @@ export default {
     }
     if (request.method !== "POST") return reply(405, { error: "method" });
     if (!["/parse", "/tailor", "/interview", "/linkedin", "/draft", "/voice"].includes(path)) return reply(404, { error: "path" });
-    if (limited(request.headers.get("CF-Connecting-IP") || "?")) return reply(429, { error: "rate" });
+    if (await limit(env, ip, "ai")) return reply(429, { error: "rate" });
 
     const raw = await request.text();
     if (raw.length > MAX_BODY) return reply(413, { error: "size" });
@@ -126,6 +144,18 @@ export default {
     }
   },
 };
+
+// Two layers: Cloudflare's rate-limit bindings (wrangler.toml [[ratelimits]]) count
+// per IP across every machine; the in-memory count below only sees one isolate and
+// stays as a backstop where the bindings are missing (tests, local dev).
+const LIMITS = { ai: "AI_LIMIT", write: "WRITE_LIMIT", hit: "HIT_LIMIT", admin: "ADMIN_LIMIT" };
+export async function limit(env, ip, kind) {
+  const binding = env[LIMITS[kind]];
+  if (binding) {
+    try { if (!(await binding.limit({ key: `${kind}:${ip}` })).success) return true; } catch { /* the backstop still counts */ }
+  }
+  return kind === "ai" || kind === "write" ? limited(ip) : false;
+}
 
 function limited(ip) {
   const hour = Math.floor(Date.now() / 3_600_000);
