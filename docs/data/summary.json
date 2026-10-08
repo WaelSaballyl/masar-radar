@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-10-07T10:23:33+00:00",
- "active_postings": 718,
- "total_postings": 2069,
- "companies": 72,
+ "updated_at": "2026-10-08T10:43:48+00:00",
+ "active_postings": 669,
+ "total_postings": 2189,
+ "companies": 70,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -11,355 +11,355 @@
   "remotive"
  ],
  "entry_postings": 99,
- "gulf_postings": 88,
+ "gulf_postings": 87,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 15,
+  "postings": 21,
   "stops": [
    {
-    "name": "Excel",
-    "postings": 6,
-    "share": 0.4
-   },
-   {
     "name": "SQL",
-    "postings": 6,
-    "share": 0.4
-   },
-   {
-    "name": "Google Sheets",
-    "postings": 3,
-    "share": 0.2
+    "postings": 9,
+    "share": 0.429
    },
    {
     "name": "Python",
+    "postings": 7,
+    "share": 0.333
+   },
+   {
+    "name": "Excel",
+    "postings": 6,
+    "share": 0.286
+   },
+   {
+    "name": "Data Modeling",
+    "postings": 4,
+    "share": 0.19
+   },
+   {
+    "name": "Machine Learning",
     "postings": 3,
-    "share": 0.2
+    "share": 0.143
    },
    {
-    "name": "Market Research",
+    "name": "Power BI",
+    "postings": 3,
+    "share": 0.143
+   },
+   {
+    "name": "Data Governance",
     "postings": 2,
-    "share": 0.133
-   },
-   {
-    "name": "A/B Testing",
-    "postings": 1,
-    "share": 0.067
-   },
-   {
-    "name": "AWS",
-    "postings": 1,
-    "share": 0.067
+    "share": 0.095
    }
   ]
  },
  "routes": {
   "data": {
    "basis": "entry",
-   "postings": 15,
+   "postings": 21,
    "stops": [
     {
-     "name": "Excel",
-     "postings": 6,
-     "share": 0.4
-    },
-    {
      "name": "SQL",
-     "postings": 6,
-     "share": 0.4
-    },
-    {
-     "name": "Google Sheets",
-     "postings": 3,
-     "share": 0.2
+     "postings": 9,
+     "share": 0.429
     },
     {
      "name": "Python",
+     "postings": 7,
+     "share": 0.333
+    },
+    {
+     "name": "Excel",
+     "postings": 6,
+     "share": 0.286
+    },
+    {
+     "name": "Data Modeling",
+     "postings": 4,
+     "share": 0.19
+    },
+    {
+     "name": "Machine Learning",
      "postings": 3,
-     "share": 0.2
+     "share": 0.143
     },
     {
-     "name": "Market Research",
+     "name": "Power BI",
+     "postings": 3,
+     "share": 0.143
+    },
+    {
+     "name": "Data Governance",
      "postings": 2,
-     "share": 0.133
-    },
-    {
-     "name": "A/B Testing",
-     "postings": 1,
-     "share": 0.067
-    },
-    {
-     "name": "AWS",
-     "postings": 1,
-     "share": 0.067
+     "share": 0.095
     }
    ]
   },
   "tech": {
    "basis": "entry",
-   "postings": 25,
+   "postings": 24,
    "stops": [
+    {
+     "name": "Testing/QA",
+     "postings": 7,
+     "share": 0.292
+    },
     {
      "name": "Python",
      "postings": 5,
-     "share": 0.2
-    },
-    {
-     "name": "Testing/QA",
-     "postings": 5,
-     "share": 0.2
-    },
-    {
-     "name": "C++",
-     "postings": 4,
-     "share": 0.16
+     "share": 0.208
     },
     {
      "name": "REST API",
+     "postings": 5,
+     "share": 0.208
+    },
+    {
+     "name": "C++",
      "postings": 3,
-     "share": 0.12
+     "share": 0.125
+    },
+    {
+     "name": "GenAI/LLM",
+     "postings": 3,
+     "share": 0.125
     },
     {
      "name": "SQL",
      "postings": 3,
-     "share": 0.12
+     "share": 0.125
     },
     {
-     "name": "Agile/Scrum",
+     "name": "Go",
      "postings": 2,
-     "share": 0.08
-    },
-    {
-     "name": "Azure",
-     "postings": 2,
-     "share": 0.08
+     "share": 0.083
     }
    ]
   },
   "finance": {
    "basis": "entry",
-   "postings": 17,
+   "postings": 15,
    "stops": [
     {
      "name": "Excel",
      "postings": 11,
-     "share": 0.647
+     "share": 0.733
     },
     {
      "name": "Reconciliation",
-     "postings": 5,
-     "share": 0.294
+     "postings": 4,
+     "share": 0.267
     },
     {
      "name": "Audit",
-     "postings": 4,
-     "share": 0.235
+     "postings": 3,
+     "share": 0.2
     },
     {
      "name": "Accounts Payable/Receivable",
-     "postings": 3,
-     "share": 0.176
+     "postings": 2,
+     "share": 0.133
     },
     {
      "name": "Financial Reporting",
      "postings": 2,
-     "share": 0.118
+     "share": 0.133
     },
     {
      "name": "Finance practices",
      "postings": 1,
-     "share": 0.059
+     "share": 0.067
     },
     {
      "name": "IFRS",
      "postings": 1,
-     "share": 0.059
+     "share": 0.067
     }
    ]
   },
   "engineering": {
    "basis": "all",
-   "postings": 35,
+   "postings": 33,
    "stops": [
     {
      "name": "HSE",
      "postings": 6,
-     "share": 0.171
+     "share": 0.182
     },
     {
      "name": "Testing/QA",
      "postings": 6,
-     "share": 0.171
+     "share": 0.182
     },
     {
      "name": "C++",
      "postings": 5,
-     "share": 0.143
-    },
-    {
-     "name": "ETAP",
-     "postings": 5,
-     "share": 0.143
+     "share": 0.152
     },
     {
      "name": "Python",
      "postings": 5,
-     "share": 0.143
+     "share": 0.152
+    },
+    {
+     "name": "ETAP",
+     "postings": 4,
+     "share": 0.121
     },
     {
      "name": "CI/CD",
      "postings": 3,
-     "share": 0.086
+     "share": 0.091
     },
     {
-     "name": "Data Modeling",
-     "postings": 3,
-     "share": 0.086
+     "name": "Agile/Scrum",
+     "postings": 2,
+     "share": 0.061
     }
    ]
   },
   "marketing": {
    "basis": "entry",
-   "postings": 27,
+   "postings": 24,
    "stops": [
     {
      "name": "Social Media",
-     "postings": 13,
-     "share": 0.481
+     "postings": 15,
+     "share": 0.625
     },
     {
      "name": "Content Writing",
-     "postings": 10,
-     "share": 0.37
+     "postings": 11,
+     "share": 0.458
     },
     {
      "name": "Adobe Creative Suite",
      "postings": 5,
-     "share": 0.185
-    },
-    {
-     "name": "Excel",
-     "postings": 3,
-     "share": 0.111
+     "share": 0.208
     },
     {
      "name": "Canva",
-     "postings": 2,
-     "share": 0.074
+     "postings": 3,
+     "share": 0.125
     },
     {
      "name": "GenAI/LLM",
-     "postings": 2,
-     "share": 0.074
+     "postings": 3,
+     "share": 0.125
     },
     {
-     "name": "Google Sheets",
+     "name": "Market Research",
+     "postings": 3,
+     "share": 0.125
+    },
+    {
+     "name": "Excel",
      "postings": 2,
-     "share": 0.074
+     "share": 0.083
     }
    ]
   },
   "hr": {
    "basis": "entry",
-   "postings": 11,
+   "postings": 12,
    "stops": [
     {
      "name": "Onboarding",
-     "postings": 6,
-     "share": 0.545
+     "postings": 9,
+     "share": 0.75
     },
     {
      "name": "Recruitment",
      "postings": 6,
-     "share": 0.545
+     "share": 0.5
     },
     {
      "name": "Excel",
-     "postings": 1,
-     "share": 0.091
-    },
-    {
-     "name": "GenAI/LLM",
-     "postings": 1,
-     "share": 0.091
+     "postings": 2,
+     "share": 0.167
     },
     {
      "name": "Google Sheets",
      "postings": 1,
-     "share": 0.091
+     "share": 0.083
     },
     {
      "name": "HRIS",
      "postings": 1,
-     "share": 0.091
+     "share": 0.083
     },
     {
      "name": "Payroll",
      "postings": 1,
-     "share": 0.091
+     "share": 0.083
+    },
+    {
+     "name": "Social Media",
+     "postings": 1,
+     "share": 0.083
     }
    ]
   }
  },
  "fields": {
-  "data": 130,
-  "tech": 320,
-  "finance": 95,
-  "engineering": 35,
-  "marketing": 97,
-  "hr": 41
+  "data": 119,
+  "tech": 311,
+  "finance": 88,
+  "engineering": 33,
+  "marketing": 85,
+  "hr": 33
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 150,
-   "share": 0.209
+   "postings": 133,
+   "share": 0.199
   },
   {
    "name": "SQL",
-   "postings": 101,
-   "share": 0.141
+   "postings": 86,
+   "share": 0.129
   },
   {
    "name": "Testing/QA",
-   "postings": 73,
-   "share": 0.102
-  },
-  {
-   "name": "Excel",
-   "postings": 70,
-   "share": 0.097
+   "postings": 74,
+   "share": 0.111
   },
   {
    "name": "GenAI/LLM",
-   "postings": 64,
-   "share": 0.089
-  },
-  {
-   "name": "Financial Reporting",
-   "postings": 55,
-   "share": 0.077
-  },
-  {
-   "name": "AWS",
-   "postings": 54,
-   "share": 0.075
-  },
-  {
-   "name": "CI/CD",
-   "postings": 53,
-   "share": 0.074
-  },
-  {
-   "name": "REST API",
-   "postings": 52,
-   "share": 0.072
+   "postings": 61,
+   "share": 0.091
   },
   {
    "name": "TypeScript",
-   "postings": 48,
+   "postings": 59,
+   "share": 0.088
+  },
+  {
+   "name": "Excel",
+   "postings": 58,
+   "share": 0.087
+  },
+  {
+   "name": "CI/CD",
+   "postings": 54,
+   "share": 0.081
+  },
+  {
+   "name": "AWS",
+   "postings": 49,
+   "share": 0.073
+  },
+  {
+   "name": "REST API",
+   "postings": 46,
+   "share": 0.069
+  },
+  {
+   "name": "Financial Reporting",
+   "postings": 45,
    "share": 0.067
   }
  ],
@@ -405,6 +405,22 @@
    "posted_at": ""
   },
   {
+   "title": "Sales & Marketing Specialist",
+   "company": "Kanz",
+   "location": "الرياض, SA",
+   "url": "https://sa.linkedin.com/jobs/view/sales-marketing-specialist-at-kanz-4409129199",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
+   "title": "Riyadh IT Intern",
+   "company": "Boston Consulting Group (BCG)",
+   "location": "الرياض, SA",
+   "url": "https://sa.linkedin.com/jobs/view/riyadh-it-intern-at-boston-consulting-group-bcg-4475415436",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
    "title": "Marketing Specialist: Events, Social & Content",
    "company": "Ektis",
    "location": "الرياض, SA",
@@ -417,6 +433,14 @@
    "company": "ALPHA PLUS",
    "location": "",
    "url": "https://sa.indeed.com/viewjob?jk=cba7bdb8554b7c21",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
+   "title": "Marketing Specialist (M/F) required",
+   "company": "غير محدد",
+   "location": "",
+   "url": "https://job-ksa.com/en/jobs/27102",
    "level": "Junior",
    "posted_at": ""
   },
@@ -435,54 +459,16 @@
    "url": "https://sa.linkedin.com/jobs/view/marketing-partnerships-executive-internship-%E2%80%94-saudi-arabia-part-time-at-uncommon-format-4472173803",
    "level": "Junior",
    "posted_at": ""
-  },
-  {
-   "title": "KPMG Audit Internship Program | Accounting Graduates (Jeddah, Madinah, and Khobar)",
-   "company": "KPMG Professional Services",
-   "location": "",
-   "url": "https://slccareers.kpmg.com/job/Medina-KPMG-Audit-Internship-Program-Accounting-Graduates-%28Jeddah%2C-Madinah%2C-and-Khobar%29/1368374723/",
-   "level": "Intern",
-   "posted_at": ""
-  },
-  {
-   "title": "Junior Accountant | IFRS, SAP & Bank Reconciliation",
-   "company": "Haji Husein Alireza & Co. Ltd.",
-   "location": "جدة, SA",
-   "url": "https://www.jobleads.com/sa/job/junior-accountant-ifrs-sap-bank-reconciliation--jeddah--e1cd48c316998e8c83f851eb55720c742",
-   "level": "Junior",
-   "posted_at": ""
-  },
-  {
-   "title": "Electrical Engineer Fresher Graduates",
-   "company": "HRGF",
-   "location": "",
-   "url": "https://sabbar.com/ar/jobs/c-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6-r-electrical-engineer-fresher-graduates/id-a68115b3-ea51-4a9b-bb8d-1f27c5d8a9a6",
-   "level": "Junior",
-   "posted_at": ""
   }
  ],
  "company_names": [
-  "Eram Talent",
   "Khalejy",
+  "Eram Talent",
   "BEC Arabia",
-  "InterContinental 62s Group plc",
   "Future Look ITC",
   "Peroptyx",
+  "YO AI Labs",
   "حلولك الرقمية",
-  "Jobleader",
-  "YO IT Consulting",
-  "alfanar Group",
-  "ahmed Elshemee",
-  "SRG",
-  "BMC Software",
-  "Elevenlabs",
-  "Rawaj - Human Capital Management",
-  "Salla",
-  "HRGF",
-  "ALPHA PLUS",
-  "WSP",
-  "2Line Media",
-  "arab-house",
   "JOIN SOLUTIONS",
   "RevOps Report",
   "Gathern.co",
@@ -491,7 +477,6 @@
   "Assystem",
   "My Clinic KSA",
   "شركة السعودية البرونزية",
-  "KPMG Professional Services",
   "Haji Husein Alireza & Co. Ltd.",
   "Uncommon Format",
   "Ektis",
@@ -500,7 +485,22 @@
   "Woopel",
   "Roche",
   "Cretik",
-  "Alfanar",
-  "India Abroad Publications Inc."
+  "India Abroad Publications Inc.",
+  "MADKOUR",
+  "TMC Middle East",
+  "Helf Group",
+  "Cummins Arabia",
+  "ملتقى الحضارات للصناعة",
+  "Parsons",
+  "Mackenzie Jones Limited",
+  "Sisco",
+  "BasharSoft",
+  "Clariness",
+  "Power International Holding (PIH)",
+  "Al Futtaim Group",
+  "CDHORIZON Saudi Arabia",
+  "Fortinet",
+  "TalentHive",
+  "ARK Projects"
  ]
 }
