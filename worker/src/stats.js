@@ -6,14 +6,11 @@
 //   POST /hit   {p, r, v, m}   page, referring host, first view today, phone
 //   GET  /stats                (ADMIN_TOKEN) -> {days, pages, refs}
 
+import { refuse, bearer, same } from "./util.js";
+
 const PAGE = /^[a-z0-9-]{1,40}$/;
 const HOST = /^[a-z0-9.-]{3,80}$/;
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview/i;
-const bearer = (request) => (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-const same = (a, b) => {
-  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
-  return x.length > 0 && x.length === y.length && crypto.subtle.timingSafeEqual(x, y);
-};
 
 export async function stats(request, env, path) {
   const day = new Date().toISOString().slice(0, 10);
@@ -37,7 +34,7 @@ export async function stats(request, env, path) {
     return { ok: true };
   }
   if (path === "/stats" && request.method === "GET") {
-    if (!same(bearer(request), env.ADMIN_TOKEN || "")) throw Object.assign(new Error("admin"), { status: 401, code: "admin" });
+    if (!same(bearer(request), env.ADMIN_TOKEN || "")) throw refuse("admin", 401);
     const since = new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10);
     const [days, pages, refs] = await Promise.all([
       env.DB.prepare("SELECT day, sum(views) views, sum(visitors) visitors, sum(phone) phone FROM hits WHERE day >= ? GROUP BY day ORDER BY day").bind(since).all(),

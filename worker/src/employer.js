@@ -10,15 +10,11 @@
 //   POST /employer/logout  (session)              -> {ok}
 
 import { verifyGoogle } from "./auth.js";
+import { refuse, hex, sha, bearer, line, body } from "./util.js";
 
 const SESSION_DAYS = 30;
 export const FREE_MAIL = /@(gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|me|aol|proton|protonmail|gmx|yandex|mail)\.[a-z.]+$/i;
-const refuse = (code, status) => Object.assign(new Error(code), { status, code });
-const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-const sha = async (s) => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
-const bearer = (request) => (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-const text = (v, max) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
-const site = (v) => text(v, 120).replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/.*$/, "").toLowerCase();
+const site = (v) => line(v, 120).replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/.*$/, "").toLowerCase();
 const show = (e) => ({ email: e.email, name: e.name || "", company: e.company || "", website: e.website || "", domain: e.domain });
 
 // the company signed in on this request, or null (never throws: a manage link may be used instead)
@@ -30,26 +26,20 @@ export async function employerOf(request, env) {
   ).bind(await sha(token), new Date().toISOString()).first();
 }
 
-async function body(request) {
-  const raw = await request.text();
-  if (raw.length > 8000) throw refuse("size", 413);
-  try { return JSON.parse(raw); } catch { throw refuse("json", 400); }
-}
-
 export async function employer(request, env, path, verify = verifyGoogle) {
   const now = new Date().toISOString();
   if (path === "/employer/google" && request.method === "POST") {
-    const { credential } = await body(request);
+    const { credential } = await body(request, 8000);
     const c = await verify(credential, env.GOOGLE_CLIENT_ID);
     const email = String(c.email || "").toLowerCase();
     if (FREE_MAIL.test(email)) throw refuse("work_email", 403);
     const domain = email.split("@")[1] || "";
     let row = await env.DB.prepare("SELECT * FROM employers WHERE google_sub = ?").bind(c.sub).first();
     if (row) {
-      await env.DB.prepare("UPDATE employers SET email = ?, name = ?, last_login = ? WHERE id = ?").bind(email, text(c.name, 120), now, row.id).run();
+      await env.DB.prepare("UPDATE employers SET email = ?, name = ?, last_login = ? WHERE id = ?").bind(email, line(c.name, 120), now, row.id).run();
     } else {
       // the company name and site start from the domain; the company edits them on its dashboard
-      row = { id: crypto.randomUUID().replace(/-/g, ""), email, name: text(c.name, 120), domain, company: "", website: domain };
+      row = { id: crypto.randomUUID().replace(/-/g, ""), email, name: line(c.name, 120), domain, company: "", website: domain };
       await env.DB.prepare(`INSERT INTO employers (id, google_sub, email, name, domain, company, website, created_at, last_login)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(row.id, c.sub, email, row.name, domain, "", domain, now, now).run();
     }
@@ -74,8 +64,8 @@ export async function employer(request, env, path, verify = verifyGoogle) {
     return { employer: show(e), postings: results.map((p) => ({ ...p, status: p.status === "approved" ? "live" : "review" })) };
   }
   if (path === "/employer/profile" && request.method === "POST") {
-    const input = await body(request);
-    const company = text(input.company, 120), website = site(input.website);
+    const input = await body(request, 8000);
+    const company = line(input.company, 120), website = site(input.website);
     if (!company) throw refuse("field:company", 400);
     await env.DB.prepare("UPDATE employers SET company = ?, website = ? WHERE id = ?").bind(company, website || e.domain, e.id).run();
     return { employer: show({ ...e, company, website: website || e.domain }) };

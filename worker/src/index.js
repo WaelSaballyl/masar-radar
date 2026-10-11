@@ -11,13 +11,14 @@
 // the profile never states, is removed and reported rather than trusted.
 
 import { audit, covers, mentions, numbersIn, restore, strings, str } from "./audit.js";
-import { board } from "./board.js";
+import { board, POSTINGS_PAGE } from "./board.js";
 import { auth } from "./auth.js";
 import { support } from "./support.js";
 import { stats } from "./stats.js";
 import { talent } from "./talent.js";
 import { skilltests } from "./skilltests.js";
 import { employer } from "./employer.js";
+import { refuse, stripContact, EMAIL, offsetOf } from "./util.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -105,7 +106,8 @@ export default {
     // the public list is the same for everyone: served from Cloudflare's cache for a
     // minute, so a flood of reads costs one database query, not thousands
     if (path === "/board/postings" && request.method === "GET") {
-      const key = new Request(new URL("/board/postings", request.url).href);
+      // one cache entry per page; offsetOf rounds any other value to a page
+      const key = new Request(new URL(`/board/postings?offset=${offsetOf(request, POSTINGS_PAGE)}`, request.url).href);
       const cache = globalThis.caches?.default;
       const hit = cache && await cache.match(key);
       if (hit) return reply(200, await hit.json());
@@ -166,7 +168,7 @@ function limited(ip) {
   return n > HOURLY_LIMIT;
 }
 
-const fail = (status, code) => Object.assign(new Error(code), { status, code });
+const fail = (status, code) => refuse(code, status);
 
 async function gemini(env, prompt) {
   let last = fail(502, "upstream");
@@ -242,7 +244,7 @@ export function cleanDraft(out, text) {
   const lower = text.toLowerCase();
   const inText = (v, max) => { const t = str(v, max); return t && lower.includes(t.toLowerCase()) ? t : ""; };
   const pick = (k) => (DRAFT[k].includes(o[k]) ? o[k] : "");
-  const email = (text.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/) || [""])[0];
+  const email = (text.match(EMAIL) || [""])[0];
   const site = inText(String(o.website || "").replace(/^https?:\/\/(www\.)?/i, "").replace(/\/.*$/, ""), 120);
   const date = /^\d{4}-\d{2}-\d{2}$/.test(o.deadline || "") ? o.deadline : "";
   // "We", "our company" or "شركة" is not a name: an ad that names no company leaves it empty
@@ -383,9 +385,8 @@ ${q}`);
 const WEAK_VERBS = /^(?:عملت|اشتغلت|ساعدت|شاركت|worked|helped|did|was)(?:\s|$)/i;
 export const TONES = ["formal", "warm", "direct", "energetic", "calm"];
 export const TRAIT_IDS = ["analytical", "creative", "leader", "organised", "communicator", "learner"];
-const CONTACT_RX = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+|\b(?:https?:\/\/|www\.)\S+|(?:\+|\b00|\b0)\d[\d\s-]{7,14}\d/g;
 async function voice(input, env) {
-  const sample = str(input?.sample, 3000).replace(CONTACT_RX, " ");
+  const sample = stripContact(str(input?.sample, 3000));
   if (sample.replace(/\s/g, "").length < 25) throw fail(400, "too_short");
   let source = "";
   try { source = inputs(input).source; } catch { /* no profile: style only */ }

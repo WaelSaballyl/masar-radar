@@ -234,7 +234,7 @@
   const API = document.querySelector('meta[name="masar-api"]').content;
   const list = (s) => (s || "").split(",").map((x) => x.trim()).filter(Boolean);
   const KIND = { coop: "coop", internship: "internship" };
-  const exclusive = fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings.map((p) => ({
+  const exclusive = Masar.boardPostings().then((list) => list.map((p) => ({
     id: p.id, title: p.title, company: p.company, location: p.city, url: p.apply_url, level: p.level,
     posted_at: (p.created_at || "").slice(0, 10), role: "", countries: [p.country], regions: [], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])],

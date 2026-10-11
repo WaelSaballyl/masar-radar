@@ -11,7 +11,8 @@
 
   const call = (path, method = "GET") => fetch(`${API}${path}`, {
     method, headers: { Authorization: `Bearer ${$("token").value.trim()}` },
-  }).then(async (r) => ({ ok: r.ok, status: r.status, data: await r.json().catch(() => ({})) }));
+  }).then(async (r) => ({ ok: r.ok, status: r.status, data: await r.json().catch(() => ({})) }))
+    .catch(() => ({ ok: false, status: 0, data: {} })); // offline: "could not load", not an uncaught error
 
   function card(p) {
     const li = el("li", "posting");
@@ -44,7 +45,8 @@
   $("login").addEventListener("submit", async () => {
     try { sessionStorage.setItem(KEY, $("token").value.trim()); } catch { /* private mode */ }
     $("meta").textContent = "…";
-    const r = await call(`/board/admin?status=${$("state").value}`);
+    const state = $("state").value;
+    const r = await Masar.allPages((o) => call(`/board/admin?status=${state}&offset=${o}`), "postings");
     if (!r.ok) { $("meta").textContent = r.status === 401 ? "الرمز غير صحيح." : "تعذّر التحميل."; $("list").replaceChildren(); return; }
     $("meta").textContent = r.data.postings.length ? Masar.count(r.data.postings.length, "posting", "ar") : "لا توجد إعلانات هنا.";
     $("list").replaceChildren(...r.data.postings.map(card));
@@ -62,7 +64,8 @@
   async function tickets() {
     $("sup-chat").hidden = true;
     $("sup-meta").textContent = "…";
-    const r = await call(`/support/admin?status=${$("sup-state").value}`);
+    const state = $("sup-state").value;
+    const r = await Masar.allPages((o) => call(`/support/admin?status=${state}&offset=${o}`), "tickets");
     if (!r.ok) { $("sup-meta").textContent = r.status === 401 ? "اكتب رمز الإدارة فوق أولاً." : "تعذّر التحميل."; return; }
     const waiting = r.data.tickets.filter((t) => t.last_author === "visitor").length;
     $("sup-meta").textContent = r.data.tickets.length ? `المحادثات: ${r.data.tickets.length}، تنتظر ردّك: ${waiting}` : "لا توجد محادثات هنا.";
