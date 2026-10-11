@@ -11,7 +11,7 @@
 //             POST /talent/invite     (posting's manage token) {posting, card} -> {ok}
 
 import { employerOf } from "./employer.js";
-import { refuse, sha, bearer, same, line, body } from "./util.js";
+import { refuse, sha, bearer, same, line, body, stripContact } from "./util.js";
 
 const FIELD = ["data", "tech", "finance", "engineering", "marketing", "hr"];
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM", "other"];
@@ -19,8 +19,7 @@ const SEEKING = ["", "coop", "internship", "student", "job"];
 const DAILY_INVITES = 30;
 const SEARCH_PAGE = 100;
 // contact details have no place on a card, even pasted into a field
-const CONTACT = /[\w.+-]+@[\w-]+\.[\w.]+|(?:\+|00)?\d[\d\s-]{7,}\d|https?:\/\/\S+|www\.\S+|linkedin|wa\.me/gi;
-const scrub = (s) => s.replace(CONTACT, "").replace(/\s+/g, " ").trim();
+const scrub = (s) => stripContact(s).replace(/\s+/g, " ").trim();
 
 export function card(input) {
   const c = input && typeof input === "object" ? input : {};
