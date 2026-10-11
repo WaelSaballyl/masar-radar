@@ -329,6 +329,7 @@
       // model slipped into a sentence without the student having it
       const vocabulary = [...new Set(postings.flatMap((x) => x.skills.map((s) => s[0])))];
       const out = await api("/tailor", { profile: withoutContact(p), job, lang, vocabulary });
+      Masar.track("cv-tailored");
       renderCoverage(out.coverage, job);
       renderRemoved(out.removed);
       renderCV($("cv-paper"), out.cv, p, lang);
@@ -424,6 +425,7 @@
   }
 
   $("word").addEventListener("click", () => {
+    Masar.track("cv-word");
     const paper = $("cv-paper");
     const a = el("a");
     a.href = URL.createObjectURL(MasarDocx.fromPaper(paper));
@@ -595,6 +597,7 @@
         paper: MasarCV.toBlocks($("cv-paper")) }, true);
       store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
       MasarCV.keepReceipt(receipt);
+      Masar.track("applied");
       say("apply-status", `وصل طلبك إلى ${exclusive.company}. تابع حالته في صفحة طلباتي، وإن اختارتك الشركة ستتواصل معك على إيميلك.`);
       const offer = Masar.styleOffer();
       if (offer) $("apply-status").append(" ", offer, ".");
@@ -632,6 +635,7 @@
 
   // the saved PDF takes the page title as its file name
   $("print").addEventListener("click", () => {
+    Masar.track("cv-pdf");
     const title = document.title;
     const name = $("cv-paper").querySelector("h1")?.textContent || "CV";
     document.title = `${name} - CV`;

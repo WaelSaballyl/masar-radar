@@ -228,6 +228,7 @@
         const { receipt } = await post("/board/apply", { posting_id: p.id, consent: true, name: profile.name,
           phone: profile.phone, link: profile.link, matched: matched.length, required: required.length, paper: toBlocks($("scratch")) }, true);
         MasarCV.keepReceipt(receipt);
+        Masar.track("applied");
         station.className = "station arrived sent";
         const li = log(p, required.length ? `أرسلنا سيرتك. عندك ${matched.length} من ${required.length} مهارات مطلوبة.` : "أرسلنا سيرتك.");
         const offer = Masar.styleOffer();
