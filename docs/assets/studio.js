@@ -10,6 +10,8 @@
 (() => {
   "use strict";
   const { store } = Masar;
+  // the saved light/dark choice and the header's theme button (missing here until 2026-10-11)
+  Masar.initTheme();
   const KEY = "masar.studio";
   const EN = store.get("masar.lang") === "en";
   const L = (ar, en) => (EN ? en : ar);
