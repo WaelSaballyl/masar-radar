@@ -19,6 +19,7 @@ import { talent } from "./talent.js";
 import { skilltests } from "./skilltests.js";
 import { employer } from "./employer.js";
 import { refuse, stripContact, EMAIL, offsetOf } from "./util.js";
+import { retention } from "./retention.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -144,6 +145,10 @@ export default {
       if (!e.code) console.error(e.stack || e); // a bug here, not an upstream answer
       return reply(e.status || 502, { error: e.code || "upstream" });
     }
+  },
+  // daily, from the cron in wrangler.toml: old applications and dead sessions go (retention.js)
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(retention(env).then((n) => console.log("retention", JSON.stringify(n))));
   },
 };
 
@@ -344,7 +349,7 @@ const FACTS = `Masar (مسار) is a free site for students and new graduates in
 - Skill tests (tests.html): 8 questions each in SQL, Excel, Python, Power BI, Statistics and Financial Reporting; 6 right passes and marks the skill verified on the account and talent card. Needs sign-in; one attempt per skill a day.
 - Home page: upload a CV and see how many open postings fit it (at least half their required skills), with the closest five; the file is read on the device and never uploaded, and the skills found join the profile.
 - ATS check (ats.html): upload a PDF or Word CV and optionally pick a posting or paste a description; it shows exactly the text a screening system reads, what breaks it (a scanned image, two columns, tables, text boxes, contact in the page header, joined letters like fi, Arabic inside a PDF, missing sections, dates or contact) with fixed points for each, a content score (numbers and results in the experience points, points starting with an action verb, no duty phrases like "Responsible for", a summary, at least six skills, a LinkedIn link), and which of the posting's skills are found. The ATS score is half reading and half content without a posting, and 30% reading, 30% content, 40% match with one; 85+ is excellent, 70+ good, 50+ needs work. The file is read in the browser and never uploaded. There is no single ATS; the score is fixed rules, not a prediction of any company's system.
-- Apply: on exclusive postings students apply from the CV page or by swiping on swipe.html (right to apply, left to skip, 5 seconds to undo). Contact details go to the company only after the student ticks consent. One application per email per posting.
+- Apply: on exclusive postings students apply from the CV page or by swiping on swipe.html (right to apply, left to skip, 5 seconds to undo). Contact details go to the company only after the student ticks consent. One application per email per posting. Applications are deleted automatically 180 days after their posting expired (privacy.html).
 - My applications (applications.html): whether the company opened the CV, shortlist, rank among applicants, one reminder to the company after 7 days without a reply.
 - Accounts are optional (account.html): sign in with Google only, no password, so there is no password to reset. Signing in keeps the profile, CVs, applications and saved postings in sync across devices. The profile can be edited there. "Delete my account" in account.html deletes everything stored for it.
 - Without an account everything stays in the browser; clearing site data removes it.
