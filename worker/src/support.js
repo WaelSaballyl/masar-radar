@@ -80,7 +80,8 @@ export async function support(request, env, path, limited) {
       const offset = offsetOf(request, 200);
       const { results } = await env.DB.prepare(
         `SELECT t.id, t.name, t.email, t.topic, t.status, t.updated_at,
-                (SELECT author FROM support_messages m WHERE m.ticket_id = t.id ORDER BY created_at DESC, rowid DESC LIMIT 1) AS last_author
+                (SELECT author FROM support_messages m WHERE m.ticket_id = t.id ORDER BY created_at DESC, rowid DESC LIMIT 1) AS last_author,
+                (SELECT max(created_at) FROM support_messages m WHERE m.ticket_id = t.id AND m.author = 'visitor') AS last_visitor_at
          FROM support_tickets t WHERE t.status = ? ORDER BY t.updated_at DESC, t.id LIMIT ? OFFSET ?`,
       ).bind(status, 201, offset).all();
       const { rows, next } = page(results, 200, offset);

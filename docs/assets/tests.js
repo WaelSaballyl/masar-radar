@@ -86,7 +86,7 @@
     let out;
     try { out = await account.call(`/tests/${current.slug}`, { answers, day: current.day }); }
     catch { $("run-status").textContent = "انتهت جلستك. سجّل دخولك من جديد."; return; }
-    if (out.status === 429) { $("run-status").textContent = "استخدمت محاولة اليوم لهذه المهارة. جرّب بكرة."; return; }
+    if (out.status === 429) { $("run-status").textContent = "استخدمت محاولة اليوم لهذه المهارة. جرّب غداً."; return; }
     if (out.status !== 200) { $("run-status").textContent = "تعذّر التسليم. جرّب بعد قليل."; $("submit").disabled = false; return; }
     const wrong = new Set(out.wrong);
     current.questions.forEach((q) => {
@@ -96,7 +96,7 @@
     });
     $("run-status").textContent = out.passed
       ? `نجحت: ${out.score} من ${out.of}. وثّقنا ${current.skill} في حسابك، وتظهر «موثّقة» على بطاقتك للشركات.`
-      : `${out.score} من ${out.of}. تحتاج ${Math.ceil(out.of * 0.75)} لتنجح. الأسئلة المعلّمة بـ ✗ أخطأت فيها؛ راجع المهارة وجرّب بكرة.`;
+      : `${out.score} من ${out.of}. تحتاج ${Math.ceil(out.of * 0.75)} لتنجح. الأسئلة المعلّمة بـ ✗ أخطأت فيها؛ راجع المهارة وجرّب غداً.`;
     await loadMine();
   });
 

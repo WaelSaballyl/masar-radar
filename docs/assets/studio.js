@@ -257,12 +257,12 @@
   }
   const TONE_NAMES = { formal: L("رسمي", "Formal"), warm: L("ودود", "Warm"), direct: L("مباشر", "Direct"), energetic: L("متحمّس", "Energetic"), calm: L("هادئ", "Calm") };
   const PROMPTS = [
-    [L("احكيلنا عن شي عملته وكنت فخور فيه. بأي طريقة بتحب، باللهجة عادي.", "Tell us about something you did and were proud of. Any way you like."),
-      L("مثلاً: بالجامعة سوّيت مشروع مع ربعي…", "e.g. At uni my friends and I built…")],
-    [L("لو صاحبك سألك: شو بتحب تشتغل وليش؟ شو بتقلّه؟", "If a friend asked what work you'd love and why, what would you say?"),
-      L("بحب الشغل اللي فيه…", "I like work where…")],
-    [L("احكيلنا عن موقف صعب صار معك وكيف تصرّفت.", "Tell us about a hard moment and how you handled it."),
-      L("مرة بالتدريب صار…", "Once during my internship…")],
+    [L("حدّثنا عن شيء عملته وتفخر به. اكتب كما تتكلم، واللهجة مقبولة.", "Tell us about something you did and were proud of. Any way you like."),
+      L("مثلاً: في الجامعة عملت مشروعاً مع زملائي…", "e.g. At uni my friends and I built…")],
+    [L("لو سألك صديق: ما العمل الذي تحبه، ولماذا؟ بماذا تجيبه؟", "If a friend asked what work you'd love and why, what would you say?"),
+      L("أحب العمل الذي فيه…", "I like work where…")],
+    [L("حدّثنا عن موقف صعب مررت به وكيف تصرّفت.", "Tell us about a hard moment and how you handled it."),
+      L("مرة في التدريب حدث…", "Once during my internship…")],
   ];
 
   // ---------- the paper ----------
@@ -491,8 +491,8 @@
           S.lang = S.lang === "ar" ? "en" : "ar";
           $("st-lang").querySelector("span").textContent = S.lang === "ar" ? "English CV" : L("سيرة بالعربي", "Arabic CV");
           commit({ now: true, editor: true });
-          toast(S.lang === "en" ? L("العناوين صارت بالإنجليزي. اكتب المحتوى بالإنجليزي، أو جهّزها لوظيفة بالإنجليزي.", "Headings are in English now. Write the content in English too, or tailor it to an English posting.")
-            : L("العناوين صارت بالعربي.", "Headings are in Arabic now."));
+          toast(S.lang === "en" ? L("أصبحت العناوين بالإنجليزية. اكتب المحتوى بالإنجليزية، أو جهّزها لوظيفة بالإنجليزية.", "Headings are in English now. Write the content in English too, or tailor it to an English posting.")
+            : L("أصبحت العناوين بالعربية.", "Headings are in Arabic now."));
         }),
         btn("st-word", "Word", "M14 6h14l10 10v26H14zM28 6v10h10M19 24l3 12 3-9 3 9 3-12", () => { download(MasarDocx.fromPaper(exportPaper()), `${fileName()}.docx`); Masar.track("cv-word"); }),
         btn("st-pdf", "PDF", "M14 6h14l10 10v26H14zM28 6v10h10M24 22v14M18 30l6 6 6-6", printPDF),
@@ -868,7 +868,7 @@
     const skillOpts = (S.skills.length ? S.skills : SKILLS_BY_FIELD[sty.field || "other"]).slice(0, 10).map((s) => [s, s]);
     const details = h("details", { class: "st-wiz", open: !S.summary.trim() || null },
       h("summary", null, icon("M24 6l4 12h12l-10 8 4 12-10-8-10 8 4-12-10-8h12z"), L("اكتب نبذتي بالأسئلة", "Write my summary from questions")),
-      q("١", L("وين وصلت؟", "Where are you now?"), pick(STAGES, "stage")),
+      q("١", L("في أي مرحلة أنت؟", "Where are you now?"), pick(STAGES, "stage")),
       q("٢", L("الدور الذي تستهدفه", "The role you aim for"), h("input", { type: "text", dir: "auto", value: st.target, placeholder: ar() ? "محلل بيانات" : "Data Analyst",
         oninput: (e) => { st.target = e.target.value; paint(); } })),
       q("٣", L("أقوى ثلاث مهارات عندك", "Your three strongest skills"), pick(skillOpts, "skills", 3)),
@@ -878,7 +878,7 @@
       q("٥", L("ماذا يميّزك؟ اختر اثنين", "What sets you apart? Pick two"), pick(Object.entries(TRAITS).map(([k, v]) => [k, v[0]]), "traits", 2)),
       ar() ? q("٦", L("صيغة الكتابة", "Wording"), pick([["m", "مذكّر"], ["f", "مؤنّث"]], "form")) : null,
       S.voiceSample ? h("div", { class: "st-wiz-foot st-wiz-voice" },
-        h("p", { class: "st-hint" }, L("أو خلّينا نكتبها بأسلوبك أنت، من الكلام اللي كتبته لنا.", "Or let us write it in your own voice, from what you wrote us.")),
+        h("p", { class: "st-hint" }, L("أو نكتبها بأسلوبك أنت، من الكلام الذي كتبته لنا.", "Or let us write it in your own voice, from what you wrote us.")),
         h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: async (e) => {
           const b = e.currentTarget;
           if (b.disabled) return;
@@ -907,7 +907,7 @@
 
   // ---------- the style quiz ----------
   const QUIZ = [
-    { id: "stage", q: L("وين وصلت؟", "Where are you now?"), opts: [
+    { id: "stage", q: L("في أي مرحلة أنت؟", "Where are you now?"), opts: [
       ["student", L("طالب", "Student"), L("أدرس، أو في التدريب التعاوني", "Studying, or in co-op")],
       ["fresh", L("حديث تخرّج", "New graduate"), L("تخرّجت خلال آخر سنتين", "Graduated in the last two years")],
       ["junior", L("خبرة 1-3 سنوات", "1-3 years in"), L("اشتغلت بعد التخرّج", "Working since graduating")],
@@ -917,7 +917,7 @@
       ["finance", L("المالية والمحاسبة", "Finance and accounting"), "Excel, SAP"], ["engineering", L("الهندسة", "Engineering"), "AutoCAD, Primavera"],
       ["marketing", L("التسويق", "Marketing"), "SEO, Meta Ads"], ["hr", L("الموارد البشرية", "HR"), L("التوظيف، الرواتب", "Recruiting, payroll")],
       ["other", L("مجال آخر", "Something else"), ""]] },
-    { id: "target", q: L("وين تقدّم غالباً؟", "Where do you mostly apply?"), opts: [
+    { id: "target", q: L("أين تقدّم غالباً؟", "Where do you mostly apply?"), opts: [
       ["gov", L("جهات حكومية وشركات كبرى", "Government and large firms"), L("أرامكو، سابك، الوزارات", "Aramco, SABIC, ministries")],
       ["corp", L("شركات خاصة", "Private companies"), L("بنوك، اتصالات، تجزئة", "Banks, telecom, retail")],
       ["startup", L("شركات ناشئة", "Startups"), L("تقنية وتطبيقات", "Tech and apps")],
@@ -929,7 +929,7 @@
       ["one", L("صفحة واحدة مركّزة", "One focused page"), L("ينصح بها لطالب أو حديث تخرّج", "Advised for students and new grads")],
       ["full", L("مفصّلة", "Detailed"), L("عندي خبرات ومشاريع كثيرة", "I have a lot to show")]] },
     { id: "form", when: (a) => a.lang === "ar", q: L("صيغة الكتابة بالعربي", "Arabic wording"), opts: [["m", "مذكّر", ""], ["f", "مؤنّث", ""]] },
-    { id: "voice", free: true, q: L("اختياري: احكيلنا بكلامك", "Optional: tell us in your own words"), opts: [] },
+    { id: "voice", free: true, q: L("اختياري: حدّثنا بكلامك", "Optional: tell us in your own words"), opts: [] },
   ];
   function recommend(a) {
     const traits = a.traits || [];
@@ -1109,12 +1109,12 @@
         ta.value = `${base}${base && said ? " " : ""}${said}`;
         paintCount();
       };
-      rec.onend = () => { rec = null; mic.setAttribute("aria-pressed", "false"); mic.lastChild.textContent = L("احكِ بصوتك", "Speak instead"); };
+      rec.onend = () => { rec = null; mic.setAttribute("aria-pressed", "false"); mic.lastChild.textContent = L("تحدّث بصوتك", "Speak instead"); };
       rec.onerror = () => { status.textContent = L("ما قدرنا نسمعك. اسمح للمتصفح باستخدام الميكروفون، أو اكتب.", "We couldn't hear you. Allow the microphone, or type."); };
       rec.start();
       mic.setAttribute("aria-pressed", "true");
       mic.lastChild.textContent = L("نسمعك… اضغط للإيقاف", "Listening… press to stop");
-    } }, icon("M24 30a6 6 0 0 0 6-6V12a6 6 0 0 0-12 0v12a6 6 0 0 0 6 6zM14 22a10 10 0 0 0 20 0M24 32v8"), h("span", null, L("احكِ بصوتك", "Speak instead"))) : null;
+    } }, icon("M24 30a6 6 0 0 0 6-6V12a6 6 0 0 0-12 0v12a6 6 0 0 0 6 6zM14 22a10 10 0 0 0 20 0M24 32v8"), h("span", null, L("تحدّث بصوتك", "Speak instead"))) : null;
     fill(dlg, h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×"),
       h("div", { class: "st-quiz-in st-voice" },
         h("div", { class: "st-progress", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(list.length), "aria-valuenow": String(step + 1) },
@@ -1122,9 +1122,9 @@
         h("p", { class: "st-step" }, L(`سؤال ${step + 1} من ${list.length}، اختياري`, `Question ${step + 1} of ${list.length}, optional`)),
         h("h2", null, q.q),
         h("p", { class: "st-voice-ask" }, ask, " ",
-          h("button", { type: "button", class: "st-link", onclick: () => { prompt += 1; S.voiceSample = ta.value; paintQuiz(); } }, L("سؤال غيره", "Another question"))),
+          h("button", { type: "button", class: "st-link", onclick: () => { prompt += 1; S.voiceSample = ta.value; paintQuiz(); } }, L("سؤال آخر", "Another question"))),
         ta, count,
-        h("p", { class: "st-voice-note" }, L("اكتب على راحتك، الأخطاء الإملائية واللهجة ما بتفرق. نقرأ أسلوبك لنكتب سيرتك بكلامك، والسيرة نفسها تطلع بإملاء سليم.",
+        h("p", { class: "st-voice-note" }, L("اكتب على راحتك؛ الأخطاء الإملائية واللهجة لا تهم. نقرأ أسلوبك لنكتب سيرتك بكلامك، وتخرج السيرة بإملاء سليم.",
           "Write freely: spelling and dialect don't matter. We read your style to write your CV in your words, with correct spelling.")),
         status,
         h("div", { class: "st-quiz-acts" },
