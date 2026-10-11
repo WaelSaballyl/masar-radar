@@ -611,7 +611,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=23";
+    s.src = "assets/en.js?v=24";
     s.onload = translate;
     document.head.append(s);
   }
