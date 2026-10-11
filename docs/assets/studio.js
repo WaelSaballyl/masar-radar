@@ -227,6 +227,22 @@
       calm: L("تكتب بهدوء وتفصيل", "You write calmly and in detail"), warm: L("تكتب بأسلوب ودود وواضح", "You write in a warm, clear way") }[tone];
     return { tone, traits, voice: line, verbs_ar: [], verbs_en: [], words: [], summary: "", local: true };
   }
+  // Reading a voice takes the model 10 to 15 seconds: say what is happening, step
+  // by step, over a bar that fills toward the usual time (no bar under reduced motion;
+  // the steps still change). Returns stop(), which fills it and clears the timer.
+  const WAIT_STEPS = [L("نقرأ كلامك…", "Reading what you wrote…"), L("نلتقط نبرتك والكلمات التي تكررها…", "Picking up your tone and favourite words…"),
+    L("نكتب نبذتك بأسلوبك…", "Writing your summary in your voice…"), L("نراجعها على معلوماتك، لحظات…", "Checking it against your details, a moment…")];
+  function waiting(host) {
+    const text = h("span", { class: "st-wait-text" }, WAIT_STEPS[0]);
+    const box = h("div", { class: "st-wait", role: "status", "aria-live": "polite" }, text,
+      h("span", { class: "st-wait-bar", "aria-hidden": "true" }, h("i")));
+    fill(host, box);
+    void box.offsetWidth; // lay out the empty bar first, so the fill transitions
+    box.classList.add("go");
+    let i = 0;
+    const timer = setInterval(() => { if (i < WAIT_STEPS.length - 1) text.textContent = WAIT_STEPS[++i]; }, 3500);
+    return () => { clearInterval(timer); box.classList.add("done"); };
+  }
   async function readVoice(sample, withSummary, form, lang) {
     // the same contact rule as every other page (cvkit.js), checked against the worker's in worker/test.mjs
     const clean = MasarCV.stripContact(sample, {}).trim();
@@ -864,11 +880,14 @@
         h("p", { class: "st-hint" }, L("أو خلّينا نكتبها بأسلوبك أنت، من الكلام اللي كتبته لنا.", "Or let us write it in your own voice, from what you wrote us.")),
         h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: async (e) => {
           const b = e.currentTarget;
+          if (b.disabled) return;
           b.disabled = true;
-          b.textContent = L("نكتبها بأسلوبك…", "Writing in your voice…");
+          const before = out.textContent;
+          const stop = waiting(out);
           const v = await readVoice(S.voiceSample, true, st.form);
+          stop();
           b.disabled = false;
-          b.textContent = L("اكتبها بأسلوبي", "Write it in my voice");
+          out.textContent = before;
           if (v.summary) { out.textContent = v.summary; voiced = v.summary; }
           else toast(v.local ? L("ما قدرنا نوصل للخادم الآن. جرّب بعد شوي.", "Couldn't reach the server. Try again shortly.")
             : L("نحتاج معلومات أكثر في سيرتك لنكتبها بأسلوبك.", "We need more in your CV to write it in your voice."));
@@ -1054,14 +1073,20 @@
       const n = ta.value.trim().split(/\s+/).filter(Boolean).length;
       count.textContent = n < 12 ? L(`${n} كلمة. اكتب 12 كلمة على الأقل، وكل ما زاد كان أدق.`, `${n} words. Write at least 12; more reads better.`)
         : L(`${n} كلمة. ممتاز.`, `${n} words. Great.`);
-      read.disabled = n < 12;
+      read.disabled = n < 12 || reading;
     };
     const status = h("p", { class: "st-hint", role: "status" });
+    let reading = false;
     const read = h("button", { type: "button", class: "btn btn-primary", onclick: async () => {
-      read.disabled = true;
-      status.textContent = L("نقرأ أسلوبك…", "Reading your style…");
+      if (reading) return;
+      reading = true;
+      read.disabled = ta.readOnly = true;
+      if (mic) mic.disabled = true;
+      if (rec) rec.stop();
+      const stop = waiting(status);
       S.voiceSample = ta.value.trim();
       const v = await readVoice(S.voiceSample, true, answers.form, answers.lang);
+      stop();
       answers.voice = { tone: v.tone, traits: v.traits, voice: v.voice, verbs_ar: v.verbs_ar, verbs_en: v.verbs_en, words: v.words, summary: v.summary || "" };
       if (!(answers.traits || []).length && v.traits?.length) answers.traits = v.traits;
       go(step + 1);
