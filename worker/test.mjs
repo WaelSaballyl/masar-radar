@@ -355,6 +355,24 @@ import vm from "node:vm";
   assert.deepEqual([numbers.target, numbers.major], ["Analyst of 5,000 records, SAR 5000", "ISO 27001"]);
 }
 
+// ---- browser code: a callback parameter never hides a helper of the same file ----
+// (`.then((list) => list.map(... list(p.required) ...))` dropped every exclusive posting, 2026-10-11)
+{
+  const { readdirSync } = await import("node:fs");
+  const dir = new URL("../docs/assets/", import.meta.url);
+  const bad = [];
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".js") && x !== "en.js")) {
+    const src = readFileSync(new URL(f, dir), "utf8");
+    const helpers = new Set([...src.matchAll(/(?:^|\n)\s*(?:const|let)\s+(\w+)\s*=\s*(?:async\s*)?\(/g), ...src.matchAll(/(?:^|\n)\s*(?:async\s+)?function\s+(\w+)\s*\(/g)].map((m) => m[1]));
+    for (const m of src.matchAll(/\.then\(\(?(\w+)\)?\s*=>/g)) {
+      // the callback's own statement: up to the first line that ends in ";"
+      const rest = src.slice(m.index + m[0].length);
+      if (helpers.has(m[1]) && new RegExp(`\\b${m[1]}\\(`).test(rest.slice(0, rest.search(/;\r?$/m)))) bad.push(`${f}: ${m[1]}`);
+    }
+  }
+  assert.deepEqual(bad, [], "a .then() parameter shadows a helper that the callback then calls");
+}
+
 // ---- D1 in memory (node:sqlite, the whole schema.sql) for the database paths ----
 const { DatabaseSync } = await import("node:sqlite");
 // Workers' constant-time compare, which Node lacks
