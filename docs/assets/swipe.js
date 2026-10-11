@@ -83,21 +83,26 @@
     return c;
   }
 
+  // No exclusive posting to swipe: say why, and offer the next useful step
+  // (every posting, an alert for new ones, the demo). seen = there were some.
+  let total = 0;
+  function emptyDeck(seen) {
+    const box = el("div", "swipe-empty");
+    box.append(el("p", null, seen ? "قدّمت على كل الإعلانات الحصرية المتاحة أو تخطّيتها. نضيف الجديد حين تنشره الشركات، وبقية الإعلانات في صفحة الإعلانات." : "لا توجد إعلانات حصرية الآن. الشركات تنشرها هنا مباشرة، ونعرض كل إعلان جديد هنا أول ما يُنشر."));
+    const acts = el("p", "swipe-empty-acts");
+    const link = (text, href, cls) => { const a = el("a", `btn ${cls}`, text); a.href = href; return a; };
+    acts.append(link("كل الإعلانات", "jobs.html", "btn-primary"), link("نبّهني بالجديد", "alerts.html", "btn-quiet"));
+    if (!DEMO) acts.append(link("جرّب السحب على مثال", "swipe.html?demo=1", "btn-quiet"));
+    box.append(acts);
+    return box;
+  }
+
   function deal() {
     const deck = $("deck");
     deck.replaceChildren();
     const next = queue.slice(0, 3);
     $("buttons").hidden = !next.length;
-    if (!next.length) {
-      const empty = el("p", "swipe-empty", "خلصت الإعلانات الحصرية الجديدة. نضيف إعلانات كل ما نشرتها الشركات، وتلاقي كل الإعلانات الثانية في صفحة الإعلانات. ");
-      if (!DEMO) {
-        const a = el("a", null, "جرّب السحب على إعلانات وهمية");
-        a.href = "swipe.html?demo=1";
-        empty.append(a, ".");
-      }
-      deck.append(empty);
-      return;
-    }
+    if (!next.length) { deck.append(emptyDeck(total > 0)); return; }
     // the top card is last in the DOM, so it paints above the others
     next.slice().reverse().forEach((p, i, all) => {
       const c = card(p);
@@ -430,9 +435,11 @@
     Promise.all([Masar.boardPostings(), gulf]).then(([postings, g]) => {
       const seen = new Set([...list("masar.applied"), ...list("masar.skipped")]);
       queue = postings.filter((p) => !seen.has(p.id));
+      total = postings.length;
       // the path so far: one station per posting already applied to
       list("masar.applied").slice(-24).forEach(() => $("route").append(el("li", "station arrived sent")));
       if (PHONE) feed(queue, g);
+      else if (!queue.length) deal();
       else if (setup()) deal();
     }).catch(() => { $("deck").append(el("p", "swipe-empty", "تعذّر تحميل الإعلانات. تحقق من الإنترنت وحدّث الصفحة.")); });
   }
