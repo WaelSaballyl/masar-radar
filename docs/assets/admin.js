@@ -71,13 +71,13 @@
     // an open conversation the visitor left 90 days ago: close it, or it is never deleted (retention deletes closed ones only)
     const stale = (t) => t.status === "open" && t.last_visitor_at && Date.now() - Date.parse(t.last_visitor_at) > 90 * 86_400_000;
     const old = r.data.tickets.filter(stale).length;
-    $("sup-meta").textContent = r.data.tickets.length ? `المحادثات: ${r.data.tickets.length}، تنتظر ردّك: ${waiting}${old ? `، منسية: ${old} (سكّرها)` : ""}` : "لا توجد محادثات هنا.";
+    $("sup-meta").textContent = r.data.tickets.length ? `المحادثات: ${r.data.tickets.length}، تنتظر ردّك: ${waiting}${old ? `، منسية: ${old} (أغلقها)` : ""}` : "لا توجد محادثات هنا.";
     $("sup-list").replaceChildren(...r.data.tickets.map((t) => {
       const li = el("li");
       const b = el("button", "ticket-row");
       b.type = "button";
       b.append(el("strong", null, `${t.name}، ${TOPIC[t.topic] || t.topic}`),
-        stale(t) ? el("span", "badge-new", "لا رسائل من الزائر منذ 90 يوماً، سكّرها")
+        stale(t) ? el("span", "badge-new", "لا رسائل من الزائر منذ 90 يوماً، أغلقها")
           : el("span", t.last_author === "visitor" ? "badge-new" : "muted", t.last_author === "visitor" ? "ينتظر ردّك" : when(t.updated_at)));
       b.onclick = () => thread(t.id);
       li.append(b);
