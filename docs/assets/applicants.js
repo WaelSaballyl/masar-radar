@@ -128,14 +128,17 @@
   const SEEK = { coop: "يبحث عن تدريب تعاوني", internship: "يبحث عن تدريب", student: "يبحث عن دوام طلابي", job: "يبحث عن وظيفة" };
   const COUNTRY = { SA: "السعودية", AE: "الإمارات", QA: "قطر", KW: "الكويت", BH: "البحرين", OM: "عُمان" };
   // a page of 100 at a time; "show more" asks for the next one with the same filters
-  let filters = null, next = null, shown = 0;
+  let filters = null, next = null, shown = 0, latest = 0;
   async function search(more) {
+    // a new search while a page is still loading wins: the older answer is dropped
+    const mine = ++latest;
     if (more !== true) { filters = { posting: id, field: $("t-field").value, country: $("t-country").value, q: $("t-q").value.trim() }; next = 0; shown = 0; }
     $("t-meta").textContent = "…";
     $("t-more").hidden = true;
     const q = new URLSearchParams({ ...filters, offset: next });
     const r = await fetch(`${API_BASE}/talent/search?${q}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(async (x) => ({ ok: x.ok, data: await x.json() })).catch(() => ({ ok: false }));
+    if (mine !== latest) return;
     if (!r.ok) { $("t-meta").textContent = "تعذّر البحث الآن."; $("t-more").hidden = more !== true; return; }
     const { cards } = r.data;
     next = r.data.next ?? null;
