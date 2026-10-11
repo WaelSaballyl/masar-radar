@@ -538,6 +538,15 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   await stats(postTo("/hit", { p: "jobs", r: "google.com", v: 1 }), env, "/hit");
   const read = (token) => stats(new Request("https://w/stats", { headers: { Authorization: `Bearer ${token}` } }), env, "/stats");
   assert.deepEqual((await read(env.ADMIN_TOKEN)).pages.map((x) => [x.page, x.views]), [["jobs", 1]]);
+  // funnel steps: known names count per day, unknown ones and fake "ev-" pages are dropped,
+  // and they stay out of the page list and the daily visits
+  for (const e of ["quiz-done", "quiz-done", "applied", "drop-tables", ""]) await stats(postTo("/hit", { e }), env, "/hit");
+  await stats(postTo("/hit", { p: "ev-applied", v: 1 }), env, "/hit");
+  for (const junk of ["abc", 5, true, null]) assert.deepEqual(await stats(postTo("/hit", junk), env, "/hit"), { ok: true });
+  const s = await read(env.ADMIN_TOKEN);
+  assert.deepEqual(Object.fromEntries(s.events.map((x) => [x.name, x.n])), { "quiz-done": 2, applied: 1 });
+  assert.ok(!s.pages.some((x) => x.page.startsWith("ev-")), JSON.stringify(s.pages));
+  assert.deepEqual(s.days.map((d) => [d.views, d.visitors]), [[2, 2]], "two page views (jobs, other), no event in them");
   await assert.rejects(read("x"), /admin/);
   await assert.rejects(read(""), /admin/);
 }

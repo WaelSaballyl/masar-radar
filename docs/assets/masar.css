@@ -1685,3 +1685,6 @@ a.start-card { text-decoration: none; }
 .fit-list a { font-weight: 600; unicode-bidi: plaintext; }
 .fit-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
 @media (max-width: 640px) { .fit-drop { grid-template-columns: 1fr; } }
+/* the admin funnel: longer step names than the day labels */
+#stats-funnel .bar-row { grid-template-columns: minmax(8rem, 13rem) 1fr 3rem; }
+#stats-funnel .bar-label { white-space: normal; }
