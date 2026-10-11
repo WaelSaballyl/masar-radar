@@ -890,7 +890,7 @@
           b.disabled = false;
           out.textContent = before;
           if (v.summary) { out.textContent = v.summary; voiced = v.summary; }
-          else toast(v.local ? L("ما قدرنا نوصل للخادم الآن. جرّب بعد شوي.", "Couldn't reach the server. Try again shortly.")
+          else toast(v.local ? L("تعذّر الوصول إلى الخادم الآن. جرّب بعد قليل.", "Couldn't reach the server. Try again shortly.")
             : L("نحتاج معلومات أكثر في سيرتك لنكتبها بأسلوبك.", "We need more in your CV to write it in your voice."));
         } }, L("اكتبها بأسلوبي", "Write it in my voice"))) : null,
       h("div", { class: "st-wiz-foot" }, out, h("button", { type: "button", class: "btn btn-primary btn-small", onclick: () => {
