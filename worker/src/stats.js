@@ -28,7 +28,9 @@ export async function stats(request, env, path) {
     if (raw.length > 400) return { ok: true };
     let h;
     try { h = JSON.parse(raw); } catch { return { ok: true }; }
-    if (h && "e" in h) {
+    // a primitive ("abc", 5) parses as JSON too: only an object is a hit
+    if (!h || typeof h !== "object") return { ok: true };
+    if ("e" in h) {
       if (!EVENTS.includes(h.e)) return { ok: true };
       await env.DB.prepare(`INSERT INTO hits (day, page, views, visitors, phone) VALUES (?, ?, 1, 0, 0)
         ON CONFLICT(day, page) DO UPDATE SET views = views + 1`).bind(day, `ev-${h.e}`).run();
