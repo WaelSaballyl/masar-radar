@@ -318,6 +318,43 @@ import vm from "node:vm";
   assert.deepEqual([...adv.preferred], ["SAP"]);
 }
 
+// ---- one contact rule: the worker strips exactly what the browser's cvkit.js strips ----
+{
+  const util = await import("./src/util.js");
+  const ctx = { window: {}, Masar: { el() {} } };
+  vm.runInNewContext(readFileSync(new URL("../docs/assets/cvkit.js", import.meta.url), "utf8"), ctx);
+  const web = ctx.window.MasarCV;
+  const gone = ["+966 55 123 4567", "0551234567", "00966551234567", "me@x.com", "linkedin.com/in/x", "https://github.com/x", "coursera.org/verify/ABC",
+                // a Saudi mobile written bare (the reviewer's samples: the old card rule caught these)
+                "966551234567", "966 55 123 4567", "551234567", "55 123 4567", "966-55-123-4567"];
+  const kept = ["2022 - 2026", "4.2 / 5", "(2021-2026)", "GPA 3.8 / 4", "Riyadh 2019 - 2023", "5,000 records", "SAR 5000", "cut costs 15% across 5 branches"];
+  for (const s of gone) {
+    const line = `Call ${s} today`;
+    assert.equal(util.stripContact(line), web.stripContact(line, {}), `same on both sides: ${s}`);
+    assert.equal(util.stripContact(line).replace(/\s+/g, " "), "Call today", `stripped: ${s}`);
+  }
+  for (const s of kept) {
+    assert.equal(util.stripContact(s), s, `not contact: ${s}`);
+    assert.equal(web.stripContact(s, {}), s, `not contact in the browser: ${s}`);
+  }
+  // the patterns themselves are the same text, so a change on one side fails here
+  for (const k of ["EMAIL", "LINK", "PHONE", "SA_MOBILE"]) assert.equal(String(util[k]), String(web[k]), k);
+  assert.equal(util.isPhone.toString().replace(/\s+/g, " "), web.isPhone.toString().replace(/\s+/g, " "));
+  // a talent card and the voice sample go through the same rule
+  assert.deepEqual(card({ skills: "SQL, 2022 - 2026, +966 55 123 4567, coursera.org/verify/ABC" }).skills, ["SQL", "2022 - 2026"]);
+  // cards also drop any run of 8+ digits and @handles, whatever the shared rule misses
+  for (const n of ["966551234567", "966 55 123 4567", "551234567", "55 123 4567", "call me 966-55-123-4567", "12345678", "1234 5678 90"]) {
+    const c = card({ target: `Data Analyst ${n}`, major: `IS ${n}`, university: `KSU ${n}`, city: `Riyadh ${n}`, skills: `SQL, ${n}, Excel` });
+    assert.ok(!/\d{3}/.test(JSON.stringify(c)), `${n}: ${JSON.stringify(c)}`);
+    assert.deepEqual(c.skills.filter((x) => x !== "call me"), ["SQL", "Excel"]);
+  }
+  const handle = card({ target: "Analyst @wael_s", skills: "SQL, @wael.data, C#, Power BI" });
+  assert.equal(handle.target, "Analyst");
+  assert.deepEqual(handle.skills, ["SQL", "C#", "Power BI"]);
+  const numbers = card({ target: "Analyst of 5,000 records, SAR 5000", major: "ISO 27001", skills: "SQL" });
+  assert.deepEqual([numbers.target, numbers.major], ["Analyst of 5,000 records, SAR 5000", "ISO 27001"]);
+}
+
 // ---- D1 in memory (node:sqlite, the whole schema.sql) for the database paths ----
 const { DatabaseSync } = await import("node:sqlite");
 // Workers' constant-time compare, which Node lacks
@@ -337,6 +374,7 @@ function memoryD1() {
       };
       return st;
     },
+    async batch(list) { const out = []; for (const st of list) out.push(await st.run()); return out; },
   };
 }
 const hexSha = async (s) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))]
@@ -420,6 +458,110 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   assert.equal(list.applications.length, 0, "the owner opens applicants with the account");
   const { token: other } = await signIn("hr@other.sa");
   await assert.rejects(board(new Request(`https://w/board/manage/${posted.id}`, { headers: { Authorization: `Bearer ${other}` } }), env, `/board/manage/${posted.id}`), /manage/);
+}
+
+// ---- talent search filters in SQL and pages: card 620 of 620 is still found ----
+{
+  const { talent } = await import("./src/talent.js");
+  const env = { DB: memoryD1() };
+  const manage = "d".repeat(48);
+  env.DB.raw.prepare(`INSERT INTO postings (id, status, created_at, expires_at, company, contact_email, title, city, workplace, employment, level, description, manage_hash)
+                      VALUES ('a00000000001', 'approved', '2026-09-01', '2099-01-01', 'Co', 'hr@co.sa', 'Analyst', 'Riyadh', 'onsite', 'coop', 'Intern', 'x', ?)`).run(await hexSha(manage));
+  const put = env.DB.raw.prepare("INSERT INTO talent (id, user_id, card, updated_at) VALUES (?, ?, ?, ?)");
+  for (let i = 0; i < 620; i++) {
+    // the oldest card is the only finance one in Qatar, with a skill nobody else has
+    const c = i === 0 ? { target: "Accountant", field: "finance", country: "QA", major: "Accounting", skills: ["Tableau", "Excel"] }
+      : { target: "Data Analyst", field: "data", country: i % 2 ? "SA" : "AE", major: "IS", skills: i === 5 ? ["SQL", "Power BI"] : ["SQL", "Excel"] };
+    put.run(`c${String(i).padStart(11, "0")}`, `u${i}`, JSON.stringify(c), `2026-01-01T00:${String(Math.floor(i / 60)).padStart(2, "0")}:${String(i % 60).padStart(2, "0")}Z`);
+  }
+  const find = (params) => talent(new Request(`https://w/talent/search?${new URLSearchParams({ posting: "a00000000001", ...params })}`,
+    { headers: { Authorization: `Bearer ${manage}` } }), env, "/talent/search");
+  const seen = new Set();
+  let page = await find({}), pages = 1;
+  page.cards.forEach((c) => seen.add(c.id));
+  while (page.next !== null) { page = await find({ offset: page.next }); pages++; page.cards.forEach((c) => seen.add(c.id)); }
+  assert.equal(seen.size, 620, "every card is reachable by paging");
+  assert.equal(pages, 7);
+  assert.deepEqual((await find({ q: "TABLEAU" })).cards.map((c) => c.id), ["c00000000000"], "text search reaches past the newest 500");
+  assert.deepEqual((await find({ field: "finance" })).cards.map((c) => c.id), ["c00000000000"]);
+  assert.equal((await find({ country: "QA" })).cards.length, 1);
+  const ae = await find({ country: "AE", field: "data" });
+  assert.equal(ae.cards.length, 100);
+  assert.ok(ae.cards.every((c) => c.country === "AE" && c.field === "data"));
+  assert.equal(ae.next, 100);
+  assert.deepEqual((await find({ q: "sql power" })).cards.map((c) => c.id), ["c00000000005"], "skills read as one line, like before");
+  assert.equal((await find({ q: "%" })).cards.length, 0, "% is a letter, not a wildcard");
+  assert.equal((await find({ q: "accountant", field: "data" })).cards.length, 0);
+  await assert.rejects(talent(new Request("https://w/talent/search?posting=a00000000001"), env, "/talent/search"), /manage/);
+}
+
+// ---- support: a ticket opens without an account, its token or ADMIN_TOKEN reads it ----
+{
+  const { support } = await import("./src/support.js");
+  const env = { DB: memoryD1(), ADMIN_TOKEN: "e".repeat(40) };
+  const call = (path, method = "GET", data, token) => support(new Request(`https://w${path}`, { method,
+    headers: token ? { Authorization: `Bearer ${token}` } : {}, ...(data ? { body: JSON.stringify(data) } : {}) }), env, path, async () => false);
+  const { id, token } = await call("/support/tickets", "POST", { name: "Sara", email: "s@x.com", topic: "cv", text: "My CV will not download." });
+  assert.match(token, /^[a-f0-9]{48}$/);
+  assert.equal((await call(`/support/tickets/${id}`, "GET", null, token)).messages.length, 1);
+  await assert.rejects(call(`/support/tickets/${id}`, "GET", null, "f".repeat(48)), /ticket/);
+  await assert.rejects(call(`/support/tickets/${id}`), /ticket/);
+  await call(`/support/admin/${id}`, "POST", { text: "Fixed now." }, env.ADMIN_TOKEN);
+  assert.deepEqual((await call(`/support/tickets/${id}`, "GET", null, token)).messages.map((m) => m.author), ["visitor", "team"]);
+  assert.equal((await call("/support/admin", "GET", null, env.ADMIN_TOKEN)).tickets.length, 1);
+  await assert.rejects(call("/support/admin", "GET", null, "x".repeat(40)), /admin/);
+  await assert.rejects(call("/support/tickets", "POST", { name: "S", email: "s@x.com", text: "x".repeat(12_001) }), /size/);
+}
+
+// ---- visitor counts: the beacon counts, only ADMIN_TOKEN reads ----
+{
+  const { stats } = await import("./src/stats.js");
+  const env = { DB: memoryD1(), ADMIN_TOKEN: "e".repeat(40) };
+  await stats(postTo("/hit", { p: "jobs", r: "google.com", v: 1 }), env, "/hit");
+  const read = (token) => stats(new Request("https://w/stats", { headers: { Authorization: `Bearer ${token}` } }), env, "/stats");
+  assert.deepEqual((await read(env.ADMIN_TOKEN)).pages.map((x) => [x.page, x.views]), [["jobs", 1]]);
+  await assert.rejects(read("x"), /admin/);
+  await assert.rejects(read(""), /admin/);
+}
+
+// ---- long lists come in pages: the public postings, an employer's applicants, the admin queues ----
+{
+  const { offsetOf } = await import("./src/util.js");
+  const at = (q) => new Request(`https://w/x?${q}`);
+  assert.deepEqual([offsetOf(at(""), 200), offsetOf(at("offset=400"), 200), offsetOf(at("offset=399"), 200), offsetOf(at("offset=-5"), 200),
+                    offsetOf(at("offset=abc"), 200), offsetOf(at("offset=9999999"), 200)], [0, 400, 200, 0, 0, 100_000]);
+  const { support } = await import("./src/support.js");
+  const env = { DB: memoryD1(), ADMIN_TOKEN: "e".repeat(40) };
+  const manage = "d".repeat(48);
+  const db = env.DB.raw;
+  const post = db.prepare(`INSERT INTO postings (id, status, created_at, reviewed_at, expires_at, company, contact_email, title, city, workplace, employment, level, description, manage_hash)
+                           VALUES (?, ?, ?, ?, '2099-01-01', 'Co', 'hr@co.sa', 'Analyst', 'Riyadh', 'onsite', 'coop', 'Intern', 'x', ?)`);
+  const hash = await hexSha(manage);
+  for (let i = 0; i < 450; i++) post.run(`b${String(i).padStart(11, "0")}`, "approved", "2026-09-01", `2026-09-01T${String(i % 24).padStart(2, "0")}:00:${String(i % 60).padStart(2, "0")}`, hash);
+  for (let i = 0; i < 130; i++) post.run(`c${String(i).padStart(11, "0")}`, "pending", `2026-09-02T00:${String(i % 60).padStart(2, "0")}`, null, hash);
+  const app = db.prepare(`INSERT INTO applications (id, posting_id, created_at, name, email, matched, required, paper, receipt_hash) VALUES (?, 'b00000000000', ?, 'S', ?, ?, 4, '[]', ?)`);
+  for (let i = 0; i < 520; i++) app.run(`a${String(i).padStart(11, "0")}`, `2026-09-03T00:00:${String(i % 60).padStart(2, "0")}`, `s${i}@x.com`, i % 5, String(i));
+  const tk = db.prepare("INSERT INTO support_tickets (id, token_hash, name, email, topic, status, created_at, updated_at) VALUES (?, 'h', 'S', 's@x.com', 'cv', 'open', '2026-09-01', ?)");
+  for (let i = 0; i < 230; i++) tk.run(`d${String(i).padStart(11, "0")}`, `2026-09-01T00:00:${String(i % 60).padStart(2, "0")}`);
+  // walks every page of a list and checks nothing repeats or goes missing
+  const walk = async (get, key) => {
+    const ids = [];
+    let out = await get(0);
+    ids.push(...out[key].map((x) => x.id));
+    while (out.next !== null) { out = await get(out.next); ids.push(...out[key].map((x) => x.id)); }
+    assert.equal(new Set(ids).size, ids.length, `${key}: no row twice`);
+    return ids.length;
+  };
+  const as = (path, token) => new Request(`https://w${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  assert.equal(await walk((o) => board(as(`/board/postings?offset=${o}`), env, "/board/postings"), "postings"), 450, "past the old 200");
+  assert.equal(await walk((o) => board(as(`/board/manage/b00000000000?offset=${o}`, manage), env, "/board/manage/b00000000000"), "applications"), 520, "past the old 500");
+  assert.equal(await walk((o) => board(as(`/board/admin?status=pending&offset=${o}`, env.ADMIN_TOKEN), env, "/board/admin"), "postings"), 130, "past the old 100");
+  assert.equal(await walk((o) => support(as(`/support/admin?offset=${o}`, env.ADMIN_TOKEN), env, "/support/admin", async () => false), "tickets"), 230, "past the old 200");
+  // the order is kept across pages: best match first for the employer
+  const first = await board(as("/board/manage/b00000000000", manage), env, "/board/manage/b00000000000");
+  const second = await board(as("/board/manage/b00000000000?offset=500", manage), env, "/board/manage/b00000000000");
+  assert.ok(first.applications.at(-1).matched >= second.applications[0].matched);
+  await assert.rejects(board(as("/board/admin?offset=100", "x"), env, "/board/admin"), /admin/);
 }
 
 // ---- the employer's pasted ad: only what the ad says, only the form's options ----

@@ -222,6 +222,27 @@ window.Masar = (() => {
   // leaves the browser, as before.
   const API = document.querySelector('meta[name="masar-api"]')?.content || "https://masar-cv.masar-cv.workers.dev";
   const SYNC = ["masar.profile", "masar.me", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped", "masar.tickets", "masar.alerts"];
+  // ---------- lists the worker sends in pages ----------
+  // get(offset) -> {ok, status, data}: the pages of data[key] joined, the rest of
+  // data from the first page. A refused first page comes back as is; a later
+  // failure keeps what came; 50 pages at most, so a fault can never loop.
+  async function allPages(get, key) {
+    const first = await get(0);
+    if (!first.ok) return first;
+    const list = [...(first.data[key] || [])];
+    let next = first.data.next;
+    for (let i = 0; i < 50 && next != null; i++) {
+      const r = await get(next);
+      if (!r.ok) break;
+      list.push(...(r.data[key] || []));
+      next = r.data.next;
+    }
+    return { ...first, data: { ...first.data, [key]: list } };
+  }
+  const getJson = (url, init) => fetch(url, init).then(async (r) => ({ ok: r.ok, status: r.status, data: await r.json().catch(() => ({})) }));
+  // every live exclusive posting (the worker sends 200 a page)
+  const boardPostings = () => allPages((o) => getJson(`${API}/board/postings?offset=${o}`), "postings")
+    .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.data.postings; });
   const readJson = (k, d) => { try { return JSON.parse(store.get(k) || d); } catch { return JSON.parse(d); } };
   const account = {
     api: API,
@@ -579,7 +600,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=16";
+    s.src = "assets/en.js?v=17";
     s.onload = translate;
     document.head.append(s);
   }
@@ -665,6 +686,6 @@ window.Masar = (() => {
   const fontsReady = () => Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(),
                                          new Promise((ok) => setTimeout(ok, 1500))]);
 
-  return { store, count, pct, date, ago, place, alerts, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
+  return { allPages, boardPostings, store, count, pct, date, ago, place, alerts, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
            LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, replyBadge, learnUrl };
 })();

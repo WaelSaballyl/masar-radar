@@ -15,14 +15,18 @@
 // render it with textContent. The employer's email is never in a public reply.
 
 import { employerOf, FREE_MAIL } from "./employer.js";
+import { refuse, hex, sha, bearer, same, text, body, offsetOf, page } from "./util.js";
 
 const WORKPLACE = ["onsite", "hybrid", "remote"];
 const EMPLOYMENT = ["full_time", "part_time", "internship", "coop", "contract"];
 const LEVEL = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager"];
+const BODY = 60_000;
+// rows per page: the public list, an employer's applicants, the admin's queue
+export const POSTINGS_PAGE = 200;
+const APPLICANTS_PAGE = 500, ADMIN_PAGE = 100;
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM"];
 const PUBLIC = "id, company, website, title, city, country, workplace, employment, level, description, required, preferred, salary, apply_url, created_at, expires_at, verified, field";
 
-const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const skills = (v) => text(v, 600).split(/[,،\n]/).map((s) => s.trim()).filter(Boolean).slice(0, 20).join(", ");
 const url = (v) => {
   const s = text(v, 300);
@@ -31,22 +35,9 @@ const url = (v) => {
   catch { return ""; }
 };
 const bad = (field) => Object.assign(new Error(field), { status: 400, code: `field:${field}` });
-const refuse = (code, status) => Object.assign(new Error(code), { status, code });
 const EMAIL = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
-const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-const sha = async (s) => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
 const newId = () => crypto.randomUUID().replace(/-/g, "").slice(0, 12);
 const newToken = () => hex(crypto.getRandomValues(new Uint8Array(24)));
-const bearer = (request) => (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-const same = (a, b) => {
-  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
-  return x.length > 0 && x.length === y.length && crypto.subtle.timingSafeEqual(x, y);
-};
-async function body(request) {
-  const raw = await request.text();
-  if (raw.length > 60_000) throw refuse("size", 413);
-  try { return JSON.parse(raw); } catch { throw refuse("json", 400); }
-}
 
 // Screening by fixed rules, not a model: the same posting always gets the same
 // verdict, the reason is known, and wording cannot talk its way past a
@@ -236,6 +227,7 @@ async function submit(input, env, company = null) {
 export async function board(request, env, path) {
   const today = new Date().toISOString().slice(0, 10);
   if (path === "/board/postings" && request.method === "GET") {
+    const offset = offsetOf(request, POSTINGS_PAGE);
     const { results } = await env.DB.prepare(
       // how fast this employer opens CVs: the average days from applying to
       // first view, over its postings, once three applications were opened
@@ -243,20 +235,21 @@ export async function board(request, env, path) {
          (SELECT CASE WHEN count(*) >= 3 THEN round(avg(julianday(a.viewed_at) - julianday(a.created_at)), 1) END
             FROM applications a JOIN postings q ON q.id = a.posting_id
            WHERE lower(q.company) = lower(postings.company) AND a.viewed_at IS NOT NULL) AS reply_days
-       FROM postings WHERE status = 'approved' AND expires_at >= ? ORDER BY reviewed_at DESC LIMIT 200`,
-    ).bind(today).all();
-    return { postings: results };
+       FROM postings WHERE status = 'approved' AND expires_at >= ? ORDER BY reviewed_at DESC, id LIMIT ? OFFSET ?`,
+    ).bind(today, POSTINGS_PAGE + 1, offset).all();
+    const { rows, next } = page(results, POSTINGS_PAGE, offset);
+    return { postings: rows, next };
   }
   // only a signed-in company account posts (the owner's decision, 2026-10-01)
   if (path === "/board/postings" && request.method === "POST") {
     const company = await employerOf(request, env);
     if (!company) throw refuse("company_account", 401);
-    return submit(await body(request), env, company);
+    return submit(await body(request, BODY), env, company);
   }
-  if (path === "/board/apply" && request.method === "POST") return apply(await body(request), env);
-  if (path === "/board/mine" && request.method === "POST") return mine(await body(request), env);
-  if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request), env);
-  if (path === "/board/boost" && request.method === "POST") return boost(await body(request), env);
+  if (path === "/board/apply" && request.method === "POST") return apply(await body(request, BODY), env);
+  if (path === "/board/mine" && request.method === "POST") return mine(await body(request, BODY), env);
+  if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request, BODY), env);
+  if (path === "/board/boost" && request.method === "POST") return boost(await body(request, BODY), env);
 
   // the employer's applicants: best match first
   const own = path.match(/^\/board\/manage\/([a-f0-9]{12})(?:\/([a-f0-9]{12}))?(?:\/(new|shortlisted|rejected))?$/);
@@ -265,12 +258,14 @@ export async function board(request, env, path) {
     await owner(request, env, id);
     if (!app && request.method === "GET") {
       const posting = await env.DB.prepare("SELECT id, title, company, city, status, expires_at FROM postings WHERE id = ?").bind(id).first();
+      const offset = offsetOf(request, APPLICANTS_PAGE);
       const { results } = await env.DB.prepare(
         `SELECT id, created_at, status, name, email, phone, link, matched, required, nudged_at, boosted_at FROM applications WHERE posting_id = ?
-         ORDER BY boosted_at IS NULL, (matched * 1.0 / max(required, 1)) DESC, created_at LIMIT 500`,
-      ).bind(id).all();
+         ORDER BY boosted_at IS NULL, (matched * 1.0 / max(required, 1)) DESC, created_at, id LIMIT ? OFFSET ?`,
+      ).bind(id, APPLICANTS_PAGE + 1, offset).all();
+      const { rows, next } = page(results, APPLICANTS_PAGE, offset);
       // a rejected posting reads as "in review": its sender learns nothing
-      return { posting: { ...posting, status: posting.status === "approved" ? "live" : "review" }, applications: results };
+      return { posting: { ...posting, status: posting.status === "approved" ? "live" : "review" }, applications: rows, next };
     }
     if (app && !set && request.method === "GET") {
       const row = await env.DB.prepare("SELECT paper FROM applications WHERE id = ? AND posting_id = ?").bind(app, id).first();
@@ -289,10 +284,12 @@ export async function board(request, env, path) {
   if (path === "/board/admin" && request.method === "GET") {
     await admin(request, env);
     const status = new URL(request.url).searchParams.get("status") || "pending";
+    const offset = offsetOf(request, ADMIN_PAGE);
     const { results } = await env.DB.prepare(
-      `SELECT ${PUBLIC}, status, contact_email, risk, reasons FROM postings WHERE status = ? ORDER BY created_at DESC LIMIT 100`,
-    ).bind(status).all();
-    return { postings: results };
+      `SELECT ${PUBLIC}, status, contact_email, risk, reasons FROM postings WHERE status = ? ORDER BY created_at DESC, id LIMIT ? OFFSET ?`,
+    ).bind(status, ADMIN_PAGE + 1, offset).all();
+    const { rows, next } = page(results, ADMIN_PAGE, offset);
+    return { postings: rows, next };
   }
   const m = path.match(/^\/board\/admin\/([a-f0-9]{12})\/(approve|reject|relink)$/);
   if (m && request.method === "POST") {
