@@ -243,6 +243,17 @@ window.Masar = (() => {
   // every live exclusive posting (the worker sends 200 a page)
   const boardPostings = () => allPages((o) => getJson(`${API}/board/postings?offset=${o}`), "postings")
     .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.data.postings; });
+  // After a student's first application: the style questions, offered once
+  // (when the sign-in round trip skipped them, account.js NEXT). A link, or null.
+  function styleOffer() {
+    let me = {};
+    try { me = JSON.parse(store.get("masar.me") || "{}") || {}; } catch { /* none yet */ }
+    if (me.style || me.styleAsked || store.get("masar.styleOffered")) return null;
+    store.set("masar.styleOffered", "1");
+    const a = el("a", null, "6 أسئلة سريعة تشكّل سيرتك على أسلوبك");
+    a.href = "studio.html?start=1";
+    return a;
+  }
   const readJson = (k, d) => { try { return JSON.parse(store.get(k) || d); } catch { return JSON.parse(d); } };
   const account = {
     api: API,
@@ -600,7 +611,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=21";
+    s.src = "assets/en.js?v=22";
     s.onload = translate;
     document.head.append(s);
   }
@@ -686,6 +697,6 @@ window.Masar = (() => {
   const fontsReady = () => Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(),
                                          new Promise((ok) => setTimeout(ok, 1500))]);
 
-  return { allPages, boardPostings, store, count, pct, date, ago, place, alerts, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
+  return { allPages, boardPostings, styleOffer, store, count, pct, date, ago, place, alerts, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
            LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, replyBadge, learnUrl };
 })();
