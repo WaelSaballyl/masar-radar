@@ -26,9 +26,13 @@
       else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
       else n.setAttribute(k, v === true ? "" : v);
     }
-    n.append(...kids.flat(Infinity).filter((x) => x != null && x !== false && x !== ""));
+    n.append(...parts(kids));
     return n;
   }
+  // replaceChildren turns a missing part (null, false) into text ("null" showed in the design pane):
+  // every fill goes through here and drops them, as h() does
+  const parts = (kids) => kids.flat(Infinity).filter((x) => x != null && x !== false && x !== "");
+  const fill = (n, ...kids) => n.replaceChildren(...parts(kids));
   const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const play = (n, frames, opts) => (!calm && n?.animate ? n.animate(frames, { easing: "cubic-bezier(0.2, 0.8, 0.2, 1)", fill: "backwards", ...opts }) : null);
   const icon = (d) => h("svg", { viewBox: "0 0 48 48", "aria-hidden": "true", class: "st-ico" }, h("path", { d }));
@@ -305,7 +309,7 @@
       if (sec === "additional") kids.push(h("ul", { "data-sec": sec }, S.additional.map((c) => h("li", null, cap(c)))));
     }
     const before = new Set([...paper.querySelectorAll("li")].map((n) => n.textContent));
-    paper.replaceChildren(...kids);
+    fill(paper, ...kids);
     paper.querySelectorAll(`[data-sec="${current.sec}"]`).forEach((n) => n.classList.add("is-current"));
     // a new look re-inks the sheet top to bottom; a point just added glows once
     if (relook) [...paper.children].forEach((n, i) => play(n, [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 380, delay: Math.min(i, 24) * 18 }));
@@ -413,7 +417,7 @@
       return h("li", null, h("button", { type: "button", onclick: () => { box.hidden = true; select(sec, 0); tab("edit"); } },
         h("span", null, text), h("b", null, `+${w}`)));
     });
-    box.replaceChildren(h("p", { class: "st-fixes-head" }, fixes.length ? L("ما يرفع سيرتك، الأهم أولاً:", "What raises your CV, biggest first:")
+    fill(box, h("p", { class: "st-fixes-head" }, fixes.length ? L("ما يرفع سيرتك، الأهم أولاً:", "What raises your CV, biggest first:")
       : L("سيرتك قوية. جهّزها لإعلان بعينه لترفع التطابق.", "Your CV is strong. Tailor it to a posting to raise the match.")),
       h("ul", null, list), h("p", { class: "st-fixes-note" }, L("القواعد نفسها في فحص ATS: أرقام، أفعال، نبذة، ست مهارات.", "The same rules as the ATS check: numbers, verbs, a summary, six skills.")));
   }
@@ -451,7 +455,7 @@
     const bar = $("st-bar");
     const btn = (id, label, ico, on, cls = "") => h("button", { type: "button", id, class: `st-tool ${cls}`, title: label, "aria-label": label, onclick: on },
       ico ? icon(ico) : null, h("span", null, label));
-    bar.replaceChildren(
+    fill(bar, 
       h("div", { class: "st-bar-start" },
         h("strong", { class: "st-title" }, L("استوديو السيرة", "CV studio")),
         h("span", { class: "st-saved", id: "st-saved", role: "status" }, L("محفوظ في متصفحك", "Saved in your browser")),
@@ -533,7 +537,7 @@
           "aria-label": S.hidden.includes(sec) ? L(`أظهر ${NAMES[sec]}`, `Show ${NAMES[sec]}`) : L(`أخفِ ${NAMES[sec]}`, `Hide ${NAMES[sec]}`),
           onclick: () => { S.hidden = S.hidden.includes(sec) ? S.hidden.filter((x) => x !== sec) : [...S.hidden, sec]; commit({ now: true, design: true }); } },
         icon(S.hidden.includes(sec) ? "M6 24s7-12 18-12 18 12 18 12-7 12-18 12S6 24 6 24zM8 8l32 32" : "M6 24s7-12 18-12 18 12 18 12-7 12-18 12S6 24 6 24zM24 29a5 5 0 1 0 0-10 5 5 0 0 0 0 10z"))))));
-    pane.replaceChildren(
+    fill(pane, 
       S.style ? h("button", { type: "button", class: "st-mystyle", onclick: () => openQuiz(false) },
         h("span", null, L("أسلوبك", "Your style")), h("strong", null, styleLine(S.style))) : null,
       group(L("القالب", "Template"), thumbs),
@@ -621,7 +625,7 @@
       at > 0 ? h("button", { type: "button", class: "btn btn-quiet btn-small", onclick: () => select(all[at - 1]) }, L(`السابق: ${NAMES[all[at - 1]]}`, `Back: ${NAMES[all[at - 1]]}`)) : h("span"),
       at < all.length - 1 ? h("button", { type: "button", class: "btn btn-primary btn-small", onclick: () => { select(all[at + 1]); $("st-edit").scrollTop = 0; } }, L(`التالي: ${NAMES[all[at + 1]]}`, `Next: ${NAMES[all[at + 1]]}`))
         : h("a", { class: "btn btn-primary btn-small", href: "cv.html", onclick: () => { touched = true; save(); } }, L("جهّزها لوظيفة", "Tailor to a job")));
-    pane.replaceChildren(head, body, nav);
+    fill(pane, head, body, nav);
     if (lastSec !== sec) play(body, [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 260 });
     lastSec = sec;
   }
@@ -690,7 +694,7 @@
     const wrap = h("div", { class: "st-bullets" });
     const coach = h("ul", { class: "st-coach", "aria-live": "polite" });
     const paint = () => {
-      coach.replaceChildren(...x.bullets.map((b) => {
+      fill(coach, ...x.bullets.map((b) => {
         const num = MasarATS.hasResult(b), verb = MasarATS.leadsWithVerb(b);
         MasarATS.WEAK.lastIndex = 0;
         const weak = MasarATS.WEAK.test(b);
@@ -729,7 +733,7 @@
       add.disabled = !t;
     };
     const chips = h("div", { class: "st-chips", role: "radiogroup", "aria-label": L("الفعل", "Verb") });
-    const paintChips = () => chips.replaceChildren(...verbs.map((v) => h("button", { type: "button", role: "radio", class: "st-chip", "aria-checked": String(st.verb === v),
+    const paintChips = () => fill(chips, ...verbs.map((v) => h("button", { type: "button", role: "radio", class: "st-chip", "aria-checked": String(st.verb === v),
       onclick: () => { st.verb = v; paintChips(); paintOut(); } }, v)));
     paintChips();
     const q = (n, text, input) => h("div", { class: "st-q" }, h("span", { class: "st-q-n" }, n), h("div", null, h("p", null, text), input));
@@ -763,11 +767,11 @@
     const chips = h("div", { class: "st-chips st-mine" });
     const sugg = h("div", { class: "st-chips" });
     const paint = () => {
-      chips.replaceChildren(...S.skills.map((s, i) => h("span", { class: "st-chip on" }, s,
+      fill(chips, ...S.skills.map((s, i) => h("span", { class: "st-chip on" }, s,
         h("button", { type: "button", "aria-label": L(`احذف ${s}`, `Remove ${s}`), onclick: () => { S.skills.splice(i, 1); commit({ now: true, design: true }); paint(); } }, "×"))));
       const field = S.style?.field || "other";
       const have = new Set(S.skills.map((s) => s.toLowerCase()));
-      sugg.replaceChildren(...[...SKILLS_BY_FIELD[field], ...(field === "other" ? [] : SKILLS_BY_FIELD.other)].filter((s) => !have.has(s.toLowerCase())).slice(0, 12)
+      fill(sugg, ...[...SKILLS_BY_FIELD[field], ...(field === "other" ? [] : SKILLS_BY_FIELD.other)].filter((s) => !have.has(s.toLowerCase())).slice(0, 12)
         .map((s) => h("button", { type: "button", class: "st-chip", onclick: () => { S.skills.push(s); commit({ now: true, design: true }); paint(); } }, `+ ${s}`)));
       count.textContent = L(`${S.skills.length} مهارة. الهدف ست على الأقل، الأدوات أولاً.`, `${S.skills.length} skills. Aim for six or more, tools first.`);
       count.classList.toggle("warn", S.skills.length < 6);
@@ -829,7 +833,7 @@
     const paint = () => { voiced = ""; out.textContent = write(); };
     const pick = (opts, key, max) => {
       const box = h("div", { class: "st-chips" });
-      const draw = () => box.replaceChildren(...opts.map(([v, label]) => {
+      const draw = () => fill(box, ...opts.map(([v, label]) => {
         const on = max ? st[key].includes(v) : st[key] === v;
         return h("button", { type: "button", class: "st-chip", "aria-pressed": String(on), onclick: () => {
           if (!max) st[key] = v;
@@ -947,13 +951,19 @@
     return [stage, field, traits].filter(Boolean).join(L("، ", ", "));
   }
   const dlg = $("st-quiz");
-  let answers = {}, step = 0;
+  // answers in progress survive Escape or ×: reopening carries on where the student
+  // stopped, until "apply my style" uses them; the welcome screen always starts fresh
+  let answers = {}, step = 0, draft = false, opener = null;
   function openQuiz(welcome) {
-    answers = { ...(S.style || {}) };
-    step = welcome ? -1 : 0;
+    opener = document.activeElement;
+    if (welcome || !draft) { answers = { ...(S.style || {}) }; step = welcome ? -1 : 0; }
+    else if (step < 0) step = 0; // closed on the welcome screen: the button opens the first question
+    draft = true;
     paintQuiz();
     if (!dlg.open) dlg.showModal();
   }
+  // back to the button that opened it
+  dlg.addEventListener("close", () => { if (opener?.isConnected) opener.focus(); opener = null; });
   const steps = () => QUIZ.filter((q) => !q.when || q.when(answers));
   let dir = 1, demo = 0;
   const go = (to) => { dir = to >= step ? 1 : -1; step = to; paintQuiz(); };
@@ -969,7 +979,7 @@
     const list = steps();
     const close = h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×");
     if (step === -1) {
-      dlg.replaceChildren(close, h("div", { class: "st-quiz-in st-welcome" },
+      fill(dlg, close, h("div", { class: "st-quiz-in st-welcome" },
         h("div", { class: "st-show", "aria-hidden": "true" },
           ["classic", "modern", "pro"].map((t, i) => h("span", { class: `tpl-thumb st-show-${i} tpl-${t}`, style: `--accent:${ACCENTS[i * 3]}` },
             h("i", { class: "n" }), h("i", { class: "c" }), h("i", { class: "hd" }), h("i", null), h("i", null), h("i", { class: "s" }), h("i", { class: "hd" }), h("i", null), h("i", { class: "s" }))),
@@ -1019,7 +1029,7 @@
         }
       } }, h("strong", null, label), note ? h("span", null, note) : null);
     }));
-    dlg.replaceChildren(close, h("div", { class: "st-quiz-in" },
+    fill(dlg, close, h("div", { class: "st-quiz-in" },
       h("div", { class: "st-progress", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(list.length), "aria-valuenow": String(step + 1) },
         h("i", { style: `width:${((step + 1) / list.length) * 100}%` })),
       h("p", { class: "st-step" }, L(`سؤال ${step + 1} من ${list.length}`, `Question ${step + 1} of ${list.length}`)),
@@ -1076,7 +1086,7 @@
       mic.setAttribute("aria-pressed", "true");
       mic.lastChild.textContent = L("نسمعك… اضغط للإيقاف", "Listening… press to stop");
     } }, icon("M24 30a6 6 0 0 0 6-6V12a6 6 0 0 0-12 0v12a6 6 0 0 0 6 6zM14 22a10 10 0 0 0 20 0M24 32v8"), h("span", null, L("احكِ بصوتك", "Speak instead"))) : null;
-    dlg.replaceChildren(h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×"),
+    fill(dlg, h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×"),
       h("div", { class: "st-quiz-in st-voice" },
         h("div", { class: "st-progress", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(list.length), "aria-valuenow": String(step + 1) },
           h("i", { style: `width:${((step + 1) / list.length) * 100}%` })),
@@ -1099,7 +1109,7 @@
 
   function paintResult() {
     const rec = recommend(answers);
-    dlg.replaceChildren(h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×"),
+    fill(dlg, h("button", { type: "button", class: "st-x", "aria-label": L("إغلاق", "Close"), onclick: () => dlg.close() }, "×"),
       h("div", { class: "st-quiz-in st-result" },
         h("p", { class: "st-step" }, L("أسلوبك", "Your style")),
         h("h2", null, styleLine(answers)),
@@ -1116,6 +1126,8 @@
               order: [...rec.order], style: { ...answers } });
             writeMe({ style: { ...answers }, styleAsked: true });
             if (answers.voice?.summary && !S.summary.trim()) S.summary = answers.voice.summary;
+            draft = false;
+            opener = null; // the page moves focus to the section to fill next
             dlg.close();
             buildBar();
             commit({ now: true, design: true });
@@ -1137,7 +1149,7 @@
     if (matchMedia("(max-width: 1023px)").matches) play($(pane), [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], { duration: 260 });
   }
   function buildTabs() {
-    $("st-tabs").replaceChildren(...[["design", L("التصميم", "Design")], ["edit", L("المحتوى", "Content")], ["preview", L("المعاينة", "Preview")]]
+    fill($("st-tabs"), ...[["design", L("التصميم", "Design")], ["edit", L("المحتوى", "Content")], ["preview", L("المعاينة", "Preview")]]
       .map(([id, label]) => h("button", { type: "button", role: "tab", "data-tab": id, "aria-selected": "false", onclick: () => tab(id) }, label)));
     tab("edit");
   }
