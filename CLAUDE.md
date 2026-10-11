@@ -93,7 +93,10 @@ machines (AI_LIMIT 12/min on the Gemini paths, WRITE_LIMIT 20/min on other POSTs
 20/min on anything taking ADMIN_TOKEN - measured cutting in at ~19 guesses), with the old per-isolate count as backstop.
 `GET /board/postings` is served from Cloudflare's cache for 60 s. Open (owner's call): applying needs no proof of the email,
 so someone could apply first with another person's email (UNIQUE blocks the real one) - fix with email codes after Resend or
-by requiring sign-in; no retention limit on applications yet (PDPL); skill tests use a fixed 8-question bank.
+by requiring sign-in; skill tests use a fixed 8-question bank.
+Retention (PDPL, 2026-10-11): a daily Cron Trigger (`[triggers] crons` in wrangler.toml -> `scheduled()` -> `src/retention.js`)
+deletes applications and invites 180 days after their posting expired (and applications whose posting is gone), plus expired
+student and employer sessions; privacy.html, account.html, applications.html and FACTS say so.
 English: index.html and dashboard.html translate themselves (their own `lang-toggle`); every other
 page gets an EN/ع button from core.js, and in English `assets/en.js` (`exact` ar->en, `patterns`
 with $1 captures translated again, Arabic-comma lists split) swaps interface text in place,
