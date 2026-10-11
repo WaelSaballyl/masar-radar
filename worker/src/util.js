@@ -30,7 +30,9 @@ export const isPhone = (s) => {
   const digits = s.replace(/\D/g, "");
   return digits.length >= 9 && digits.length <= 15 && !/^(?:(?:19|20)\d\d\D*)+$/.test(s.trim());
 };
-export const stripContact = (s) => s.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m));
+// a Saudi mobile written bare, as many do: "551234567", "966 55 123 4567"
+export const SA_MOBILE = /\b(?:966[\s-]?)?5\d(?:[\s-]?\d){7}\b/g;
+export const stripContact = (s) => s.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m)).replace(SA_MOBILE, " ");
 
 // Paged lists: a query asks for size + 1 rows from `offset` (a whole number of
 // pages, so the public list's cache keys stay few), and `page` returns this
