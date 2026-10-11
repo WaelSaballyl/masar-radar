@@ -603,6 +603,56 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   await waits[0];
 }
 
+// ---- applying needs a signed-in student; the email is the account's ----
+{
+  const env = { DB: memoryD1() };
+  const db = env.DB.raw;
+  db.exec(`INSERT INTO postings (id, status, created_at, expires_at, company, contact_email, title, city, workplace, employment, level, description)
+           VALUES ('f00000000001', 'approved', '2026-09-01', '2099-01-01', 'Co', 'hr@co.sa', 'Analyst', 'Riyadh', 'onsite', 'coop', 'Intern', 'x')`);
+  const signIn = async (uid, email) => {
+    const token = (uid + "0".repeat(48)).replace(/[^a-f0-9]/g, "a").slice(0, 48);
+    db.prepare("INSERT INTO users (id, google_sub, email, created_at) VALUES (?, ?, ?, '2026-01-01')").run(uid, `g-${uid}`, email);
+    db.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, ?, '2026-01-01', '2099-01-01')").run(await hexSha(token), uid);
+    return token;
+  };
+  const form = { posting_id: "f00000000001", consent: true, name: "Sara A", email: "someone@else.com", phone: "0551234567", link: "", paper: [{ t: "P", x: "CV" }], matched: 2, required: 4 };
+  const apply = (token, data = form) => board(new Request("https://w/board/apply", { method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {}, body: JSON.stringify(data) }), env, "/board/apply");
+  const rows = () => db.prepare("SELECT name, email, user_id, paper, receipt_hash FROM applications ORDER BY created_at").all();
+
+  await assert.rejects(apply(null), /sign_in/, "no session, no application");
+  await assert.rejects(apply("f".repeat(48)), /sign_in/, "a made-up session is refused");
+  assert.equal(rows().length, 0);
+
+  const sara = await signIn("ab1", "Sara@Uni.edu.sa");
+  const out = await apply(sara);
+  assert.equal(out.email, "sara@uni.edu.sa", "the account's email, not the typed one");
+  assert.deepEqual(rows().map((r) => [r.email, r.user_id]), [["sara@uni.edu.sa", "ab1"]]);
+  assert.ok(!JSON.stringify(rows()).includes("someone@else.com"));
+  await assert.rejects(apply(sara, { ...form, email: "other@x.com" }), /applied/, "one application per student per posting");
+  assert.equal(rows().length, 1);
+
+  // before the switch someone typed Omar's email; Omar signs in and replaces it, nothing of it kept
+  db.prepare(`INSERT INTO applications (id, posting_id, created_at, name, email, paper, receipt_hash, status)
+              VALUES ('legacy1', 'f00000000001', '2026-01-01', 'Impostor', 'omar@x.com', '[{"t":"P","x":"FAKE"}]', 'oldhash', 'shortlisted')`).run();
+  // a third student cannot touch it: it is not their email
+  const lina = await signIn("ab3", "lina@x.com");
+  await apply(lina, { ...form, name: "Lina" });
+  assert.ok(rows().some((r) => r.email === "omar@x.com" && r.name === "Impostor"), "someone else's legacy row stays");
+  const omar = await signIn("ab2", "omar@x.com");
+  const replaced = await apply(omar, { ...form, name: "Omar K" });
+  assert.equal(replaced.replaced, true);
+  const omars = rows().filter((r) => r.email === "omar@x.com");
+  assert.deepEqual(omars.map((r) => [r.name, r.user_id]), [["Omar K", "ab2"]]);
+  assert.ok(!omars[0].paper.includes("FAKE") && omars[0].receipt_hash !== "oldhash", "the old CV and receipt are gone");
+  assert.equal(db.prepare("SELECT status FROM applications WHERE user_id = 'ab2'").get().status, "new");
+  // and once replaced it is Omar's own: a second try is refused like any other
+  await assert.rejects(apply(omar), /applied/);
+  // a closed posting still refuses, signed in or not
+  db.exec("UPDATE postings SET expires_at = '2020-01-01'");
+  await assert.rejects(apply(await signIn("ab4", "new@x.com")), /closed/);
+}
+
 // ---- the employer's pasted ad: only what the ad says, only the form's options ----
 {
   const ad = ["Lulu Hypermarket - Data Analyst Co-op Trainee", "Riyadh, Saudi Arabia. Apply: hr@luluhypermarket.com", "We need SQL and Excel."].join("\n");

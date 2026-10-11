@@ -61,6 +61,13 @@ ALTER TABLE applications ADD COLUMN nudged_at TEXT;
 -- "really interested" (src/board.js boost): first in the employer's list, 3 per email in 30 days
 ALTER TABLE applications ADD COLUMN boosted_at TEXT;
 
+-- Applying needs a signed-in student (2026-10-11, the owner's call): the
+-- application's email is the account's, proven by the sign-in provider. One per
+-- student per posting; rows sent before the switch have no user_id (NULLs never
+-- clash in a UNIQUE index), and UNIQUE (posting_id, email) above still holds.
+ALTER TABLE applications ADD COLUMN user_id TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS applications_user ON applications (posting_id, user_id);
+
 -- Student accounts (src/auth.js): Google sign-in, no passwords. Only a hash of
 -- each session token is kept. user_data holds the browser's synced keys as one
 -- JSON object; rev rises by one per write so two devices cannot overwrite each other.

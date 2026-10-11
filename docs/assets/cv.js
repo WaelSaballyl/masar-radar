@@ -27,7 +27,8 @@
     no_job: "اختر إعلاناً من القائمة أو الصق وصف وظيفة في الخطوة الثانية.",
     job_short: "وصف الوظيفة قصير. الصق نص الإعلان كاملاً مع المتطلبات.",
     other: "تعذّر إكمال الطلب. جرّب مرة ثانية.",
-    applied: "قدّمت على هذا الإعلان من قبل بهذا الإيميل.",
+    applied: "قدّمت على هذا الإعلان من قبل بهذا الحساب.",
+    sign_in: "انتهت جلسة دخولك. سجّل دخولك مرة ثانية ثم قدّم.",
     closed: "هذا الإعلان أُغلق أو انتهت مدته.",
     "field:email": "إيميلك في الخطوة الأولى غير صحيح. صحّحه وجهّز السيرة من جديد.",
     "field:name": "أضف اسمك في الخطوة الأولى، ثم جهّز السيرة من جديد.",
@@ -133,12 +134,12 @@
     throw fail("type");
   }
 
-  async function api(path, body) {
+  async function api(path, body, auth) {
     if (!API) throw fail("offline");
     let r;
     try {
-      r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" },
-                                   body: JSON.stringify(body) });
+      r = await fetch(API + path, { method: "POST", body: JSON.stringify(body),
+        headers: { "Content-Type": "application/json", ...(auth ? { Authorization: `Bearer ${Masar.account.token}` } : {}) } });
     } catch { throw fail("other"); }
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw fail(data.error in ERR ? data.error : "other");
@@ -542,7 +543,13 @@
     box.hidden = !(exclusive && source() === "pasted" && $("job-text").value.startsWith(exclusive.title));
     if (box.hidden) return;
     const p = readProfile();
-    $("apply-what").textContent = `نرسل إلى ${exclusive.company} السيرة الظاهرة أدناه كما هي، مع اسمك وإيميلك`
+    // only a signed-in student applies: the email the company gets is the account's
+    const who = Masar.account.token ? Masar.account.user : null;
+    $("apply-signin").hidden = !!who;
+    $("apply-signin-link").href = `account.html?as=student&next=${encodeURIComponent(`cv.html?ex=${exclusive.id}`)}`;
+    for (const id of ["consent", "apply-send"]) $(id).closest("label, button").hidden = !who;
+    if (!who) { $("apply-what").textContent = ""; say("apply-status", ""); return; }
+    $("apply-what").textContent = `نرسل إلى ${exclusive.company} السيرة الظاهرة أدناه كما هي، مع اسمك وإيميل حسابك (${who.email})`
       + `${p.phone ? " وجوالك" : ""}${p.link ? " وروابط حساباتك" : ""}. لا نرسل شيئاً غيرها من معلوماتك.`;
     $("consent-text").textContent = `أوافق على إرسال سيرتي وبيانات التواصل هذه إلى ${exclusive.company} للتقديم على هذا الإعلان.`;
     const done = applied().includes(exclusive.id);
@@ -553,19 +560,21 @@
   $("apply-send").addEventListener("click", async () => {
     const p = readProfile(), button = $("apply-send");
     if (!$("consent").checked) { say("apply-status", "علّم على الموافقة أولاً.", true); return; }
-    if (!p.name || !p.email) { say("apply-status", ERR["field:name"], true); return; }
+    if (!p.name) { say("apply-status", ERR["field:name"], true); return; }
     button.disabled = true;
     say("apply-status", "نرسل طلبك…");
     try {
-      const { receipt } = await api("/board/apply", { posting_id: exclusive.id, consent: true, name: p.name, email: p.email, phone: p.phone,
+      const { receipt } = await api("/board/apply", { posting_id: exclusive.id, consent: true, name: p.name, phone: p.phone,
         link: p.link, matched: coverage?.matched.length || 0, required: coverage?.required.length || 0,
-        paper: MasarCV.toBlocks($("cv-paper")) });
+        paper: MasarCV.toBlocks($("cv-paper")) }, true);
       store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
       MasarCV.keepReceipt(receipt);
       say("apply-status", `وصل طلبك إلى ${exclusive.company}. تابع حالته في صفحة طلباتي، وإن اختارتك الشركة ستتواصل معك على إيميلك.`);
     } catch (e) {
       if (e.code === "applied") store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
       else button.disabled = false;
+      // the session ended on the server: forget it here, and the sign-in step comes back
+      if (e.code === "sign_in") { Masar.account.forget(); showApply(); }
       say("apply-status", ERR[e.code] || ERR.other, true);
     }
   });
