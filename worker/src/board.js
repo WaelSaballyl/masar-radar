@@ -15,12 +15,15 @@
 // render it with textContent. The employer's email is never in a public reply.
 
 import { employerOf, FREE_MAIL } from "./employer.js";
-import { refuse, hex, sha, bearer, same, text, body } from "./util.js";
+import { refuse, hex, sha, bearer, same, text, body, offsetOf, page } from "./util.js";
 
 const WORKPLACE = ["onsite", "hybrid", "remote"];
 const EMPLOYMENT = ["full_time", "part_time", "internship", "coop", "contract"];
 const LEVEL = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager"];
 const BODY = 60_000;
+// rows per page: the public list, an employer's applicants, the admin's queue
+export const POSTINGS_PAGE = 200;
+const APPLICANTS_PAGE = 500, ADMIN_PAGE = 100;
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM"];
 const PUBLIC = "id, company, website, title, city, country, workplace, employment, level, description, required, preferred, salary, apply_url, created_at, expires_at, verified, field";
 
@@ -224,6 +227,7 @@ async function submit(input, env, company = null) {
 export async function board(request, env, path) {
   const today = new Date().toISOString().slice(0, 10);
   if (path === "/board/postings" && request.method === "GET") {
+    const offset = offsetOf(request, POSTINGS_PAGE);
     const { results } = await env.DB.prepare(
       // how fast this employer opens CVs: the average days from applying to
       // first view, over its postings, once three applications were opened
@@ -231,9 +235,10 @@ export async function board(request, env, path) {
          (SELECT CASE WHEN count(*) >= 3 THEN round(avg(julianday(a.viewed_at) - julianday(a.created_at)), 1) END
             FROM applications a JOIN postings q ON q.id = a.posting_id
            WHERE lower(q.company) = lower(postings.company) AND a.viewed_at IS NOT NULL) AS reply_days
-       FROM postings WHERE status = 'approved' AND expires_at >= ? ORDER BY reviewed_at DESC LIMIT 200`,
-    ).bind(today).all();
-    return { postings: results };
+       FROM postings WHERE status = 'approved' AND expires_at >= ? ORDER BY reviewed_at DESC, id LIMIT ? OFFSET ?`,
+    ).bind(today, POSTINGS_PAGE + 1, offset).all();
+    const { rows, next } = page(results, POSTINGS_PAGE, offset);
+    return { postings: rows, next };
   }
   // only a signed-in company account posts (the owner's decision, 2026-10-01)
   if (path === "/board/postings" && request.method === "POST") {
@@ -253,12 +258,14 @@ export async function board(request, env, path) {
     await owner(request, env, id);
     if (!app && request.method === "GET") {
       const posting = await env.DB.prepare("SELECT id, title, company, city, status, expires_at FROM postings WHERE id = ?").bind(id).first();
+      const offset = offsetOf(request, APPLICANTS_PAGE);
       const { results } = await env.DB.prepare(
         `SELECT id, created_at, status, name, email, phone, link, matched, required, nudged_at, boosted_at FROM applications WHERE posting_id = ?
-         ORDER BY boosted_at IS NULL, (matched * 1.0 / max(required, 1)) DESC, created_at LIMIT 500`,
-      ).bind(id).all();
+         ORDER BY boosted_at IS NULL, (matched * 1.0 / max(required, 1)) DESC, created_at, id LIMIT ? OFFSET ?`,
+      ).bind(id, APPLICANTS_PAGE + 1, offset).all();
+      const { rows, next } = page(results, APPLICANTS_PAGE, offset);
       // a rejected posting reads as "in review": its sender learns nothing
-      return { posting: { ...posting, status: posting.status === "approved" ? "live" : "review" }, applications: results };
+      return { posting: { ...posting, status: posting.status === "approved" ? "live" : "review" }, applications: rows, next };
     }
     if (app && !set && request.method === "GET") {
       const row = await env.DB.prepare("SELECT paper FROM applications WHERE id = ? AND posting_id = ?").bind(app, id).first();
@@ -277,10 +284,12 @@ export async function board(request, env, path) {
   if (path === "/board/admin" && request.method === "GET") {
     await admin(request, env);
     const status = new URL(request.url).searchParams.get("status") || "pending";
+    const offset = offsetOf(request, ADMIN_PAGE);
     const { results } = await env.DB.prepare(
-      `SELECT ${PUBLIC}, status, contact_email, risk, reasons FROM postings WHERE status = ? ORDER BY created_at DESC LIMIT 100`,
-    ).bind(status).all();
-    return { postings: results };
+      `SELECT ${PUBLIC}, status, contact_email, risk, reasons FROM postings WHERE status = ? ORDER BY created_at DESC, id LIMIT ? OFFSET ?`,
+    ).bind(status, ADMIN_PAGE + 1, offset).all();
+    const { rows, next } = page(results, ADMIN_PAGE, offset);
+    return { postings: rows, next };
   }
   const m = path.match(/^\/board\/admin\/([a-f0-9]{12})\/(approve|reject|relink)$/);
   if (m && request.method === "POST") {

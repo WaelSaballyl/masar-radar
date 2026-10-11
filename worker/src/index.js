@@ -11,14 +11,14 @@
 // the profile never states, is removed and reported rather than trusted.
 
 import { audit, covers, mentions, numbersIn, restore, strings, str } from "./audit.js";
-import { board } from "./board.js";
+import { board, POSTINGS_PAGE } from "./board.js";
 import { auth } from "./auth.js";
 import { support } from "./support.js";
 import { stats } from "./stats.js";
 import { talent } from "./talent.js";
 import { skilltests } from "./skilltests.js";
 import { employer } from "./employer.js";
-import { refuse, stripContact, EMAIL } from "./util.js";
+import { refuse, stripContact, EMAIL, offsetOf } from "./util.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -106,7 +106,8 @@ export default {
     // the public list is the same for everyone: served from Cloudflare's cache for a
     // minute, so a flood of reads costs one database query, not thousands
     if (path === "/board/postings" && request.method === "GET") {
-      const key = new Request(new URL("/board/postings", request.url).href);
+      // one cache entry per page; offsetOf rounds any other value to a page
+      const key = new Request(new URL(`/board/postings?offset=${offsetOf(request, POSTINGS_PAGE)}`, request.url).href);
       const cache = globalThis.caches?.default;
       const hit = cache && await cache.match(key);
       if (hit) return reply(200, await hit.json());

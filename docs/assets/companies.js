@@ -116,7 +116,7 @@
   }
 
   const collected = fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json()).then((d) => d.postings);
-  const exclusive = fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings.map((p) => ({
+  const exclusive = Masar.boardPostings().then((list) => list.map((p) => ({
     id: p.id, title: p.title, company: p.company, countries: [p.country], posted_at: (p.created_at || "").slice(0, 10),
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])], role: "",
     logo: Masar.siteIcon(p.website), exclusive: true,

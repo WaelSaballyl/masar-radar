@@ -410,7 +410,7 @@
     document.body.classList.add("demo");
     if (PHONE) gulf.then((g) => feed(queue, g)); else deal();
   } else {
-    Promise.all([fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings), gulf]).then(([postings, g]) => {
+    Promise.all([Masar.boardPostings(), gulf]).then(([postings, g]) => {
       const seen = new Set([...list("masar.applied"), ...list("masar.skipped")]);
       queue = postings.filter((p) => !seen.has(p.id));
       // the path so far: one station per posting already applied to

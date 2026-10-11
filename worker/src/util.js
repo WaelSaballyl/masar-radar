@@ -32,6 +32,15 @@ export const isPhone = (s) => {
 };
 export const stripContact = (s) => s.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m));
 
+// Paged lists: a query asks for size + 1 rows from `offset` (a whole number of
+// pages, so the public list's cache keys stay few), and `page` returns this
+// page's rows with the offset of the next page, or null after the last.
+export const offsetOf = (request, size) => {
+  const n = parseInt(new URL(request.url).searchParams.get("offset"), 10) || 0;
+  return Math.min(Math.max(n - (n % size), 0), 100_000);
+};
+export const page = (rows, size, offset) => ({ rows: rows.slice(0, size), next: rows.length > size ? offset + size : null });
+
 // the request's JSON, refused with 413 past max characters and 400 when it is not JSON
 export async function body(request, max) {
   const raw = await request.text();
