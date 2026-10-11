@@ -157,7 +157,7 @@ traits, language, length, Arabic wording m/f) picks template/colour/order/densit
 (`styleAsked` once skipped). A student's sign-in on account.html with no answers yet goes to `studio.html?start=1`, so the
 questions come right after signing up. Their optional last step ("tell us in your own words": type, or speak through the browser's SpeechRecognition) sends the lines, contact stripped, to worker `POST /voice` (Gemini: tone, two traits, verbs, words, and a summary in that voice from PROFILE/SAMPLE facts only; a number in neither is dropped); without the worker `readLocally` guesses traits/tone from keywords. The sample stays in local `masar.studio.voiceSample`; the reading goes into `masar.me.style.voice`. Question flows write the summary (third person, m/f) and each point (verb + what + tool +
 result). Motion: Web Animations via `play()`, all off under prefers-reduced-motion. The root is `translate="no"`; the page
-renders its own English with `L(ar, en)`.
+renders its own English with `L(ar, en)`. Its styles live in `assets/studio.css` (loaded by studio.html only, split from masar.css on 2026-10-11 so no other page downloads them); `.st-bar:empty`/`.st-tabs:empty` keep the room the JS-built bar takes, or the panes jump on first paint (CLS 0.79 measured).
 
 CV file reading (pdf.js text layer, docx XML) lives in `assets/cvread.js` (`MasarRead.readFile`), shared by ats.js and
 the home page's "how many openings fit you?" (`assets/fit.js`, after uptal.com/auto-apply: fits = at least half the
