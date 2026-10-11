@@ -236,7 +236,8 @@
     if (ex && API) {
       Masar.boardPostings().then((list) => {
         const p = list.find((x) => x.id === ex);
-        if (!p) return;
+        // a link to a posting that closed: say so instead of loading nothing
+        if (!p) { say("make-status", ERR.closed, true); return; }
         exclusive = p;
         document.querySelector('input[name="source"][value="pasted"]').click();
         $("job-text").value = `${p.title} - ${p.company}, ${p.city}\n\n${p.description}\n\nRequired: ${p.required}`
