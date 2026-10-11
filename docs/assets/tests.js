@@ -39,7 +39,8 @@
       $("who").scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    const r = await fetch(`${account.api}/tests/${t.slug}`).then((x) => x.json()).catch(() => null);
+    // asked with the session: the worker serves this student's questions for today
+    const r = await account.call(`/tests/${t.slug}`).catch(() => null);
     if (!r || !r.questions) { $("who").textContent = "تعذّر تحميل الاختبار. جرّب بعد قليل."; return; }
     current = r;
     $("run-title").textContent = `اختبار ${r.skill}`;
@@ -83,7 +84,7 @@
     if (missing && !confirm(`تركت ${missing === 1 ? "سؤالاً واحداً" : `${missing} أسئلة`} بلا إجابة، ويُحسب خطأ. تسلّم الآن؟`)) return;
     $("submit").disabled = true;
     let out;
-    try { out = await account.call(`/tests/${current.slug}`, { answers }); }
+    try { out = await account.call(`/tests/${current.slug}`, { answers, day: current.day }); }
     catch { $("run-status").textContent = "انتهت جلستك. سجّل دخولك من جديد."; return; }
     if (out.status === 429) { $("run-status").textContent = "استخدمت محاولة اليوم لهذه المهارة. جرّب بكرة."; return; }
     if (out.status !== 200) { $("run-status").textContent = "تعذّر التسليم. جرّب بعد قليل."; $("submit").disabled = false; return; }
