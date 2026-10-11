@@ -202,7 +202,6 @@
 
   // ---------- reading how the student talks ----------
   const API = document.querySelector('meta[name="masar-api"]')?.content;
-  const NO_CONTACT = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+|\b(?:https?:\/\/|www\.)\S+|(?:\+|\b00|\b0)\d[\d\s-]{7,14}\d/g;
   // without the worker: traits from the words they use, tone from how long their sentences run
   function readLocally(text) {
     const t = text.toLowerCase();
@@ -223,7 +222,8 @@
     return { tone, traits, voice: line, verbs_ar: [], verbs_en: [], words: [], summary: "", local: true };
   }
   async function readVoice(sample, withSummary, form, lang) {
-    const clean = sample.replace(NO_CONTACT, " ").trim();
+    // the same contact rule as every other page (cvkit.js), checked against the worker's in worker/test.mjs
+    const clean = MasarCV.stripContact(sample, {}).trim();
     try {
       const r = await fetch(`${API}/voice`, { method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sample: clean, lang: lang || S.lang, form: form || S.style?.form, stage: (dlg.open ? answers.stage : null) || S.style?.stage, ...(withSummary ? { profile: facts() } : {}) }) });

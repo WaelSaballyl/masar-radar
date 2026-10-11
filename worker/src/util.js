@@ -20,6 +20,18 @@ export const same = (a, b) => {
 export const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 export const line = (v, max) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
 
+// Contact details: the same rules as the browser's docs/assets/cvkit.js
+// (worker/test.mjs runs both on the same samples), so what one side strips the
+// other does too. A phone starts with +, 00 or 0; years and ratings never count.
+export const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+export const LINK = /\b(?:https?:\/\/|www\.)\S+|\b(?:[a-z0-9-]+\.)+(?:com|org|net|io|dev|app|me|co|sa|ai|edu)\/\S+/gi;
+export const PHONE = /(?:\+|\b00|\b0)\d[\d\s\-]{7,14}\d/g;
+export const isPhone = (s) => {
+  const digits = s.replace(/\D/g, "");
+  return digits.length >= 9 && digits.length <= 15 && !/^(?:(?:19|20)\d\d\D*)+$/.test(s.trim());
+};
+export const stripContact = (s) => s.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m));
+
 // the request's JSON, refused with 413 past max characters and 400 when it is not JSON
 export async function body(request, max) {
   const raw = await request.text();
