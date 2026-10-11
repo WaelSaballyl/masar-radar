@@ -12,6 +12,8 @@
 // No passwords: Google proves who the person is. The session token is
 // returned once and only its SHA-256 is stored, like the employers' links.
 
+import { refuse, hex, sha, bearer, body } from "./util.js";
+
 const CERTS = "https://www.googleapis.com/oauth2/v3/certs";
 const ISSUERS = ["accounts.google.com", "https://accounts.google.com"];
 const SESSION_DAYS = 60;
@@ -19,10 +21,6 @@ const MAX_DATA = 900_000;
 // the only keys a device may store; anything else in a push is dropped
 export const SYNC_KEYS = ["masar.profile", "masar.me", "masar.cvs", "masar.receipts", "masar.saved", "masar.applied", "masar.skipped", "masar.tickets", "masar.alerts"];
 
-const refuse = (code, status) => Object.assign(new Error(code), { status, code });
-const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-const sha = async (s) => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
-const bearer = (request) => (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
 const b64url = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
 const part = (s) => JSON.parse(new TextDecoder().decode(b64url(s)));
 
@@ -58,12 +56,6 @@ export async function verifyGoogle(credential, clientId, now = Date.now()) {
   return claims;
 }
 
-async function readJson(request, max) {
-  const raw = await request.text();
-  if (raw.length > max) throw refuse("size", 413);
-  try { return JSON.parse(raw); } catch { throw refuse("json", 400); }
-}
-
 async function session(request, env) {
   const token = bearer(request);
   if (!/^[a-f0-9]{48}$/.test(token)) throw refuse("session", 401);
@@ -90,7 +82,7 @@ export async function auth(request, env, path) {
   if (path === "/auth/config" && request.method === "GET") return { google: env.GOOGLE_CLIENT_ID || "" };
 
   if (path === "/auth/google" && request.method === "POST") {
-    const { credential } = await readJson(request, 8_000);
+    const { credential } = await body(request, 8_000);
     const c = await verifyGoogle(credential, env.GOOGLE_CLIENT_ID);
     const name = String(c.name || "").slice(0, 120), picture = /^https:\/\//.test(c.picture || "") ? c.picture.slice(0, 400) : "";
     let user = await env.DB.prepare("SELECT id FROM users WHERE google_sub = ?").bind(c.sub).first();
@@ -123,7 +115,7 @@ export async function auth(request, env, path) {
     return row ? { data: JSON.parse(row.data), rev: row.rev } : { data: {}, rev: 0 };
   }
   if (path === "/auth/data" && request.method === "POST") {
-    const input = await readJson(request, MAX_DATA + 10_000);
+    const input = await body(request, MAX_DATA + 10_000);
     const data = JSON.stringify(clean(input.data));
     if (data.length > MAX_DATA) throw refuse("size", 413);
     const base = Number.isInteger(input.base) ? input.base : 0;

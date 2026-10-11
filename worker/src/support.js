@@ -11,22 +11,10 @@
 // is needed; a signed-in student's tickets also carry their user id. Replies
 // show on the support page, which checks for new ones while it is open.
 
+import { refuse, hex, sha, bearer, same, text, body } from "./util.js";
+
 const TOPICS = ["account", "cv", "apply", "employer", "bug", "other"];
 const EMAIL = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
-const refuse = (code, status) => Object.assign(new Error(code), { status, code });
-const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-const sha = async (s) => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
-const bearer = (request) => (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-const same = (a, b) => {
-  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
-  return x.length > 0 && x.length === y.length && crypto.subtle.timingSafeEqual(x, y);
-};
-async function body(request) {
-  const raw = await request.text();
-  if (raw.length > 12_000) throw refuse("size", 413);
-  try { return JSON.parse(raw); } catch { throw refuse("json", 400); }
-}
 
 // the signed-in student, when there is one; a ticket works without it
 async function userOf(request, env) {
@@ -50,7 +38,7 @@ export async function support(request, env, path, limited) {
   const now = new Date().toISOString();
   if (path === "/support/tickets" && request.method === "POST") {
     if (await limited()) throw refuse("rate", 429);
-    const input = await body(request);
+    const input = await body(request, 12_000);
     const name = text(input.name, 80), email = text(input.email, 120), msg = text(input.text, 4000);
     const topic = TOPICS.includes(input.topic) ? input.topic : "other";
     if (!name) throw refuse("field:name", 400);
@@ -74,7 +62,7 @@ export async function support(request, env, path, limited) {
     if (request.method === "GET") return thread(env, own[1]);
     if (request.method === "POST") {
       if (await limited()) throw refuse("rate", 429);
-      const msg = text((await body(request)).text, 4000);
+      const msg = text((await body(request, 12_000)).text, 4000);
       if (msg.length < 2) throw refuse("field:text", 400);
       await env.DB.batch([
         env.DB.prepare("INSERT INTO support_messages (ticket_id, author, text, created_at) VALUES (?, 'visitor', ?, ?)").bind(own[1], msg, now),
@@ -99,7 +87,7 @@ export async function support(request, env, path, limited) {
     const m = path.match(/^\/support\/admin\/([a-f0-9]{12})$/);
     if (m && request.method === "GET") return thread(env, m[1]);
     if (m && request.method === "POST") {
-      const input = await body(request);
+      const input = await body(request, 12_000);
       const msg = text(input.text, 4000);
       const batch = [];
       if (msg) batch.push(env.DB.prepare("INSERT INTO support_messages (ticket_id, author, text, created_at) VALUES (?, 'team', ?, ?)").bind(m[1], msg, now));
