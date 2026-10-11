@@ -562,7 +562,8 @@ button.btn:disabled { opacity: 0.55; cursor: progress; }
   pointer-events: none; }
 .stamp-go { inset-inline-start: 18px; color: var(--mint-text); opacity: var(--go, 0); transform: rotate(-10deg); }
 .stamp-skip { inset-inline-end: 18px; color: var(--muted); opacity: var(--skip, 0); transform: rotate(10deg); }
-.swipe-empty { display: grid; place-items: center; height: 100%; margin: 0; padding: 24px; text-align: center; color: var(--muted);
+.swipe-empty-acts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 14px 0 0; }
+.swipe-empty { display: grid; place-items: center; align-content: center; height: 100%; margin: 0; padding: 24px; text-align: center; color: var(--muted);
   border: 1px dashed var(--hairline); border-radius: 16px; }
 .swipe-buttons { display: flex; justify-content: center; gap: 28px; margin: 22px 0; direction: ltr; } /* skip on the left, apply on the right, like the swipe */
 .swipe-btn { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%; border: 2px solid; background: var(--surface);
