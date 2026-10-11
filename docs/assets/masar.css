@@ -1828,7 +1828,7 @@ a.start-card { text-decoration: none; }
 .st-item-head { display: flex; align-items: center; gap: 2px; padding-inline-end: 6px; }
 .st-item-title { flex: 1; min-width: 0; font: inherit; color: var(--text); background: none; border: 0; text-align: start; cursor: pointer;
   padding: 12px; display: grid; gap: 2px; }
-.st-item-title span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-item-title span { font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
 .st-item-title small { color: var(--muted); font-size: 0.78rem; }
 button.st-add { width: 100%; justify-content: center; display: inline-flex; gap: 8px; border-style: dashed; }
 .st-bullets { display: grid; gap: 8px; }
@@ -1853,6 +1853,14 @@ button.st-add { width: 100%; justify-content: center; display: inline-flex; gap:
 .st-wiz-foot { padding: 4px 0 12px; display: grid; gap: 8px; }
 .st-wiz-out { margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 0; font-size: 0.88rem; line-height: 1.7; unicode-bidi: plaintext; }
 .st-wiz-foot .btn { justify-self: start; }
+/* waiting for the voice reading (studio.js waiting()) */
+.st-wait { display: grid; gap: 8px; }
+.st-wait-text { font-size: 0.88rem; color: var(--text); }
+.st-wait-bar { display: block; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.st-wait-bar i { display: block; height: 100%; width: 4%; border-radius: inherit; background: var(--mint); transition: width 14s cubic-bezier(0.1, 0.6, 0.3, 1); }
+.st-wait.go .st-wait-bar i { width: 92%; }
+.st-wait.done .st-wait-bar i { width: 100%; transition-duration: 0.3s; }
+@media (prefers-reduced-motion: reduce) { .st-wait-bar { display: none; } }
 .st-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .st-chip { font: inherit; font-size: 0.82rem; color: var(--text); background: var(--surface); border: 1px solid var(--st-line); border-radius: 999px;
   min-height: 32px; padding: 0 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
