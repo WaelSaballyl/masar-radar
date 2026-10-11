@@ -540,6 +540,9 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   await call(`/support/admin/${id}`, "POST", { text: "Fixed now." }, env.ADMIN_TOKEN);
   assert.deepEqual((await call(`/support/tickets/${id}`, "GET", null, token)).messages.map((m) => m.author), ["visitor", "team"]);
   assert.equal((await call("/support/admin", "GET", null, env.ADMIN_TOKEN)).tickets.length, 1);
+  // the list carries when the visitor last wrote, so the admin page can flag a forgotten open chat
+  const listed = (await call("/support/admin", "GET", null, env.ADMIN_TOKEN)).tickets[0];
+  assert.ok(listed.last_visitor_at && !Number.isNaN(Date.parse(listed.last_visitor_at)), JSON.stringify(listed));
   await assert.rejects(call("/support/admin", "GET", null, "x".repeat(40)), /admin/);
   await assert.rejects(call("/support/tickets", "POST", { name: "S", email: "s@x.com", text: "x".repeat(12_001) }), /size/);
 }
