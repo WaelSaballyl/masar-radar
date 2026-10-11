@@ -111,7 +111,8 @@
   // ---------- visitors ----------
   const PAGES = { index: "الرئيسية", jobs: "الإعلانات", job: "صفحة إعلان", swipe: "السحب", cv: "صانع السيرة",
     applications: "طلباتي", dashboard: "مؤشر السوق", employers: "الشركات", guide: "الدليل", account: "الحساب",
-    support: "الدعم", privacy: "الخصوصية", terms: "الشروط" };
+    support: "الدعم", privacy: "الخصوصية", terms: "الشروط",
+    studio: "استوديو السيرة", ats: "فحص ATS", companies: "دليل الشركات", alerts: "التنبيهات", tests: "الاختبارات", premium: "المميّز", employer: "لوحة الشركة" };
   $("stats-load").onclick = async () => {
     $("stats-meta").textContent = "…";
     const r = await call("/stats");
@@ -133,6 +134,22 @@
       return li;
     }));
     $("stats-pages").replaceChildren(...pages.map((p) => el("li", null, `${PAGES[p.page] || p.page}: ${p.views}`)));
+    // the funnel: visitors, then each step a student takes toward applying
+    const ev = Object.fromEntries((r.data.events || []).map((x) => [x.name, x.n]));
+    const pageViews = (name) => (pages.find((p) => p.page === name) || {}).views || 0;
+    const steps = [["زوار", visitors], ["فتحوا استوديو السيرة", pageViews("studio")], ["أنهوا أسئلة الأسلوب", ev["quiz-done"] || 0],
+      ["كتبوا بكلامهم", ev["voice-used"] || 0], ["جهّزوا سيرة لإعلان", ev["cv-tailored"] || 0],
+      ["نزّلوا سيرة (PDF أو Word)", (ev["cv-pdf"] || 0) + (ev["cv-word"] || 0)], ["قدّموا", ev.applied || 0]];
+    const top = Math.max(1, ...steps.map(([, n]) => n));
+    $("stats-funnel").replaceChildren(...steps.map(([label, n]) => {
+      const li = el("li", "bar-row");
+      const track = el("span", "bar-track");
+      const seg = el("span", "seg req");
+      seg.style.width = `${(n / top) * 100}%`;
+      track.append(seg);
+      li.append(el("span", "bar-label", label), track, el("span", "bar-value", String(n)));
+      return li;
+    }));
     $("stats-refs").replaceChildren(...(refs.length ? refs.map((x) => el("li", null, `${x.host}: ${x.views}`)) : [el("li", "muted", "لا شيء بعد")]));
     $("stats").hidden = false;
   };

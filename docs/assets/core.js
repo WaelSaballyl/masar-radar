@@ -594,6 +594,13 @@ window.Masar = (() => {
     }));
   }
 
+  // One step of the funnel the admin page shows (quiz done, CV made, applied...):
+  // only the step's name goes, counted per day; nothing about who did it.
+  function track(name) {
+    if (location.protocol !== "https:" || !navigator.sendBeacon) return;
+    try { navigator.sendBeacon(`${API}/hit`, JSON.stringify({ e: name })); } catch { /* counting never breaks the page */ }
+  }
+
   // ---------- English on every page ----------
   // The home page and the market index translate themselves (their own
   // lang-toggle). Every other page gets an EN/ع button here, and in English
@@ -611,7 +618,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=24";
+    s.src = "assets/en.js?v=25";
     s.onload = translate;
     document.head.append(s);
   }
@@ -697,6 +704,6 @@ window.Masar = (() => {
   const fontsReady = () => Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(),
                                          new Promise((ok) => setTimeout(ok, 1500))]);
 
-  return { allPages, boardPostings, styleOffer, store, count, pct, date, ago, place, alerts, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
+  return { track, allPages, boardPostings, styleOffer, store, count, pct, date, ago, place, alerts, GULF, fontsReady, countryName, el, safeUrl, i18n, initTheme, nav, account, accountButton,
            LEVELS, MODES, KINDS, ROLES, FIELDS, FIELDS_EN, mine, has, fit, yearsText, logo, siteIcon, verifiedBadge, replyBadge, learnUrl };
 })();

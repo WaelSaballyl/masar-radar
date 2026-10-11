@@ -494,7 +494,7 @@
           toast(S.lang === "en" ? L("العناوين صارت بالإنجليزي. اكتب المحتوى بالإنجليزي، أو جهّزها لوظيفة بالإنجليزي.", "Headings are in English now. Write the content in English too, or tailor it to an English posting.")
             : L("العناوين صارت بالعربي.", "Headings are in Arabic now."));
         }),
-        btn("st-word", "Word", "M14 6h14l10 10v26H14zM28 6v10h10M19 24l3 12 3-9 3 9 3-12", () => download(MasarDocx.fromPaper(exportPaper()), `${fileName()}.docx`)),
+        btn("st-word", "Word", "M14 6h14l10 10v26H14zM28 6v10h10M19 24l3 12 3-9 3 9 3-12", () => { download(MasarDocx.fromPaper(exportPaper()), `${fileName()}.docx`); Masar.track("cv-word"); }),
         btn("st-pdf", "PDF", "M14 6h14l10 10v26H14zM28 6v10h10M24 22v14M18 30l6 6 6-6", printPDF),
         h("a", { class: "btn btn-primary st-tailor", href: "cv.html", onclick: () => { clearTimeout(saveTimer); touched = true; save(); } },
           L("جهّزها لوظيفة", "Tailor to a job"))),
@@ -502,6 +502,7 @@
     paintUndo();
   }
   function printPDF() {
+    Masar.track("cv-pdf");
     const title = document.title;
     document.title = fileName();
     window.addEventListener("afterprint", () => { document.title = title; }, { once: true });
@@ -1086,6 +1087,7 @@
       const stop = waiting(status);
       S.voiceSample = ta.value.trim();
       const v = await readVoice(S.voiceSample, true, answers.form, answers.lang);
+      Masar.track("voice-used");
       stop();
       answers.voice = { tone: v.tone, traits: v.traits, voice: v.voice, verbs_ar: v.verbs_ar, verbs_en: v.verbs_en, words: v.words, summary: v.summary || "" };
       if (!(answers.traits || []).length && v.traits?.length) answers.traits = v.traits;
@@ -1152,6 +1154,7 @@
             Object.assign(S, { template: rec.template, accent: rec.accent, font: rec.font, density: rec.density, lang: rec.lang,
               order: [...rec.order], style: { ...answers } });
             writeMe({ style: { ...answers }, styleAsked: true });
+            Masar.track("quiz-done");
             if (answers.voice?.summary && !S.summary.trim()) S.summary = answers.voice.summary;
             draft = false;
             opener = null; // the page moves focus to the section to fill next
