@@ -97,6 +97,12 @@
       $("meta").textContent = Masar.count(applications.length, "application", "ar")
         + (!picked ? "." : applications.length === 1 ? "، وهو في القائمة المختصرة."
           : `، ${picked === 1 ? "واحد منها" : `${picked} منها`} في القائمة المختصرة.`);
+      // a receipt with no application left: deleted 180 days after its posting expired (retention.js)
+      if (new Set(receipts).size > applications.length) {
+        const a = el("a", null, "سياسة الخصوصية");
+        a.href = "privacy.html";
+        $("meta").append(" ", el("span", null, "الطلبات على إعلانات انتهت قبل أكثر من 180 يوماً تُحذف، كما في"), " ", a, ".");
+      }
       $("list").replaceChildren(...applications.map(card));
     })
     .catch(() => { $("meta").textContent = "تعذّر تحميل طلباتك. تحقق من الإنترنت وحدّث الصفحة."; });

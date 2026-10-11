@@ -14,6 +14,11 @@ ALLOWED_ORIGINS = "https://waelsaballyl.github.io,http://localhost:8765"
 # to every browser; the client secret is not used and not stored anywhere.
 GOOGLE_CLIENT_ID = "444959210306-4p6qenba8lspsc5bmipglj1scifar3ql.apps.googleusercontent.com"
 
+# Daily retention (src/retention.js): applications 180 days after their posting
+# expired, and expired sessions, are deleted. 03:17 UTC, a quiet hour in the Gulf.
+[triggers]
+crons = ["17 3 * * *"]
+
 # errors from console.error show in the dashboard under the worker's Logs
 [observability]
 enabled = true

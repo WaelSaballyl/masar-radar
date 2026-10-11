@@ -564,6 +564,45 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   await assert.rejects(board(as("/board/admin?offset=100", "x"), env, "/board/admin"), /admin/);
 }
 
+// ---- retention (PDPL): applications 180 days after their posting expired, dead sessions ----
+{
+  const { retention, RETAIN_DAYS } = await import("./src/retention.js");
+  assert.equal(RETAIN_DAYS, 180);
+  const env = { DB: memoryD1() };
+  const db = env.DB.raw;
+  const now = new Date("2026-10-11T03:17:00Z");
+  const post = db.prepare(`INSERT INTO postings (id, status, created_at, expires_at, company, contact_email, title, city, workplace, employment, level, description)
+                           VALUES (?, 'approved', '2025-01-01', ?, 'Co', 'hr@co.sa', 'Analyst', 'Riyadh', 'onsite', 'coop', 'Intern', 'x')`);
+  post.run("old000000000", "2026-04-13"); // expired 181 days before: its applications go
+  post.run("edge00000000", "2026-04-14"); // exactly 180 days: kept one more day
+  post.run("recent000000", "2026-09-01"); // expired 40 days ago: kept
+  post.run("live00000000", "2099-01-01");
+  const app = db.prepare("INSERT INTO applications (id, posting_id, created_at, name, email, paper) VALUES (?, ?, '2026-01-01', 'S', ?, '[]')");
+  for (const [id, posting] of [["a1", "old000000000"], ["a2", "old000000000"], ["a3", "edge00000000"], ["a4", "recent000000"], ["a5", "live00000000"], ["a6", "gone00000000"]]) app.run(id, posting, `${id}@x.com`);
+  const inv = db.prepare("INSERT INTO invites (posting_id, card_id, user_id, created_at) VALUES (?, 'c1', 'u1', '2026-01-01')");
+  inv.run("old000000000"); inv.run("live00000000");
+  const ses = db.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, 'u1', '2026-01-01', ?)");
+  ses.run("s-dead", "2026-10-11T03:16:59.000Z"); ses.run("s-live", "2026-12-01T00:00:00.000Z");
+  const emp = db.prepare("INSERT INTO employer_sessions (token_hash, employer_id, created_at, expires_at) VALUES (?, 'e1', '2026-01-01', ?)");
+  emp.run("e-dead", "2026-09-01T00:00:00.000Z"); emp.run("e-live", "2026-11-01T00:00:00.000Z");
+
+  assert.deepEqual(await retention(env, now), { applications: 3, invites: 1, sessions: 1, employer_sessions: 1 });
+  const ids = (sql) => db.prepare(sql).all().map((r) => Object.values(r)[0]);
+  assert.deepEqual(ids("SELECT id FROM applications ORDER BY id"), ["a3", "a4", "a5"], "old and orphaned applications go, the rest stay");
+  assert.deepEqual(ids("SELECT posting_id FROM invites"), ["live00000000"]);
+  assert.deepEqual(ids("SELECT token_hash FROM sessions"), ["s-live"]);
+  assert.deepEqual(ids("SELECT token_hash FROM employer_sessions"), ["e-live"]);
+  assert.equal(db.prepare("SELECT count(*) n FROM postings").get().n, 4, "postings themselves stay");
+  // a second run the same day finds nothing; the next day the edge posting's application goes
+  assert.deepEqual(await retention(env, now), { applications: 0, invites: 0, sessions: 0, employer_sessions: 0 });
+  assert.equal((await retention(env, new Date("2026-10-12T03:17:00Z"))).applications, 1);
+  // the Cron Trigger runs it through scheduled()
+  const waits = [];
+  await worker.scheduled({ cron: "17 3 * * *" }, env, { waitUntil: (p) => waits.push(p) });
+  assert.equal(waits.length, 1);
+  await waits[0];
+}
+
 // ---- the employer's pasted ad: only what the ad says, only the form's options ----
 {
   const ad = ["Lulu Hypermarket - Data Analyst Co-op Trainee", "Riyadh, Saudi Arabia. Apply: hr@luluhypermarket.com", "We need SQL and Excel."].join("\n");
