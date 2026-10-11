@@ -600,7 +600,7 @@ window.Masar = (() => {
   }
   if (english() && !ownI18n) {
     const s = document.createElement("script");
-    s.src = "assets/en.js?v=20";
+    s.src = "assets/en.js?v=21";
     s.onload = translate;
     document.head.append(s);
   }
@@ -634,7 +634,7 @@ window.Masar = (() => {
       return null;
     };
     const SKIP = ".paper, .bubbles, .li-out, .bot-answer, .land-list, .job-desc, .job-title, .posting-title, .posting-company, "
-      + ".posting-who, .ats-raw, .ats-fields dd, .ats-kw .chips, .swipe-title, .swipe-desc, .reel-title, .reel-desc, .rail-title, .rail-co, .cand, .admin-desc, textarea, script, style, [translate=no]";
+      + ".posting-who, .ats-raw, .ats-fields dd, .ats-kw .chips, .swipe-title, .swipe-desc, .reel-title, .reel-desc, .rail-title, .rail-co, .cand-data, .admin-desc, textarea, script, style, [translate=no]";
     const ATTRS = ["placeholder", "aria-label", "title"];
     const text = (n) => {
       if (n.parentElement?.closest(SKIP)) return;
