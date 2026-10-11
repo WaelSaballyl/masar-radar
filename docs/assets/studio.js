@@ -1110,7 +1110,7 @@
         paintCount();
       };
       rec.onend = () => { rec = null; mic.setAttribute("aria-pressed", "false"); mic.lastChild.textContent = L("تحدّث بصوتك", "Speak instead"); };
-      rec.onerror = () => { status.textContent = L("ما قدرنا نسمعك. اسمح للمتصفح باستخدام الميكروفون، أو اكتب.", "We couldn't hear you. Allow the microphone, or type."); };
+      rec.onerror = () => { status.textContent = L("تعذّر سماعك. اسمح للمتصفح باستخدام الميكروفون، أو اكتب.", "We couldn't hear you. Allow the microphone, or type."); };
       rec.start();
       mic.setAttribute("aria-pressed", "true");
       mic.lastChild.textContent = L("نسمعك… اضغط للإيقاف", "Listening… press to stop");
