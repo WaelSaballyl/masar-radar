@@ -422,6 +422,41 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   await assert.rejects(board(new Request(`https://w/board/manage/${posted.id}`, { headers: { Authorization: `Bearer ${other}` } }), env, `/board/manage/${posted.id}`), /manage/);
 }
 
+// ---- talent search filters in SQL and pages: card 620 of 620 is still found ----
+{
+  const { talent } = await import("./src/talent.js");
+  const env = { DB: memoryD1() };
+  const manage = "d".repeat(48);
+  env.DB.raw.prepare(`INSERT INTO postings (id, status, created_at, expires_at, company, contact_email, title, city, workplace, employment, level, description, manage_hash)
+                      VALUES ('a00000000001', 'approved', '2026-09-01', '2099-01-01', 'Co', 'hr@co.sa', 'Analyst', 'Riyadh', 'onsite', 'coop', 'Intern', 'x', ?)`).run(await hexSha(manage));
+  const put = env.DB.raw.prepare("INSERT INTO talent (id, user_id, card, updated_at) VALUES (?, ?, ?, ?)");
+  for (let i = 0; i < 620; i++) {
+    // the oldest card is the only finance one in Qatar, with a skill nobody else has
+    const c = i === 0 ? { target: "Accountant", field: "finance", country: "QA", major: "Accounting", skills: ["Tableau", "Excel"] }
+      : { target: "Data Analyst", field: "data", country: i % 2 ? "SA" : "AE", major: "IS", skills: i === 5 ? ["SQL", "Power BI"] : ["SQL", "Excel"] };
+    put.run(`c${String(i).padStart(11, "0")}`, `u${i}`, JSON.stringify(c), `2026-01-01T00:${String(Math.floor(i / 60)).padStart(2, "0")}:${String(i % 60).padStart(2, "0")}Z`);
+  }
+  const find = (params) => talent(new Request(`https://w/talent/search?${new URLSearchParams({ posting: "a00000000001", ...params })}`,
+    { headers: { Authorization: `Bearer ${manage}` } }), env, "/talent/search");
+  const seen = new Set();
+  let page = await find({}), pages = 1;
+  page.cards.forEach((c) => seen.add(c.id));
+  while (page.next !== null) { page = await find({ offset: page.next }); pages++; page.cards.forEach((c) => seen.add(c.id)); }
+  assert.equal(seen.size, 620, "every card is reachable by paging");
+  assert.equal(pages, 7);
+  assert.deepEqual((await find({ q: "TABLEAU" })).cards.map((c) => c.id), ["c00000000000"], "text search reaches past the newest 500");
+  assert.deepEqual((await find({ field: "finance" })).cards.map((c) => c.id), ["c00000000000"]);
+  assert.equal((await find({ country: "QA" })).cards.length, 1);
+  const ae = await find({ country: "AE", field: "data" });
+  assert.equal(ae.cards.length, 100);
+  assert.ok(ae.cards.every((c) => c.country === "AE" && c.field === "data"));
+  assert.equal(ae.next, 100);
+  assert.deepEqual((await find({ q: "sql power" })).cards.map((c) => c.id), ["c00000000005"], "skills read as one line, like before");
+  assert.equal((await find({ q: "%" })).cards.length, 0, "% is a letter, not a wildcard");
+  assert.equal((await find({ q: "accountant", field: "data" })).cards.length, 0);
+  await assert.rejects(talent(new Request("https://w/talent/search?posting=a00000000001"), env, "/talent/search"), /manage/);
+}
+
 // ---- the employer's pasted ad: only what the ad says, only the form's options ----
 {
   const ad = ["Lulu Hypermarket - Data Analyst Co-op Trainee", "Riyadh, Saudi Arabia. Apply: hr@luluhypermarket.com", "We need SQL and Excel."].join("\n");
