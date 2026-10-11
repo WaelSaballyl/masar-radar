@@ -125,15 +125,22 @@
   const API_BASE = document.querySelector('meta[name="masar-api"]').content;
   const SEEK = { coop: "يبحث عن تدريب تعاوني", internship: "يبحث عن تدريب", student: "يبحث عن دوام طلابي", job: "يبحث عن وظيفة" };
   const COUNTRY = { SA: "السعودية", AE: "الإمارات", QA: "قطر", KW: "الكويت", BH: "البحرين", OM: "عُمان" };
-  async function search() {
+  // a page of 100 at a time; "show more" asks for the next one with the same filters
+  let filters = null, next = null, shown = 0;
+  async function search(more) {
+    if (more !== true) { filters = { posting: id, field: $("t-field").value, country: $("t-country").value, q: $("t-q").value.trim() }; next = 0; shown = 0; }
     $("t-meta").textContent = "…";
-    const q = new URLSearchParams({ posting: id, field: $("t-field").value, country: $("t-country").value, q: $("t-q").value.trim() });
+    $("t-more").hidden = true;
+    const q = new URLSearchParams({ ...filters, offset: next });
     const r = await fetch(`${API_BASE}/talent/search?${q}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(async (x) => ({ ok: x.ok, data: await x.json() })).catch(() => ({ ok: false }));
-    if (!r.ok) { $("t-meta").textContent = "تعذّر البحث الآن."; return; }
+    if (!r.ok) { $("t-meta").textContent = "تعذّر البحث الآن."; $("t-more").hidden = more !== true; return; }
     const { cards } = r.data;
-    $("t-meta").textContent = cards.length ? `المرشحون: ${cards.length}` : "لا يوجد مرشحون بهذه الفلاتر بعد.";
-    $("cands").replaceChildren(...cards.map((c) => {
+    next = r.data.next ?? null;
+    shown += cards.length;
+    $("t-meta").textContent = shown ? `المرشحون: ${shown}${next !== null ? "+" : ""}` : "لا يوجد مرشحون بهذه الفلاتر بعد.";
+    $("t-more").hidden = next === null;
+    $("cands")[more === true ? "append" : "replaceChildren"](...cards.map((c) => {
       const li = el("li", "cand");
       li.append(el("strong", null, c.target || c.major || "طالب"),
         el("p", null, [c.degree, c.major, c.university, c.graduation && `تخرّج ${c.graduation}`].filter(Boolean).join("، ")),
@@ -162,5 +169,6 @@
       return li;
     }));
   }
-  $("t-go").onclick = search;
+  $("t-go").onclick = () => search();
+  $("t-more").onclick = () => search(true);
 })();

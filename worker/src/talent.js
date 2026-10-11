@@ -7,7 +7,7 @@
 //   PUT-like  POST /talent            (session) {card} -> {ok}   show or refresh my card
 //             POST /talent/hide       (session)        -> {ok}   take it down
 //             GET  /talent/mine       (session)        -> {card, invites}
-//             GET  /talent/search?posting=<id>&field=&q=&country=  (posting's manage token) -> {cards}
+//             GET  /talent/search?posting=<id>&field=&q=&country=&offset=  (posting's manage token) -> {cards, next}
 //             POST /talent/invite     (posting's manage token) {posting, card} -> {ok}
 
 import { employerOf } from "./employer.js";
@@ -16,6 +16,7 @@ const FIELD = ["data", "tech", "finance", "engineering", "marketing", "hr"];
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM", "other"];
 const SEEKING = ["", "coop", "internship", "student", "job"];
 const DAILY_INVITES = 30;
+const SEARCH_PAGE = 100;
 const refuse = (code, status) => Object.assign(new Error(code), { status, code });
 const text = (v, max) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
 const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -98,18 +99,22 @@ export async function talent(request, env, path) {
     await employer(request, env, posting);
     const field = url.searchParams.get("field") || "", country = url.searchParams.get("country") || "";
     const q = text(url.searchParams.get("q"), 60).toLowerCase();
+    const offset = Math.min(Math.max(parseInt(url.searchParams.get("offset"), 10) || 0, 0), 100_000);
+    // the filters run in SQL, so every card is reachable however many there are
     const { results } = await env.DB.prepare(
       // skills the student passed a Masar test in travel with the card as "verified"
       `SELECT t.id, t.card, t.updated_at, EXISTS(SELECT 1 FROM invites i WHERE i.card_id = t.id AND i.posting_id = ?) AS invited,
               (SELECT group_concat(v.skill, '|') FROM verified_skills v WHERE v.user_id = t.user_id) AS verified
-         FROM talent t ORDER BY t.updated_at DESC LIMIT 500`,
-    ).bind(posting).all();
-    const cards = results.map((r) => ({ id: r.id, invited: !!r.invited, updated_at: r.updated_at, ...JSON.parse(r.card),
-                                        verified: r.verified ? r.verified.split("|") : [] }))
-      .filter((c) => (!field || c.field === field) && (!country || c.country === country)
-        && (!q || [c.target, c.major, ...c.skills].join(" ").toLowerCase().includes(q)))
-      .slice(0, 100);
-    return { cards };
+         FROM talent t
+        WHERE (? = '' OR json_extract(t.card, '$.field') = ?)
+          AND (? = '' OR json_extract(t.card, '$.country') = ?)
+          AND (? = '' OR lower(coalesce(json_extract(t.card, '$.target'), '') || ' ' || coalesce(json_extract(t.card, '$.major'), '') || ' '
+                 || coalesce((SELECT group_concat(s.value, ' ') FROM json_each(t.card, '$.skills') s), '')) LIKE ? ESCAPE '\\')
+        ORDER BY t.updated_at DESC, t.id LIMIT ? OFFSET ?`,
+    ).bind(posting, field, field, country, country, q, `%${q.replace(/[\\%_]/g, "\\$&")}%`, SEARCH_PAGE + 1, offset).all();
+    const cards = results.slice(0, SEARCH_PAGE).map((r) => ({ id: r.id, invited: !!r.invited, updated_at: r.updated_at, ...JSON.parse(r.card),
+                                                             verified: r.verified ? r.verified.split("|") : [] }));
+    return { cards, next: results.length > SEARCH_PAGE ? offset + SEARCH_PAGE : null };
   }
   if (path === "/talent/invite" && request.method === "POST") {
     const input = await body();
