@@ -337,6 +337,7 @@ function memoryD1() {
       };
       return st;
     },
+    async batch(list) { const out = []; for (const st of list) out.push(await st.run()); return out; },
   };
 }
 const hexSha = async (s) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))]
@@ -455,6 +456,35 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   assert.equal((await find({ q: "%" })).cards.length, 0, "% is a letter, not a wildcard");
   assert.equal((await find({ q: "accountant", field: "data" })).cards.length, 0);
   await assert.rejects(talent(new Request("https://w/talent/search?posting=a00000000001"), env, "/talent/search"), /manage/);
+}
+
+// ---- support: a ticket opens without an account, its token or ADMIN_TOKEN reads it ----
+{
+  const { support } = await import("./src/support.js");
+  const env = { DB: memoryD1(), ADMIN_TOKEN: "e".repeat(40) };
+  const call = (path, method = "GET", data, token) => support(new Request(`https://w${path}`, { method,
+    headers: token ? { Authorization: `Bearer ${token}` } : {}, ...(data ? { body: JSON.stringify(data) } : {}) }), env, path, async () => false);
+  const { id, token } = await call("/support/tickets", "POST", { name: "Sara", email: "s@x.com", topic: "cv", text: "My CV will not download." });
+  assert.match(token, /^[a-f0-9]{48}$/);
+  assert.equal((await call(`/support/tickets/${id}`, "GET", null, token)).messages.length, 1);
+  await assert.rejects(call(`/support/tickets/${id}`, "GET", null, "f".repeat(48)), /ticket/);
+  await assert.rejects(call(`/support/tickets/${id}`), /ticket/);
+  await call(`/support/admin/${id}`, "POST", { text: "Fixed now." }, env.ADMIN_TOKEN);
+  assert.deepEqual((await call(`/support/tickets/${id}`, "GET", null, token)).messages.map((m) => m.author), ["visitor", "team"]);
+  assert.equal((await call("/support/admin", "GET", null, env.ADMIN_TOKEN)).tickets.length, 1);
+  await assert.rejects(call("/support/admin", "GET", null, "x".repeat(40)), /admin/);
+  await assert.rejects(call("/support/tickets", "POST", { name: "S", email: "s@x.com", text: "x".repeat(12_001) }), /size/);
+}
+
+// ---- visitor counts: the beacon counts, only ADMIN_TOKEN reads ----
+{
+  const { stats } = await import("./src/stats.js");
+  const env = { DB: memoryD1(), ADMIN_TOKEN: "e".repeat(40) };
+  await stats(postTo("/hit", { p: "jobs", r: "google.com", v: 1 }), env, "/hit");
+  const read = (token) => stats(new Request("https://w/stats", { headers: { Authorization: `Bearer ${token}` } }), env, "/stats");
+  assert.deepEqual((await read(env.ADMIN_TOKEN)).pages.map((x) => [x.page, x.views]), [["jobs", 1]]);
+  await assert.rejects(read("x"), /admin/);
+  await assert.rejects(read(""), /admin/);
 }
 
 // ---- the employer's pasted ad: only what the ad says, only the form's options ----

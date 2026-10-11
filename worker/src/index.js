@@ -18,6 +18,7 @@ import { stats } from "./stats.js";
 import { talent } from "./talent.js";
 import { skilltests } from "./skilltests.js";
 import { employer } from "./employer.js";
+import { refuse } from "./util.js";
 
 const MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 const MAX_BODY = 40_000;
@@ -166,7 +167,7 @@ function limited(ip) {
   return n > HOURLY_LIMIT;
 }
 
-const fail = (status, code) => Object.assign(new Error(code), { status, code });
+const fail = (status, code) => refuse(code, status);
 
 async function gemini(env, prompt) {
   let last = fail(502, "upstream");

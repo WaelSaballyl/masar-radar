@@ -9,10 +9,10 @@
 //   POST /tests/<slug> (session) {answers: {id: option}} -> {score, of, passed, wrong: [id]}
 
 import { user } from "./talent.js";
+import { refuse, body } from "./util.js";
 
 const PASS = 0.75;
 const DAY = 86_400_000;
-const refuse = (code, status) => Object.assign(new Error(code), { status, code });
 
 // [question, answer, ...wrong options]; code is shown as a block when given
 const BANK = {
@@ -118,10 +118,7 @@ export async function skilltests(request, env, path) {
   }
   if (request.method === "POST") {
     const uid = await user(request, env);
-    const raw = await request.text();
-    if (raw.length > 8000) throw refuse("size", 413);
-    let input;
-    try { input = JSON.parse(raw); } catch { throw refuse("json", 400); }
+    const input = await body(request, 8000);
     const now = new Date();
     const last = await env.DB.prepare("SELECT MAX(at) AS at FROM test_attempts WHERE user_id = ? AND skill = ?").bind(uid, m[1]).first();
     if (last && last.at && now - new Date(last.at) < DAY) throw refuse("wait", 429);

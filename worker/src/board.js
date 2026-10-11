@@ -15,14 +15,15 @@
 // render it with textContent. The employer's email is never in a public reply.
 
 import { employerOf, FREE_MAIL } from "./employer.js";
+import { refuse, hex, sha, bearer, same, text, body } from "./util.js";
 
 const WORKPLACE = ["onsite", "hybrid", "remote"];
 const EMPLOYMENT = ["full_time", "part_time", "internship", "coop", "contract"];
 const LEVEL = ["Intern", "Junior", "Mid", "Senior", "Lead", "Manager"];
+const BODY = 60_000;
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM"];
 const PUBLIC = "id, company, website, title, city, country, workplace, employment, level, description, required, preferred, salary, apply_url, created_at, expires_at, verified, field";
 
-const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const skills = (v) => text(v, 600).split(/[,،\n]/).map((s) => s.trim()).filter(Boolean).slice(0, 20).join(", ");
 const url = (v) => {
   const s = text(v, 300);
@@ -31,22 +32,9 @@ const url = (v) => {
   catch { return ""; }
 };
 const bad = (field) => Object.assign(new Error(field), { status: 400, code: `field:${field}` });
-const refuse = (code, status) => Object.assign(new Error(code), { status, code });
 const EMAIL = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
-const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-const sha = async (s) => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
 const newId = () => crypto.randomUUID().replace(/-/g, "").slice(0, 12);
 const newToken = () => hex(crypto.getRandomValues(new Uint8Array(24)));
-const bearer = (request) => (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-const same = (a, b) => {
-  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
-  return x.length > 0 && x.length === y.length && crypto.subtle.timingSafeEqual(x, y);
-};
-async function body(request) {
-  const raw = await request.text();
-  if (raw.length > 60_000) throw refuse("size", 413);
-  try { return JSON.parse(raw); } catch { throw refuse("json", 400); }
-}
 
 // Screening by fixed rules, not a model: the same posting always gets the same
 // verdict, the reason is known, and wording cannot talk its way past a
@@ -251,12 +239,12 @@ export async function board(request, env, path) {
   if (path === "/board/postings" && request.method === "POST") {
     const company = await employerOf(request, env);
     if (!company) throw refuse("company_account", 401);
-    return submit(await body(request), env, company);
+    return submit(await body(request, BODY), env, company);
   }
-  if (path === "/board/apply" && request.method === "POST") return apply(await body(request), env);
-  if (path === "/board/mine" && request.method === "POST") return mine(await body(request), env);
-  if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request), env);
-  if (path === "/board/boost" && request.method === "POST") return boost(await body(request), env);
+  if (path === "/board/apply" && request.method === "POST") return apply(await body(request, BODY), env);
+  if (path === "/board/mine" && request.method === "POST") return mine(await body(request, BODY), env);
+  if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request, BODY), env);
+  if (path === "/board/boost" && request.method === "POST") return boost(await body(request, BODY), env);
 
   // the employer's applicants: best match first
   const own = path.match(/^\/board\/manage\/([a-f0-9]{12})(?:\/([a-f0-9]{12}))?(?:\/(new|shortlisted|rejected))?$/);
