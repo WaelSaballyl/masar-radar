@@ -22,9 +22,11 @@
     const digits = s.replace(/\D/g, "");
     return digits.length >= 9 && digits.length <= 15 && !/^(?:(?:19|20)\d\d\D*)+$/.test(s.trim());
   };
+  // A Saudi mobile written bare, as many do: "551234567", "966 55 123 4567"
+  const SA_MOBILE = /\b(?:966[\s-]?)?5\d(?:[\s-]?\d){7}\b/g;
 
   function stripContact(text, p) {
-    let t = text.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m));
+    let t = text.replace(EMAIL, " ").replace(LINK, " ").replace(PHONE, (m) => (isPhone(m) ? " " : m)).replace(SA_MOBILE, " ");
     if (p.name) t = t.split(p.name).join(" ");
     return t;
   }
@@ -179,6 +181,6 @@
   const receipts = () => { try { return JSON.parse(Masar.store.get(RECEIPTS) || "[]"); } catch { return []; } };
   const keepReceipt = (r) => { if (r) Masar.store.set(RECEIPTS, JSON.stringify([...receipts(), r])); };
 
-  window.MasarCV = { receipts, keepReceipt, showGpa, FIELDS, CONTACT, EMAIL, LINK, PHONE, isPhone, stripContact, joinHyphens, withoutContact,
+  window.MasarCV = { receipts, keepReceipt, showGpa, FIELDS, CONTACT, EMAIL, LINK, PHONE, SA_MOBILE, isPhone, stripContact, joinHyphens, withoutContact,
                      placeLinks, renderCV, toBlocks, fromBlocks };
 })();

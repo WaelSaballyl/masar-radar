@@ -19,7 +19,10 @@ const SEEKING = ["", "coop", "internship", "student", "job"];
 const DAILY_INVITES = 30;
 const SEARCH_PAGE = 100;
 // contact details have no place on a card, even pasted into a field
-const scrub = (s) => stripContact(s).replace(/\s+/g, " ").trim();
+// plus, on cards only, any run of 8+ digits (no card field needs one) and @handles,
+// so whatever the shared rule misses still never reaches an employer
+const scrub = (s) => stripContact(s).replace(/\d(?:[\s-]?\d){7,}/g, " ").replace(/(^|[^\w.])@[\w.]{2,}/g, "$1 ")
+  .replace(/\s+/g, " ").trim();
 
 export function card(input) {
   const c = input && typeof input === "object" ? input : {};

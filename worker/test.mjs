@@ -324,8 +324,10 @@ import vm from "node:vm";
   const ctx = { window: {}, Masar: { el() {} } };
   vm.runInNewContext(readFileSync(new URL("../docs/assets/cvkit.js", import.meta.url), "utf8"), ctx);
   const web = ctx.window.MasarCV;
-  const gone = ["+966 55 123 4567", "0551234567", "00966551234567", "me@x.com", "linkedin.com/in/x", "https://github.com/x", "coursera.org/verify/ABC"];
-  const kept = ["2022 - 2026", "4.2 / 5", "(2021-2026)", "GPA 3.8 / 4", "Riyadh 2019 - 2023"];
+  const gone = ["+966 55 123 4567", "0551234567", "00966551234567", "me@x.com", "linkedin.com/in/x", "https://github.com/x", "coursera.org/verify/ABC",
+                // a Saudi mobile written bare (the reviewer's samples: the old card rule caught these)
+                "966551234567", "966 55 123 4567", "551234567", "55 123 4567", "966-55-123-4567"];
+  const kept = ["2022 - 2026", "4.2 / 5", "(2021-2026)", "GPA 3.8 / 4", "Riyadh 2019 - 2023", "5,000 records", "SAR 5000", "cut costs 15% across 5 branches"];
   for (const s of gone) {
     const line = `Call ${s} today`;
     assert.equal(util.stripContact(line), web.stripContact(line, {}), `same on both sides: ${s}`);
@@ -336,10 +338,21 @@ import vm from "node:vm";
     assert.equal(web.stripContact(s, {}), s, `not contact in the browser: ${s}`);
   }
   // the patterns themselves are the same text, so a change on one side fails here
-  for (const k of ["EMAIL", "LINK", "PHONE"]) assert.equal(String(util[k]), String(web[k]), k);
+  for (const k of ["EMAIL", "LINK", "PHONE", "SA_MOBILE"]) assert.equal(String(util[k]), String(web[k]), k);
   assert.equal(util.isPhone.toString().replace(/\s+/g, " "), web.isPhone.toString().replace(/\s+/g, " "));
   // a talent card and the voice sample go through the same rule
   assert.deepEqual(card({ skills: "SQL, 2022 - 2026, +966 55 123 4567, coursera.org/verify/ABC" }).skills, ["SQL", "2022 - 2026"]);
+  // cards also drop any run of 8+ digits and @handles, whatever the shared rule misses
+  for (const n of ["966551234567", "966 55 123 4567", "551234567", "55 123 4567", "call me 966-55-123-4567", "12345678", "1234 5678 90"]) {
+    const c = card({ target: `Data Analyst ${n}`, major: `IS ${n}`, university: `KSU ${n}`, city: `Riyadh ${n}`, skills: `SQL, ${n}, Excel` });
+    assert.ok(!/\d{3}/.test(JSON.stringify(c)), `${n}: ${JSON.stringify(c)}`);
+    assert.deepEqual(c.skills.filter((x) => x !== "call me"), ["SQL", "Excel"]);
+  }
+  const handle = card({ target: "Analyst @wael_s", skills: "SQL, @wael.data, C#, Power BI" });
+  assert.equal(handle.target, "Analyst");
+  assert.deepEqual(handle.skills, ["SQL", "C#", "Power BI"]);
+  const numbers = card({ target: "Analyst of 5,000 records, SAR 5000", major: "ISO 27001", skills: "SQL" });
+  assert.deepEqual([numbers.target, numbers.major], ["Analyst of 5,000 records, SAR 5000", "ISO 27001"]);
 }
 
 // ---- D1 in memory (node:sqlite, the whole schema.sql) for the database paths ----
