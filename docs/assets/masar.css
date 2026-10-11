@@ -1241,8 +1241,9 @@ html.motion .foot-mark.in span { transform: none; }
 .me, .cv-state { margin: 22px 0; padding-top: 20px; border-top: 1px solid var(--hairline); }
 .me h2, .cv-state h2 { font-family: var(--kufi); font-weight: 700; font-size: 1.2rem; margin: 0 0 4px; }
 .me .grid { margin: 14px 0; }
-.me input, .me select, .me textarea { font: inherit; font-size: .95rem; color: var(--text); background: color-mix(in srgb, var(--p-surface) 80%, transparent); width: 100%;
-  border: 1px solid var(--hairline); border-radius: 12px; padding: 9px 12px; min-height: 42px; }
+/* the alerts form, company search and admin token had no field styles and showed the browser's grey boxes */
+.me input, .me select, .me textarea, .alert-fields input, .alert-fields select, .companies-tools input, .companies-tools select, .field.grow input { font: inherit; font-size: .95rem; color: var(--text); background: color-mix(in srgb, var(--p-surface) 80%, transparent); width: 100%;
+  border: 1px solid var(--hairline); border-radius: 12px; padding: 9px 12px; min-height: 44px; }
 .me textarea { resize: vertical; }
 .me .check { margin-top: 10px; }
 .cv-state { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
@@ -1434,7 +1435,15 @@ html.motion .foot-mark.in span { transform: none; }
   .filters select, .filters input, select, .btn-small { min-height: 44px; }
   .topbar .wordmark { display: inline-flex; align-items: center; }
   .segmented span { display: inline-flex; align-items: center; }
-  footer a, .site-foot a { display: inline-block; padding-block: 10px; }
+  footer a, .site-foot a { display: inline-block; padding-block: 10px; min-width: 44px; text-align: center; }
+  .companies-tools input { min-height: 44px; }
+}
+/* touch screens: a skill chip keeps its small look but takes a 44px tap; the
+   rows open up so no two tap areas overlap */
+@media (pointer: coarse) {
+  .posting-skills, .chips:has(> a.skill) { row-gap: 16px; }
+  a.skill { position: relative; }
+  a.skill::after { content: ""; position: absolute; inset: -8px -3px; }
 }
 /* a long search shown as a filter chip wraps instead of widening the page */
 .chips .chip, .chip { max-width: 100%; overflow-wrap: anywhere; }
@@ -1442,6 +1451,7 @@ input[type=date]:focus-visible, input[type=date]:focus { outline: 3px solid var(
 .ask-bot-row input { flex: 1; min-width: 0; }
 @media (max-width: 767px) {
   .foot-legal a, .link-more, .guide-bars a, .jobs .job a { display: inline-flex; align-items: center; min-height: 44px; }
+  .foot-legal a { min-width: 44px; justify-content: center; }
   .field-btn, .icon-btn { min-height: 44px; }
 }
 @media (max-width: 767px) {
@@ -1472,6 +1482,7 @@ input[type=date]:focus-visible, input[type=date]:focus { outline: 3px solid var(
 /* companies */
 .companies-tools { display: flex; flex-wrap: wrap; gap: 10px; }
 .companies-tools input { flex: 1 1 260px; }
+.companies-tools select { width: auto; }
 .co-grid { list-style: none; margin: 0 0 40px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 .co-card { padding: 16px; border: 1px solid var(--hairline); border-radius: 14px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 .co-card p { margin: 0; }
