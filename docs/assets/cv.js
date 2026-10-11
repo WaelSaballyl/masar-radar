@@ -233,7 +233,7 @@
     // an exclusive posting is not in jobs.json: its text goes in as a pasted description
     const ex = new URLSearchParams(location.search).get("ex");
     if (ex && API) {
-      fetch(`${API}/board/postings`).then((r) => r.json()).then(({ postings: list }) => {
+      Masar.boardPostings().then((list) => {
         const p = list.find((x) => x.id === ex);
         if (!p) return;
         exclusive = p;

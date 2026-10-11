@@ -14,7 +14,8 @@
   const STATUS = { new: "جديد", shortlisted: "في القائمة المختصرة", rejected: "مستبعد" };
   const call = (path, method = "GET") => fetch(`${API}/board/manage/${id}${path}`, {
     method, headers: { Authorization: `Bearer ${token}` },
-  }).then(async (r) => ({ ok: r.ok, status: r.status, data: await r.json().catch(() => ({})) }));
+  }).then(async (r) => ({ ok: r.ok, status: r.status, data: await r.json().catch(() => ({})) }))
+    .catch(() => ({ ok: false, status: 0, data: {} })); // offline: "could not load", not an uncaught error
 
   let apps = [];
 
@@ -99,7 +100,8 @@
     $("meta").append(a, ".");
     return;
   }
-  call("").then((r) => {
+  // every page of applicants, best match first (the worker sends 500 a page)
+  Masar.allPages((o) => call(`?offset=${o}`), "applications").then((r) => {
     if (!r.ok) {
       $("meta").textContent = r.status === 401 ? "الرابط غير صحيح أو قديم. إذا فقدته، راسلنا من إيميل العمل ونرسل لك رابطاً جديداً."
         : "تعذّر التحميل. جرّب مرة ثانية.";

@@ -1357,6 +1357,8 @@ html.motion .foot-mark.in span { transform: none; }
 .talent-box h3 { font-size: 1rem; margin: 14px 0 8px; }
 .talent-box .ticket-row { text-decoration: none; }
 .cands { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+#t-more { display: block; margin: 16px auto 0; min-height: 44px; padding-inline: 22px; }
+#t-more[hidden] { display: none; }
 .cand { --text: var(--p-text); --muted: var(--p-muted); display: grid; gap: 6px; align-content: start; padding: 16px 18px; border-radius: 22px; background: var(--panel); color: var(--text); }
 .cand strong { font-family: var(--kufi); }
 .cand p { margin: 0; color: var(--muted); font-size: .9rem; }

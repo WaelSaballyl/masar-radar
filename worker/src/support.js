@@ -11,7 +11,7 @@
 // is needed; a signed-in student's tickets also carry their user id. Replies
 // show on the support page, which checks for new ones while it is open.
 
-import { refuse, hex, sha, bearer, same, text, body } from "./util.js";
+import { refuse, hex, sha, bearer, same, text, body, offsetOf, page } from "./util.js";
 
 const TOPICS = ["account", "cv", "apply", "employer", "bug", "other"];
 const EMAIL = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
@@ -77,12 +77,14 @@ export async function support(request, env, path, limited) {
     if (!same(bearer(request), env.ADMIN_TOKEN || "")) throw refuse("admin", 401);
     if (path === "/support/admin" && request.method === "GET") {
       const status = new URL(request.url).searchParams.get("status") === "closed" ? "closed" : "open";
+      const offset = offsetOf(request, 200);
       const { results } = await env.DB.prepare(
         `SELECT t.id, t.name, t.email, t.topic, t.status, t.updated_at,
                 (SELECT author FROM support_messages m WHERE m.ticket_id = t.id ORDER BY created_at DESC, rowid DESC LIMIT 1) AS last_author
-         FROM support_tickets t WHERE t.status = ? ORDER BY t.updated_at DESC LIMIT 200`,
-      ).bind(status).all();
-      return { tickets: results };
+         FROM support_tickets t WHERE t.status = ? ORDER BY t.updated_at DESC, t.id LIMIT ? OFFSET ?`,
+      ).bind(status, 201, offset).all();
+      const { rows, next } = page(results, 200, offset);
+      return { tickets: rows, next };
     }
     const m = path.match(/^\/support\/admin\/([a-f0-9]{12})$/);
     if (m && request.method === "GET") return thread(env, m[1]);

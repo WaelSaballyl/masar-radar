@@ -511,6 +511,46 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   await assert.rejects(read(""), /admin/);
 }
 
+// ---- long lists come in pages: the public postings, an employer's applicants, the admin queues ----
+{
+  const { offsetOf } = await import("./src/util.js");
+  const at = (q) => new Request(`https://w/x?${q}`);
+  assert.deepEqual([offsetOf(at(""), 200), offsetOf(at("offset=400"), 200), offsetOf(at("offset=399"), 200), offsetOf(at("offset=-5"), 200),
+                    offsetOf(at("offset=abc"), 200), offsetOf(at("offset=9999999"), 200)], [0, 400, 200, 0, 0, 100_000]);
+  const { support } = await import("./src/support.js");
+  const env = { DB: memoryD1(), ADMIN_TOKEN: "e".repeat(40) };
+  const manage = "d".repeat(48);
+  const db = env.DB.raw;
+  const post = db.prepare(`INSERT INTO postings (id, status, created_at, reviewed_at, expires_at, company, contact_email, title, city, workplace, employment, level, description, manage_hash)
+                           VALUES (?, ?, ?, ?, '2099-01-01', 'Co', 'hr@co.sa', 'Analyst', 'Riyadh', 'onsite', 'coop', 'Intern', 'x', ?)`);
+  const hash = await hexSha(manage);
+  for (let i = 0; i < 450; i++) post.run(`b${String(i).padStart(11, "0")}`, "approved", "2026-09-01", `2026-09-01T${String(i % 24).padStart(2, "0")}:00:${String(i % 60).padStart(2, "0")}`, hash);
+  for (let i = 0; i < 130; i++) post.run(`c${String(i).padStart(11, "0")}`, "pending", `2026-09-02T00:${String(i % 60).padStart(2, "0")}`, null, hash);
+  const app = db.prepare(`INSERT INTO applications (id, posting_id, created_at, name, email, matched, required, paper, receipt_hash) VALUES (?, 'b00000000000', ?, 'S', ?, ?, 4, '[]', ?)`);
+  for (let i = 0; i < 520; i++) app.run(`a${String(i).padStart(11, "0")}`, `2026-09-03T00:00:${String(i % 60).padStart(2, "0")}`, `s${i}@x.com`, i % 5, String(i));
+  const tk = db.prepare("INSERT INTO support_tickets (id, token_hash, name, email, topic, status, created_at, updated_at) VALUES (?, 'h', 'S', 's@x.com', 'cv', 'open', '2026-09-01', ?)");
+  for (let i = 0; i < 230; i++) tk.run(`d${String(i).padStart(11, "0")}`, `2026-09-01T00:00:${String(i % 60).padStart(2, "0")}`);
+  // walks every page of a list and checks nothing repeats or goes missing
+  const walk = async (get, key) => {
+    const ids = [];
+    let out = await get(0);
+    ids.push(...out[key].map((x) => x.id));
+    while (out.next !== null) { out = await get(out.next); ids.push(...out[key].map((x) => x.id)); }
+    assert.equal(new Set(ids).size, ids.length, `${key}: no row twice`);
+    return ids.length;
+  };
+  const as = (path, token) => new Request(`https://w${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  assert.equal(await walk((o) => board(as(`/board/postings?offset=${o}`), env, "/board/postings"), "postings"), 450, "past the old 200");
+  assert.equal(await walk((o) => board(as(`/board/manage/b00000000000?offset=${o}`, manage), env, "/board/manage/b00000000000"), "applications"), 520, "past the old 500");
+  assert.equal(await walk((o) => board(as(`/board/admin?status=pending&offset=${o}`, env.ADMIN_TOKEN), env, "/board/admin"), "postings"), 130, "past the old 100");
+  assert.equal(await walk((o) => support(as(`/support/admin?offset=${o}`, env.ADMIN_TOKEN), env, "/support/admin", async () => false), "tickets"), 230, "past the old 200");
+  // the order is kept across pages: best match first for the employer
+  const first = await board(as("/board/manage/b00000000000", manage), env, "/board/manage/b00000000000");
+  const second = await board(as("/board/manage/b00000000000?offset=500", manage), env, "/board/manage/b00000000000");
+  assert.ok(first.applications.at(-1).matched >= second.applications[0].matched);
+  await assert.rejects(board(as("/board/admin?offset=100", "x"), env, "/board/admin"), /admin/);
+}
+
 // ---- the employer's pasted ad: only what the ad says, only the form's options ----
 {
   const ad = ["Lulu Hypermarket - Data Analyst Co-op Trainee", "Riyadh, Saudi Arabia. Apply: hr@luluhypermarket.com", "We need SQL and Excel."].join("\n");

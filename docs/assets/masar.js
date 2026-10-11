@@ -342,7 +342,7 @@
 
   // exclusive postings come from the worker; the page works without them
   const API = document.querySelector('meta[name="masar-api"]').content;
-  const exclusive = fetch(`${API}/board/postings`).then((r) => r.json()).then((d) => d.postings.map((p) => ({
+  const exclusive = Masar.boardPostings().then((list) => list.map((p) => ({
     id: p.id, title: p.title, company: p.company, location: p.city, posted_at: (p.created_at || "").slice(0, 10),
     countries: [p.country], regions: [], mode: p.workplace, employment: p.employment, exclusive: true,
     logo: Masar.siteIcon(p.website),

@@ -11,7 +11,7 @@
 //             POST /talent/invite     (posting's manage token) {posting, card} -> {ok}
 
 import { employerOf } from "./employer.js";
-import { refuse, sha, bearer, same, line, body, stripContact } from "./util.js";
+import { refuse, sha, bearer, same, line, body, stripContact, offsetOf, page } from "./util.js";
 
 const FIELD = ["data", "tech", "finance", "engineering", "marketing", "hr"];
 const COUNTRY = ["SA", "AE", "QA", "KW", "BH", "OM", "other"];
@@ -85,7 +85,7 @@ export async function talent(request, env, path) {
     await employer(request, env, posting);
     const field = url.searchParams.get("field") || "", country = url.searchParams.get("country") || "";
     const q = line(url.searchParams.get("q"), 60).toLowerCase();
-    const offset = Math.min(Math.max(parseInt(url.searchParams.get("offset"), 10) || 0, 0), 100_000);
+    const offset = offsetOf(request, SEARCH_PAGE);
     // the filters run in SQL, so every card is reachable however many there are
     const { results } = await env.DB.prepare(
       // skills the student passed a Masar test in travel with the card as "verified"
@@ -98,9 +98,10 @@ export async function talent(request, env, path) {
                  || coalesce((SELECT group_concat(s.value, ' ') FROM json_each(t.card, '$.skills') s), '')) LIKE ? ESCAPE '\\')
         ORDER BY t.updated_at DESC, t.id LIMIT ? OFFSET ?`,
     ).bind(posting, field, field, country, country, q, `%${q.replace(/[\\%_]/g, "\\$&")}%`, SEARCH_PAGE + 1, offset).all();
-    const cards = results.slice(0, SEARCH_PAGE).map((r) => ({ id: r.id, invited: !!r.invited, updated_at: r.updated_at, ...JSON.parse(r.card),
-                                                             verified: r.verified ? r.verified.split("|") : [] }));
-    return { cards, next: results.length > SEARCH_PAGE ? offset + SEARCH_PAGE : null };
+    const { rows, next } = page(results, SEARCH_PAGE, offset);
+    const cards = rows.map((r) => ({ id: r.id, invited: !!r.invited, updated_at: r.updated_at, ...JSON.parse(r.card),
+                                     verified: r.verified ? r.verified.split("|") : [] }));
+    return { cards, next };
   }
   if (path === "/talent/invite" && request.method === "POST") {
     const input = await body(request, 6000);
