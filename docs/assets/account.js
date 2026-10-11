@@ -14,6 +14,11 @@
   };
   const status = (text) => { $("status").textContent = text || ""; };
 
+  // ?next=cv.html?ex=... : after signing in, back to the page that asked (a page of this site only)
+  const NEXT = (() => {
+    const n = new URLSearchParams(location.search).get("next") || "";
+    return /^[a-z0-9-]+\.html(?:\?[\w=&%.-]*)?$/i.test(n) ? n : "";
+  })();
   let chosen = false;
   $("as-student").onclick = () => { chosen = true; show(); };
   function show() {
@@ -202,6 +207,7 @@
       // the first sign-in starts with the style questions (asked once per account, kept in the synced masar.me)
       let me = {};
       try { me = JSON.parse(Masar.store.get("masar.me") || "{}") || {}; } catch { /* none yet */ }
+      if (NEXT) { location.href = NEXT; return; }
       if (!me.style && !me.styleAsked) { location.href = "studio.html?start=1"; return; }
       show();
     } catch {
