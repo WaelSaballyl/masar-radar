@@ -87,7 +87,7 @@ def _shell(title: str, desc: str, main: str) -> str:
 <body>
 <div class="wrap">
   <header class="topbar">
-    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
+    <a class="wordmark" href="./" aria-label="مسار، الصفحة الرئيسية"><img class="logo-on-dark" src="assets/brand/wordmark-dark.png?v=2" alt="مسار" width="150" height="48"><img class="logo-on-light" loading="lazy" src="assets/brand/wordmark-light.png" alt="" width="151" height="48"></a>
     <nav class="nav" aria-label="الأقسام"></nav>
     <div class="tools"><button class="tool" id="theme-toggle" type="button" aria-label="تبديل المظهر">◐</button></div>
   </header>
