@@ -80,7 +80,7 @@
   const given = new URLSearchParams(location.search);
   const wanted = Object.fromEntries(["q", "where", "type", "role", "field", "company"].filter((k) => given.get(k)).map((k) => [k, given.get(k)]));
 
-  const exclusive = Masar.boardPostings().then((list) => list.map((p) => ({
+  const exclusive = Masar.boardPostings().then((rows) => rows.map((p) => ({
     id: p.id, title: p.title, company: p.company, posted_at: (p.created_at || "").slice(0, 10), role: "", countries: [p.country],
     regions: [], mode: p.workplace, skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])],
     kind: KIND[p.employment] || "job", field: p.field || "data", exclusive: true,

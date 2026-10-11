@@ -229,7 +229,7 @@
 
   const collected = fetch("data/jobs.json", { cache: "no-cache" }).then((r) => r.json())
     .then((d) => d.postings.map((p) => ({ ...p, kind: p.employment || "job" })));
-  const exclusive = ex ? Masar.boardPostings().then((list) => list.map((p) => ({
+  const exclusive = ex ? Masar.boardPostings().then((rows) => rows.map((p) => ({
     id: p.id, title: p.title, company: p.company, website: p.website, location: p.city, url: p.apply_url, level: p.level,
     posted_at: (p.created_at || "").slice(0, 10), deadline: p.expires_at, role: "", countries: [p.country], mode: p.workplace,
     skills: [...list(p.required).map((s) => [s, 1]), ...list(p.preferred).map((s) => [s, 0])], description: p.description,
