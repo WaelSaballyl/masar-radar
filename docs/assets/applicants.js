@@ -147,15 +147,16 @@
     $("t-more").hidden = next === null;
     $("cands")[more === true ? "append" : "replaceChildren"](...cards.map((c) => {
       const li = el("li", "cand");
-      li.append(el("strong", null, c.target || c.major || "طالب"),
-        el("p", null, [c.degree, c.major, c.university, c.graduation && `تخرّج ${c.graduation}`].filter(Boolean).join("، ")),
+      // what the student wrote is data (never translated: .cand-data); the rest is interface
+      li.append(el("strong", c.target || c.major ? "cand-data" : null, c.target || c.major || "طالب"),
+        el("p", "cand-data", [c.degree, c.major, c.university, c.graduation && `تخرّج ${c.graduation}`].filter(Boolean).join("، ")),
         el("p", null, [c.city, COUNTRY[c.country], SEEK[c.seeking], c.relocate && "مستعد للانتقال"].filter(Boolean).join("، ")));
-      const sk = el("p", "skills-line", c.skills.join(", "));
+      const sk = el("p", "skills-line cand-data", c.skills.join(", "));
       li.append(sk);
       // skills the student passed a Masar test in
       if (c.verified && c.verified.length) {
         const v = el("p", "skills-line");
-        c.verified.forEach((name) => { const b = el("span", "verified-skill", `✓ ${name}`); b.dir = "ltr"; v.append(b, " "); });
+        c.verified.forEach((name) => { const b = el("span", "verified-skill cand-data", `✓ ${name}`); b.dir = "ltr"; v.append(b, " "); });
         v.append(el("span", "muted small", "موثّقة باختبار مسار"));
         li.append(v);
       }
