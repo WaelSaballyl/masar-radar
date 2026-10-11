@@ -585,16 +585,33 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   ses.run("s-dead", "2026-10-11T03:16:59.000Z"); ses.run("s-live", "2026-12-01T00:00:00.000Z");
   const emp = db.prepare("INSERT INTO employer_sessions (token_hash, employer_id, created_at, expires_at) VALUES (?, 'e1', '2026-01-01', ?)");
   emp.run("e-dead", "2026-09-01T00:00:00.000Z"); emp.run("e-live", "2026-11-01T00:00:00.000Z");
+  db.exec("UPDATE postings SET manage_hash = 'h'");
+  // support: closed and untouched for a year goes; open or recent stays
+  const tk = db.prepare("INSERT INTO support_tickets (id, token_hash, name, email, topic, status, created_at, updated_at) VALUES (?, 'h', 'S', 's@x.com', 'cv', ?, '2025-01-01', ?)");
+  tk.run("t-old-closed", "closed", "2025-10-10T00:00:00.000Z"); tk.run("t-old-open", "open", "2025-10-10T00:00:00.000Z"); tk.run("t-new-closed", "closed", "2026-09-01T00:00:00.000Z");
+  const msg = db.prepare("INSERT INTO support_messages (ticket_id, author, text, created_at) VALUES (?, 'visitor', 'hi', '2025-01-01')");
+  msg.run("t-old-closed"); msg.run("t-old-closed"); msg.run("t-old-open"); msg.run("t-new-closed");
+  // talent: a card whose student has not signed in for a year comes down
+  const usr = db.prepare("INSERT INTO users (id, google_sub, email, created_at, last_login) VALUES (?, ?, ?, '2025-01-01', ?)");
+  usr.run("u-away", "g1", "away@x.com", "2025-10-01T00:00:00.000Z"); usr.run("u-here", "g2", "here@x.com", "2026-10-01T00:00:00.000Z");
+  const tal = db.prepare("INSERT INTO talent (id, user_id, card, updated_at) VALUES (?, ?, '{}', '2025-01-01')");
+  tal.run("card-away", "u-away"); tal.run("card-here", "u-here");
 
-  assert.deepEqual(await retention(env, now), { applications: 3, invites: 1, sessions: 1, employer_sessions: 1 });
+  assert.deepEqual(await retention(env, now), { applications: 3, invites: 1, postings: 1, support_messages: 2, support_tickets: 1, talent: 1, sessions: 1, employer_sessions: 1 });
   const ids = (sql) => db.prepare(sql).all().map((r) => Object.values(r)[0]);
   assert.deepEqual(ids("SELECT id FROM applications ORDER BY id"), ["a3", "a4", "a5"], "old and orphaned applications go, the rest stay");
   assert.deepEqual(ids("SELECT posting_id FROM invites"), ["live00000000"]);
   assert.deepEqual(ids("SELECT token_hash FROM sessions"), ["s-live"]);
   assert.deepEqual(ids("SELECT token_hash FROM employer_sessions"), ["e-live"]);
   assert.equal(db.prepare("SELECT count(*) n FROM postings").get().n, 4, "postings themselves stay");
+  assert.deepEqual(db.prepare("SELECT id, contact_email, manage_hash FROM postings ORDER BY id").all().map((r) => [r.id, r.contact_email, r.manage_hash]),
+    [["edge00000000", "hr@co.sa", "h"], ["live00000000", "hr@co.sa", "h"], ["old000000000", "", null], ["recent000000", "hr@co.sa", "h"]],
+    "the old posting loses its HR email and private link");
+  assert.deepEqual(ids("SELECT id FROM support_tickets ORDER BY id"), ["t-new-closed", "t-old-open"]);
+  assert.deepEqual(ids("SELECT DISTINCT ticket_id FROM support_messages ORDER BY ticket_id"), ["t-new-closed", "t-old-open"]);
+  assert.deepEqual(ids("SELECT id FROM talent"), ["card-here"]);
   // a second run the same day finds nothing; the next day the edge posting's application goes
-  assert.deepEqual(await retention(env, now), { applications: 0, invites: 0, sessions: 0, employer_sessions: 0 });
+  assert.deepEqual(await retention(env, now), { applications: 0, invites: 0, postings: 0, support_messages: 0, support_tickets: 0, talent: 0, sessions: 0, employer_sessions: 0 });
   assert.equal((await retention(env, new Date("2026-10-12T03:17:00Z"))).applications, 1);
   // the Cron Trigger runs it through scheduled()
   const waits = [];

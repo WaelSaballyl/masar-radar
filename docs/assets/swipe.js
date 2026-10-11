@@ -224,7 +224,9 @@
           phone: profile.phone, link: profile.link, matched: matched.length, required: required.length, paper: toBlocks($("scratch")) }, true);
         MasarCV.keepReceipt(receipt);
         station.className = "station arrived sent";
-        log(p, required.length ? `أرسلنا سيرتك. عندك ${matched.length} من ${required.length} مهارات مطلوبة.` : "أرسلنا سيرتك.");
+        const li = log(p, required.length ? `أرسلنا سيرتك. عندك ${matched.length} من ${required.length} مهارات مطلوبة.` : "أرسلنا سيرتك.");
+        const offer = Masar.styleOffer();
+        if (offer && li) li.append(" ", offer, ".");
       } catch (e) {
         station.className = `station arrived ${e.code === "applied" ? "sent" : "failed"}`;
         // the session ended on the server: forget it here, so the next swipe asks to sign in
