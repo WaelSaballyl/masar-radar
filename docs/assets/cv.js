@@ -241,6 +241,9 @@
         document.querySelector('input[name="source"][value="pasted"]').click();
         $("job-text").value = `${p.title} - ${p.company}, ${p.city}\n\n${p.description}\n\nRequired: ${p.required}`
           + (p.preferred ? `\nPreferred: ${p.preferred}` : "");
+        const kept = versions().find((v) => v.ex === p.id);
+        if (kept) { openKept(kept); return; }
+        if (!Masar.account.token) say("make-status", "هذا إعلان حصري: بعد أن تجهّز سيرتك تقدّم عليه من هنا، والتقديم يحتاج تسجيل الدخول.");
         $("s2").scrollIntoView();
       }).catch(() => {});
     }
@@ -494,6 +497,10 @@
   function keepVersion(job, lang) {
     const label = job.title ? `${job.title}، ${job.company}` : ($("job-text").value.split("\n")[0] || "وصف ملصوق").slice(0, 90);
     const entry = { at: new Date().toISOString(), label, lang, paper: MasarCV.toBlocks($("cv-paper")) };
+    // made for an exclusive posting: kept with it, so coming back from signing in opens it ready to send
+    if (exclusive && coverage && $("job-text").value.startsWith(exclusive.title)) {
+      Object.assign(entry, { ex: exclusive.id, coverage: { matched: count(coverage.matched), required: count(coverage.required) } });
+    }
     // the same posting keeps only its newest CV; at most 15 in all
     const rest = versions().filter((v) => v.label !== label);
     try { store.set(VERSIONS, JSON.stringify([entry, ...rest].slice(0, 15))); } catch { /* storage full */ }
@@ -531,9 +538,27 @@
   }
   showVersions();
 
+  // the CV kept for an exclusive posting, back on the page with its apply box
+  function openKept(v) {
+    const paper = $("cv-paper");
+    paper.replaceChildren();
+    MasarCV.fromBlocks(paper, v.paper);
+    paper.lang = v.lang;
+    paper.dir = v.lang === "ar" ? "rtl" : "ltr";
+    coverage = v.coverage;
+    $("coverage").replaceChildren(el("p", "coverage-for", "سيرتك لهذا الإعلان جاهزة من قبل. راجعها وقدّم بها، أو جهّز غيرها من فوق."));
+    for (const id of ["removed", "tips", "prep"]) $(id).hidden = true;
+    $("result").hidden = false;
+    showApply();
+    checkATS(null, v.lang);
+    $("apply").scrollIntoView({ block: "start" });
+  }
+
   // ---------- applying to an exclusive posting ----------
 
   let exclusive = null, coverage = null;
+  // coverage is the worker's {matched: [...], required: [...]}, or counts from a kept version
+  const count = (v) => (Array.isArray(v) ? v.length : Number(v) || 0);
   const APPLIED = "masar.applied";
   const applied = () => { try { return JSON.parse(store.get(APPLIED) || "[]"); } catch { return []; } };
 
@@ -565,11 +590,13 @@
     say("apply-status", "نرسل طلبك…");
     try {
       const { receipt } = await api("/board/apply", { posting_id: exclusive.id, consent: true, name: p.name, phone: p.phone,
-        link: p.link, matched: coverage?.matched.length || 0, required: coverage?.required.length || 0,
+        link: p.link, matched: count(coverage?.matched), required: count(coverage?.required),
         paper: MasarCV.toBlocks($("cv-paper")) }, true);
       store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
       MasarCV.keepReceipt(receipt);
       say("apply-status", `وصل طلبك إلى ${exclusive.company}. تابع حالته في صفحة طلباتي، وإن اختارتك الشركة ستتواصل معك على إيميلك.`);
+      const offer = Masar.styleOffer();
+      if (offer) $("apply-status").append(" ", offer, ".");
     } catch (e) {
       if (e.code === "applied") store.set(APPLIED, JSON.stringify([...applied(), exclusive.id]));
       else button.disabled = false;
