@@ -439,16 +439,29 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   }
   const shown = await skilltests(new Request("https://w/tests/sql"), env, "/tests/sql");
   assert.ok(!JSON.stringify(shown).includes('"a"'), "the answers are not sent");
-  // six right of eight passes (75%)
-  const answers = Object.fromEntries(TESTS.sql.questions.map((x, i) => [i, i < 6 ? x.a : x.w[0]]));
-  const out = await skilltests(as("/tests/sql", "POST", { answers }), env, "/tests/sql");
-  assert.deepEqual([out.score, out.of, out.passed, [...out.wrong]], [6, 8, true, [6, 7]]);
+  for (const t of Object.values(TESTS)) assert.ok(t.questions.length >= 20, `${t.skill}: a bank of 20+`);
+  assert.equal(shown.questions.length, 8, "eight a round");
+  // signed in: the same eight on every load that day, and they are what gets scored
+  const mineA = await skilltests(as("/tests/sql", "GET"), env, "/tests/sql");
+  const mineB = await skilltests(as("/tests/sql", "GET"), env, "/tests/sql");
+  const ids = mineA.questions.map((q) => q.id).sort((a, b) => a - b);
+  assert.deepEqual(ids, mineB.questions.map((q) => q.id).sort((a, b) => a - b));
+  assert.equal(new Set(ids).size, 8);
+  const { pick } = await import("./src/skilltests.js");
+  assert.notDeepEqual(await pick("u1", "sql", "2026-01-01", 21), await pick("u1", "sql", "2026-01-02", 21), "another day, another set");
+  assert.notDeepEqual(await pick("u1", "sql", "2026-01-01", 21), await pick("u2", "sql", "2026-01-01", 21), "another student, another set");
+  // six right of the eight asked passes (75%); right answers to questions not asked count for nothing
+  const answers = Object.fromEntries(TESTS.sql.questions.map((x, i) => [i, x.a]));
+  ids.slice(6).forEach((i) => { answers[i] = TESTS.sql.questions[i].w[0]; });
+  const out = await skilltests(as("/tests/sql", "POST", { answers, day: mineA.day }), env, "/tests/sql");
+  assert.deepEqual([out.score, out.of, out.passed, [...out.wrong]], [6, 8, true, ids.slice(6)]);
   await assert.rejects(skilltests(as("/tests/sql", "POST", { answers }), env, "/tests/sql"), /wait/, "one attempt a day");
   const mine = await skilltests(as("/tests/mine", "GET"), env, "/tests/mine");
   assert.deepEqual(mine.verified.map((v) => [v.skill, v.score]), [["SQL", 75]]);
   assert.ok(mine.next.sql);
   // five of eight does not pass
-  const low = Object.fromEntries(TESTS.excel.questions.map((x, i) => [i, i < 5 ? x.a : "x"]));
+  const asked = (await skilltests(as("/tests/excel", "GET"), env, "/tests/excel")).questions.map((q) => q.id);
+  const low = Object.fromEntries(asked.map((i, k) => [i, k < 5 ? TESTS.excel.questions[i].a : "x"]));
   assert.equal((await skilltests(as("/tests/excel", "POST", { answers: low }), env, "/tests/excel")).passed, false);
   await assert.rejects(skilltests(new Request("https://w/tests/sql", { method: "POST", body: "{}" }), env, "/tests/sql"), /session/);
 }
