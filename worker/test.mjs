@@ -542,6 +542,7 @@ const postTo = (path, data) => new Request(`https://w${path}`, { method: "POST",
   // and they stay out of the page list and the daily visits
   for (const e of ["quiz-done", "quiz-done", "applied", "drop-tables", ""]) await stats(postTo("/hit", { e }), env, "/hit");
   await stats(postTo("/hit", { p: "ev-applied", v: 1 }), env, "/hit");
+  for (const junk of ["abc", 5, true, null]) assert.deepEqual(await stats(postTo("/hit", junk), env, "/hit"), { ok: true });
   const s = await read(env.ADMIN_TOKEN);
   assert.deepEqual(Object.fromEntries(s.events.map((x) => [x.name, x.n])), { "quiz-done": 2, applied: 1 });
   assert.ok(!s.pages.some((x) => x.page.startsWith("ev-")), JSON.stringify(s.pages));
