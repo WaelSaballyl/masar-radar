@@ -68,13 +68,17 @@
     const r = await Masar.allPages((o) => call(`/support/admin?status=${state}&offset=${o}`), "tickets");
     if (!r.ok) { $("sup-meta").textContent = r.status === 401 ? "اكتب رمز الإدارة فوق أولاً." : "تعذّر التحميل."; return; }
     const waiting = r.data.tickets.filter((t) => t.last_author === "visitor").length;
-    $("sup-meta").textContent = r.data.tickets.length ? `المحادثات: ${r.data.tickets.length}، تنتظر ردّك: ${waiting}` : "لا توجد محادثات هنا.";
+    // an open conversation the visitor left 90 days ago: close it, or it is never deleted (retention deletes closed ones only)
+    const stale = (t) => t.status === "open" && t.last_visitor_at && Date.now() - Date.parse(t.last_visitor_at) > 90 * 86_400_000;
+    const old = r.data.tickets.filter(stale).length;
+    $("sup-meta").textContent = r.data.tickets.length ? `المحادثات: ${r.data.tickets.length}، تنتظر ردّك: ${waiting}${old ? `، منسية: ${old} (أغلقها)` : ""}` : "لا توجد محادثات هنا.";
     $("sup-list").replaceChildren(...r.data.tickets.map((t) => {
       const li = el("li");
       const b = el("button", "ticket-row");
       b.type = "button";
       b.append(el("strong", null, `${t.name}، ${TOPIC[t.topic] || t.topic}`),
-        el("span", t.last_author === "visitor" ? "badge-new" : "muted", t.last_author === "visitor" ? "ينتظر ردّك" : when(t.updated_at)));
+        stale(t) ? el("span", "badge-new", "لا رسائل من الزائر منذ 90 يوماً، أغلقها")
+          : el("span", t.last_author === "visitor" ? "badge-new" : "muted", t.last_author === "visitor" ? "ينتظر ردّك" : when(t.updated_at)));
       b.onclick = () => thread(t.id);
       li.append(b);
       return li;
