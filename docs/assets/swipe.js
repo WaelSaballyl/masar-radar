@@ -22,20 +22,32 @@
 
   // ---------- setup: a profile to tailor from, and consent once ----------
 
-  const ready = () => profile.name && profile.email && (profile.skills || profile.experience || profile.projects);
+  const ready = () => profile.name && (profile.skills || profile.experience || profile.projects);
+  // applying needs a signed-in student: the email the company gets is the account's
+  const who = () => (Masar.account.token ? Masar.account.user : null);
   function setup() {
+    if (!who()) {
+      $("setup").hidden = false;
+      $("setup-need").textContent = "التقديم يحتاج حساباً، حتى نتأكد أن الإيميل الذي يصل للشركات إيميلك أنت. ";
+      const a = el("a", "btn btn-primary btn-small", "سجّل دخولك لتقدّم");
+      a.href = `account.html?as=student&next=${encodeURIComponent("swipe.html")}`;
+      $("setup-need").append(a);
+      $("consent").disabled = $("start").disabled = true;
+      return false;
+    }
     if (!ready()) {
       $("setup").hidden = false;
       $("setup-need").textContent = "";
       const a = el("a", null, "أكمل معلوماتك في صفحة سيرتك");
       a.href = "cv.html";
-      $("setup-need").append(a, " (الاسم والإيميل ومهاراتك أو خبراتك) ثم ارجع هنا.");
+      $("setup-need").append(a, " (الاسم ومهاراتك أو خبراتك) ثم ارجع هنا.");
       $("consent").disabled = $("start").disabled = true;
       return false;
     }
     if (store.get("masar.swipe.consent") === "1") return true;
     $("setup").hidden = false;
-    $("setup-need").textContent = `سنقدّم باسم ${profile.name} وإيميل ${profile.email}.`;
+    $("consent").disabled = $("start").disabled = false;
+    $("setup-need").textContent = `سنقدّم باسم ${profile.name} وإيميل حسابك ${who().email}.`;
     return false;
   }
   $("start").addEventListener("click", () => {
@@ -178,14 +190,15 @@
     $("log").prepend(li);
     return li;
   };
-  const post = async (path, body) => {
-    const r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const post = async (path, body, auth) => {
+    const r = await fetch(API + path, { method: "POST", body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json", ...(auth ? { Authorization: `Bearer ${Masar.account.token}` } : {}) } });
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw Object.assign(new Error(data.error), { code: data.error });
     return data;
   };
   const WHY = { rate: "وصلت للحد المسموح في هذه الساعة، جرّب بعد قليل.", busy: "الخدمة مشغولة، جرّب بعد دقيقة.",
-    applied: "قدّمت عليه من قبل.", closed: "الإعلان أُغلق." };
+    applied: "قدّمت عليه من قبل.", closed: "الإعلان أُغلق.", sign_in: "انتهت جلسة دخولك. سجّل دخولك مرة ثانية." };
 
   let chain = Promise.resolve();
   function send(p, station) {
@@ -207,13 +220,15 @@
           return;
         }
         renderCV($("scratch"), out.cv, profile, lang);
-        const { receipt } = await post("/board/apply", { posting_id: p.id, consent: true, name: profile.name, email: profile.email,
-          phone: profile.phone, link: profile.link, matched: matched.length, required: required.length, paper: toBlocks($("scratch")) });
+        const { receipt } = await post("/board/apply", { posting_id: p.id, consent: true, name: profile.name,
+          phone: profile.phone, link: profile.link, matched: matched.length, required: required.length, paper: toBlocks($("scratch")) }, true);
         MasarCV.keepReceipt(receipt);
         station.className = "station arrived sent";
         log(p, required.length ? `أرسلنا سيرتك. عندك ${matched.length} من ${required.length} مهارات مطلوبة.` : "أرسلنا سيرتك.");
       } catch (e) {
         station.className = `station arrived ${e.code === "applied" ? "sent" : "failed"}`;
+        // the session ended on the server: forget it here, so the next swipe asks to sign in
+        if (e.code === "sign_in") { Masar.account.forget(); store.set("masar.swipe.consent", ""); }
         if (e.code !== "applied") store.set("masar.applied", JSON.stringify(list("masar.applied").filter((x) => x !== p.id)));
         log(p, WHY[e.code] || "تعذّر الإرسال. سيعود الإعلان في المرة القادمة.", e.code !== "applied");
       }
@@ -231,7 +246,7 @@
   const SAVED = "masar.saved";
 
   function applyFrom(p, reel) {
-    if (!DEMO && !(ready() && store.get("masar.swipe.consent") === "1")) {
+    if (!DEMO && !(who() && ready() && store.get("masar.swipe.consent") === "1")) {
       setup();
       $("setup").classList.add("sheet");
       pending = () => applyFrom(p, reel);
