@@ -15,6 +15,7 @@
 // render it with textContent. The employer's email is never in a public reply.
 
 import { employerOf, FREE_MAIL } from "./employer.js";
+import { user } from "./talent.js";
 import { refuse, hex, sha, bearer, same, text, body, offsetOf, page } from "./util.js";
 
 const WORKPLACE = ["onsite", "hybrid", "remote"];
@@ -89,14 +90,24 @@ async function owner(request, env, id) {
   if (!row.manage_hash || !same(await sha(bearer(request)), row.manage_hash)) throw refuse("manage", 401);
 }
 
-// A student applies with the CV the builder made for this posting: contact
-// details they agreed to send, and the paper as blocks (tag, class, text).
-async function apply(input, env) {
-  const a = { posting_id: text(input.posting_id, 12), name: text(input.name, 120), email: text(input.email, 160).toLowerCase(),
+// A signed-in student applies with the CV the builder made for this posting:
+// contact details they agreed to send, and the paper as blocks (tag, class,
+// text). The email is the account's, which its sign-in provider verified, never
+// one typed into the request, so nobody can apply in someone else's name. Any
+// provider that opens a session (sessions table) works here unchanged.
+async function student(request, env) {
+  let uid;
+  try { uid = await user(request, env); } catch { throw refuse("sign_in", 401); }
+  const row = await env.DB.prepare("SELECT email FROM users WHERE id = ?").bind(uid).first();
+  if (!row || !EMAIL.test(row.email || "")) throw refuse("sign_in", 401);
+  return { uid, email: row.email.toLowerCase() };
+}
+
+async function apply(who, input, env) {
+  const a = { posting_id: text(input.posting_id, 12), name: text(input.name, 120), email: who.email,
     phone: text(input.phone, 30), link: text(input.link, 300) };
   if (input.consent !== true) throw bad("consent");
   if (a.name.length < 2) throw bad("name");
-  if (!EMAIL.test(a.email)) throw bad("email");
   const paper = JSON.stringify(input.paper);
   if (!Array.isArray(input.paper) || !input.paper.length || paper.length > 40_000) throw bad("paper");
   const n = (v) => Math.max(0, Math.min(99, Number.parseInt(v, 10) || 0));
@@ -104,19 +115,27 @@ async function apply(input, env) {
   const open = await env.DB.prepare("SELECT 1 FROM postings WHERE id = ? AND status = 'approved' AND expires_at >= ?")
     .bind(a.posting_id, today).first();
   if (!open) throw refuse("closed", 404);
-  // the receipt lets the student follow this application without an account
+  // the receipt lets the student follow this application (my applications)
   const receipt = newToken();
+  const insert = env.DB.prepare(
+    `INSERT INTO applications (id, posting_id, created_at, name, email, phone, link, matched, required, paper, receipt_hash, user_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).bind(newId(), a.posting_id, new Date().toISOString(), a.name, a.email, a.phone, a.link,
+    n(input.matched), n(input.required), paper, await sha(receipt), who.uid);
+  // Sent before sign-in was required, a row under this email proves nothing:
+  // anyone could have typed it. The owner of the email replaces it, and
+  // nothing of the old one (CV, status, receipt) is kept.
+  const old = await env.DB.prepare("SELECT id, user_id FROM applications WHERE posting_id = ? AND (email = ? OR user_id = ?)")
+    .bind(a.posting_id, a.email, who.uid).first();
+  if (old && old.user_id) throw refuse("applied", 409);
   try {
-    await env.DB.prepare(
-      `INSERT INTO applications (id, posting_id, created_at, name, email, phone, link, matched, required, paper, receipt_hash)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).bind(newId(), a.posting_id, new Date().toISOString(), a.name, a.email, a.phone, a.link,
-      n(input.matched), n(input.required), paper, await sha(receipt)).run();
+    if (old) await env.DB.batch([env.DB.prepare("DELETE FROM applications WHERE id = ? AND user_id IS NULL").bind(old.id), insert]);
+    else await insert.run();
   } catch (e) {
     if (/UNIQUE/i.test(String(e.message))) throw refuse("applied", 409);
     throw e;
   }
-  return { ok: true, receipt };
+  return { ok: true, receipt, email: a.email, replaced: !!old };
 }
 
 // The student's applications, by the receipts this browser kept. What the
@@ -246,7 +265,7 @@ export async function board(request, env, path) {
     if (!company) throw refuse("company_account", 401);
     return submit(await body(request, BODY), env, company);
   }
-  if (path === "/board/apply" && request.method === "POST") return apply(await body(request, BODY), env);
+  if (path === "/board/apply" && request.method === "POST") return apply(await student(request, env), await body(request, BODY), env);
   if (path === "/board/mine" && request.method === "POST") return mine(await body(request, BODY), env);
   if (path === "/board/nudge" && request.method === "POST") return nudge(await body(request, BODY), env);
   if (path === "/board/boost" && request.method === "POST") return boost(await body(request, BODY), env);
