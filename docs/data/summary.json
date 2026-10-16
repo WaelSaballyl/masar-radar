@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-10-14T08:50:26+00:00",
- "active_postings": 608,
- "total_postings": 2884,
- "companies": 69,
+ "updated_at": "2026-10-16T08:18:34+00:00",
+ "active_postings": 580,
+ "total_postings": 3093,
+ "companies": 60,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,8 +10,8 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 92,
- "gulf_postings": 83,
+ "entry_postings": 79,
+ "gulf_postings": 71,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
@@ -19,39 +19,39 @@
   "postings": 13,
   "stops": [
    {
+    "name": "SQL",
+    "postings": 8,
+    "share": 0.615
+   },
+   {
+    "name": "Python",
+    "postings": 7,
+    "share": 0.538
+   },
+   {
     "name": "Excel",
     "postings": 6,
     "share": 0.462
    },
    {
-    "name": "SQL",
-    "postings": 6,
-    "share": 0.462
-   },
-   {
-    "name": "Python",
-    "postings": 5,
-    "share": 0.385
-   },
-   {
-    "name": "Data Modeling",
-    "postings": 2,
-    "share": 0.154
-   },
-   {
-    "name": "Power BI",
-    "postings": 2,
-    "share": 0.154
-   },
-   {
     "name": "CI/CD",
-    "postings": 1,
-    "share": 0.077
+    "postings": 2,
+    "share": 0.154
    },
    {
     "name": "Data Governance",
-    "postings": 1,
-    "share": 0.077
+    "postings": 2,
+    "share": 0.154
+   },
+   {
+    "name": "Docker",
+    "postings": 2,
+    "share": 0.154
+   },
+   {
+    "name": "Machine Learning",
+    "postings": 2,
+    "share": 0.154
    }
   ]
  },
@@ -61,306 +61,306 @@
    "postings": 13,
    "stops": [
     {
+     "name": "SQL",
+     "postings": 8,
+     "share": 0.615
+    },
+    {
+     "name": "Python",
+     "postings": 7,
+     "share": 0.538
+    },
+    {
      "name": "Excel",
      "postings": 6,
      "share": 0.462
     },
     {
-     "name": "SQL",
-     "postings": 6,
-     "share": 0.462
-    },
-    {
-     "name": "Python",
-     "postings": 5,
-     "share": 0.385
-    },
-    {
-     "name": "Data Modeling",
-     "postings": 2,
-     "share": 0.154
-    },
-    {
-     "name": "Power BI",
-     "postings": 2,
-     "share": 0.154
-    },
-    {
      "name": "CI/CD",
-     "postings": 1,
-     "share": 0.077
+     "postings": 2,
+     "share": 0.154
     },
     {
      "name": "Data Governance",
-     "postings": 1,
-     "share": 0.077
+     "postings": 2,
+     "share": 0.154
+    },
+    {
+     "name": "Docker",
+     "postings": 2,
+     "share": 0.154
+    },
+    {
+     "name": "Machine Learning",
+     "postings": 2,
+     "share": 0.154
     }
    ]
   },
   "tech": {
    "basis": "entry",
-   "postings": 28,
+   "postings": 26,
    "stops": [
     {
      "name": "Testing/QA",
-     "postings": 12,
-     "share": 0.429
-    },
-    {
-     "name": "Python",
-     "postings": 5,
-     "share": 0.179
+     "postings": 10,
+     "share": 0.385
     },
     {
      "name": "SQL",
+     "postings": 6,
+     "share": 0.231
+    },
+    {
+     "name": "Java",
      "postings": 5,
-     "share": 0.179
-    },
-    {
-     "name": "REST API",
-     "postings": 4,
-     "share": 0.143
-    },
-    {
-     "name": "Data Modeling",
-     "postings": 3,
-     "share": 0.107
-    },
-    {
-     "name": "PostgreSQL",
-     "postings": 3,
-     "share": 0.107
+     "share": 0.192
     },
     {
      "name": "React",
+     "postings": 5,
+     "share": 0.192
+    },
+    {
+     "name": "Python",
+     "postings": 4,
+     "share": 0.154
+    },
+    {
+     "name": "Git",
      "postings": 3,
-     "share": 0.107
+     "share": 0.115
+    },
+    {
+     "name": "Go",
+     "postings": 3,
+     "share": 0.115
     }
    ]
   },
   "finance": {
    "basis": "entry",
-   "postings": 17,
+   "postings": 10,
    "stops": [
     {
      "name": "Excel",
-     "postings": 14,
-     "share": 0.824
+     "postings": 7,
+     "share": 0.7
     },
     {
      "name": "Accounts Payable/Receivable",
-     "postings": 7,
-     "share": 0.412
-    },
-    {
-     "name": "Reconciliation",
-     "postings": 7,
-     "share": 0.412
-    },
-    {
-     "name": "Financial Reporting",
-     "postings": 5,
-     "share": 0.294
-    },
-    {
-     "name": "Audit",
      "postings": 3,
-     "share": 0.176
+     "share": 0.3
     },
     {
      "name": "Financial Modeling",
      "postings": 3,
-     "share": 0.176
+     "share": 0.3
     },
     {
-     "name": "Tax/VAT/Zakat",
+     "name": "Financial Reporting",
      "postings": 2,
-     "share": 0.118
+     "share": 0.2
+    },
+    {
+     "name": "Reconciliation",
+     "postings": 2,
+     "share": 0.2
+    },
+    {
+     "name": "Accounts Payable/Reconciliation",
+     "postings": 1,
+     "share": 0.1
+    },
+    {
+     "name": "Payroll",
+     "postings": 1,
+     "share": 0.1
     }
    ]
   },
   "engineering": {
-   "basis": "entry",
-   "postings": 10,
+   "basis": "all",
+   "postings": 33,
    "stops": [
     {
      "name": "AutoCAD",
-     "postings": 2,
-     "share": 0.2
-    },
-    {
-     "name": "Python",
-     "postings": 2,
-     "share": 0.2
+     "postings": 6,
+     "share": 0.182
     },
     {
      "name": "Testing/QA",
+     "postings": 5,
+     "share": 0.152
+    },
+    {
+     "name": "CI/CD",
+     "postings": 3,
+     "share": 0.091
+    },
+    {
+     "name": "HSE",
+     "postings": 3,
+     "share": 0.091
+    },
+    {
+     "name": "Python",
+     "postings": 3,
+     "share": 0.091
+    },
+    {
+     "name": "Primavera/MS Project",
      "postings": 2,
-     "share": 0.2
+     "share": 0.061
     },
     {
-     "name": "C",
+     "name": "ASPEN HYSYS",
      "postings": 1,
-     "share": 0.1
-    },
-    {
-     "name": "C++",
-     "postings": 1,
-     "share": 0.1
-    },
-    {
-     "name": "English",
-     "postings": 1,
-     "share": 0.1
-    },
-    {
-     "name": "Java",
-     "postings": 1,
-     "share": 0.1
+     "share": 0.03
     }
    ]
   },
   "marketing": {
    "basis": "entry",
-   "postings": 14,
+   "postings": 12,
    "stops": [
     {
-     "name": "Social Media",
-     "postings": 9,
-     "share": 0.643
+     "name": "Content Writing",
+     "postings": 8,
+     "share": 0.667
     },
     {
-     "name": "Content Writing",
+     "name": "Social Media",
      "postings": 7,
-     "share": 0.5
+     "share": 0.583
     },
     {
      "name": "Market Research",
-     "postings": 5,
-     "share": 0.357
+     "postings": 4,
+     "share": 0.333
     },
     {
-     "name": "Email Marketing",
+     "name": "Budgeting",
      "postings": 2,
-     "share": 0.143
-    },
-    {
-     "name": "Excel",
-     "postings": 2,
-     "share": 0.143
-    },
-    {
-     "name": "Google Analytics",
-     "postings": 2,
-     "share": 0.143
+     "share": 0.167
     },
     {
      "name": "SEO/SEM",
      "postings": 2,
-     "share": 0.143
+     "share": 0.167
+    },
+    {
+     "name": "A/B Testing",
+     "postings": 1,
+     "share": 0.083
+    },
+    {
+     "name": "Email Marketing",
+     "postings": 1,
+     "share": 0.083
     }
    ]
   },
   "hr": {
    "basis": "entry",
-   "postings": 10,
+   "postings": 11,
    "stops": [
     {
      "name": "Recruitment",
-     "postings": 5,
-     "share": 0.5
+     "postings": 6,
+     "share": 0.545
     },
     {
      "name": "Onboarding",
-     "postings": 3,
-     "share": 0.3
+     "postings": 2,
+     "share": 0.182
     },
     {
-     "name": "Audit",
+     "name": "Saudi Labor Law",
      "postings": 2,
-     "share": 0.2
-    },
-    {
-     "name": "HRIS",
-     "postings": 2,
-     "share": 0.2
-    },
-    {
-     "name": "Payroll",
-     "postings": 2,
-     "share": 0.2
+     "share": 0.182
     },
     {
      "name": "Ashby",
      "postings": 1,
-     "share": 0.1
+     "share": 0.091
     },
     {
-     "name": "Budgeting",
+     "name": "Data Governance",
      "postings": 1,
-     "share": 0.1
+     "share": 0.091
+    },
+    {
+     "name": "HRIS",
+     "postings": 1,
+     "share": 0.091
+    },
+    {
+     "name": "LinkedIn Recruiter",
+     "postings": 1,
+     "share": 0.091
     }
    ]
   }
  },
  "fields": {
-  "data": 111,
-  "tech": 279,
-  "finance": 88,
-  "engineering": 38,
-  "marketing": 61,
-  "hr": 31
+  "data": 112,
+  "tech": 268,
+  "finance": 74,
+  "engineering": 33,
+  "marketing": 68,
+  "hr": 25
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 127,
-   "share": 0.209
+   "postings": 110,
+   "share": 0.19
   },
   {
    "name": "SQL",
-   "postings": 94,
-   "share": 0.155
+   "postings": 89,
+   "share": 0.153
   },
   {
    "name": "Testing/QA",
-   "postings": 86,
-   "share": 0.141
-  },
-  {
-   "name": "Excel",
    "postings": 68,
-   "share": 0.112
-  },
-  {
-   "name": "AWS",
-   "postings": 67,
-   "share": 0.11
+   "share": 0.117
   },
   {
    "name": "CI/CD",
    "postings": 64,
-   "share": 0.105
+   "share": 0.11
   },
   {
-   "name": "GenAI/LLM",
-   "postings": 56,
-   "share": 0.092
+   "name": "Excel",
+   "postings": 64,
+   "share": 0.11
   },
   {
-   "name": "REST API",
-   "postings": 54,
-   "share": 0.089
+   "name": "AWS",
+   "postings": 62,
+   "share": 0.107
   },
   {
    "name": "Kubernetes",
-   "postings": 50,
-   "share": 0.082
+   "postings": 57,
+   "share": 0.098
   },
   {
-   "name": "Data Modeling",
-   "postings": 45,
-   "share": 0.074
+   "name": "REST API",
+   "postings": 52,
+   "share": 0.09
+  },
+  {
+   "name": "TypeScript",
+   "postings": 47,
+   "share": 0.081
+  },
+  {
+   "name": "GenAI/LLM",
+   "postings": 46,
+   "share": 0.079
   }
  ],
  "entry_jobs": [
@@ -381,19 +381,19 @@
    "posted_at": ""
   },
   {
-   "title": "Sales & Marketing Specialist",
-   "company": "Kanz",
-   "location": "الرياض, SA",
-   "url": "https://sa.linkedin.com/jobs/view/sales-marketing-specialist-at-kanz-4409129199",
+   "title": "Tamheer Trainee - Data Analyst (IT)",
+   "company": "H. M. Al Rugaib & Sons Trading Co",
+   "location": "الخبر, SA",
+   "url": "https://sa.jooble.org/jdp/-4015047298064646524",
    "level": "Junior",
    "posted_at": ""
   },
   {
-   "title": "Marketing specialist (Hybrid Team – Dammam)",
-   "company": "Jobs for Humanity",
-   "location": "الدمام, SA",
-   "url": "https://www.bayt.com/ar/saudi-arabia/jobs/marketing-specialist-hybrid-team-dammam-74972598/",
-   "level": "Junior",
+   "title": "Tamheer Opportunity – Marketing Specialist",
+   "company": "Abdullah Hashim Co. Ltd",
+   "location": "",
+   "url": "https://sa.linkedin.com/jobs/view/tamheer-opportunity-%E2%80%93-marketing-specialist-at-abdullah-hashim-co-ltd-4472312343",
+   "level": "Intern",
    "posted_at": ""
   },
   {
@@ -429,26 +429,18 @@
    "posted_at": ""
   },
   {
-   "title": "Junior Accountant (Saudis Only)",
-   "company": "Takara Hospitality Group (THG)",
-   "location": "الخبر, SA",
-   "url": "https://www.opus.sa/en/job/junior-accountant-saudis-only-takara-hospitality-group-thg-fd978dec",
-   "level": "Junior",
-   "posted_at": ""
-  },
-  {
-   "title": "Junior Accountant",
-   "company": "CoreTension Contracting Co.",
+   "title": "Human Resources Intern",
+   "company": "Panda Retail Company – Savola Group",
    "location": "",
-   "url": "https://sa.linkedin.com/jobs/view/junior-accountant-at-coretension-contracting-co-4475627275",
-   "level": "Junior",
+   "url": "https://sa.linkedin.com/jobs/view/human-resources-intern-at-panda-retail-company-%E2%80%93-savola-group-4475692845",
+   "level": "Intern",
    "posted_at": ""
   },
   {
-   "title": "Global Markets PM & Sales Analytics Intern (Summer 2027)",
-   "company": "Mastercard",
-   "location": "الرياض, SA",
-   "url": "https://www.jobleads.com/sa/job/global-markets-pm-sales-analytics-intern-summer-2027--riyadh-region--ed1d531614391aed334cdbfa5a5229e8f",
+   "title": "HR Intern: Launch Your Career in People Ops (Jeddah)",
+   "company": "scj",
+   "location": "",
+   "url": "https://www.jobleads.com/sa/job/hr-intern-launch-your-career-in-people-ops-jeddah--saudi-arabia--e0c450956f24257090d07e2e36047b284",
    "level": "Intern",
    "posted_at": ""
   },
@@ -459,48 +451,56 @@
    "url": "https://www.bayt.com/ar/saudi-arabia/jobs/field-engineer-nextgen-graduate-program-saudi-arabia-75312845/",
    "level": "Junior",
    "posted_at": ""
+  },
+  {
+   "title": "Customer Relations Data Analyst (Tamheer)",
+   "company": "Nera",
+   "location": "الرياض, SA",
+   "url": "https://sa.linkedin.com/jobs/view/customer-relations-data-analyst-tamheer-at-%D9%86%D9%8A%D8%B1%D8%A7-nera-4477980122",
+   "level": "Intern",
+   "posted_at": ""
   }
  ],
  "company_names": [
-  "Khalejy",
-  "Imploy",
   "BEC Arabia",
-  "Lever, Inc.",
-  "Jobs for Humanity",
-  "Smart Technology Solutions",
-  "Azure",
-  "حلولك الرقمية",
+  "Eram Talent",
   "Uasmart",
-  "hcmportal",
-  "Raytheon",
-  "Takara Hospitality Group (THG)",
-  "Fortinet, Inc",
-  "Kanz",
-  "BAE Systems",
-  "Work corp",
-  "Holoolk@2030",
+  "GLOMACS Training & Consultancy",
+  "Imploy",
+  "Confidential",
+  "Panda Retail Company – Savola Group",
+  "حلولك الرقمية",
+  "Azure",
+  "تريدكس",
+  "زد",
+  "Jefferies",
+  "The PAC Group",
+  "شركة الزاد الطازج",
+  "Client of Next Ventures Limited",
+  "Alboom marine Saudi Arabia البوم مارين السعودية",
+  "Secure Tech",
+  "Nofoth Company",
+  "APTWatch",
+  "Nera",
+  "700apps",
+  "Esnad Contracting",
+  "Client of Pulse Media NL",
+  "وذرفورد",
+  "Jnta",
+  "T&S",
+  "i3PL AL-ARABIA LLC",
+  "Parsons Corporation",
+  "Rawaj - Human Capital Management",
   "AMALDESIGN",
-  "Mastercard",
-  "Client of imploy",
-  "PPOAR",
-  "Peroptyx",
-  "Confidential Careers",
-  "daa International",
-  "Qiddiya Investment Company",
-  "Saudi Aramco",
-  "KBR",
-  "BlackRock",
-  "CoreTension Contracting Co.",
-  "عيادات كوزمودنت الاستشارية",
-  "Bechtel Corporation",
-  "شركة قمة الابداع",
-  "Mozn",
-  "ARK Projects",
-  "MADKOUR",
-  "Supreme Sara industrial Services",
-  "Savills Middle East",
-  "حلول",
   "Arabian Private Holdings",
-  "زد"
+  "SSC Egypt",
+  "Abdullah Hashim Co. Ltd",
+  "Jobs for Humanity",
+  "KPMG Professional Services",
+  "Airbus S.A.S",
+  "مجموعة ريف",
+  "Khalejy",
+  "ALPHA PLUS",
+  "Smart Technology Solutions"
  ]
 }
