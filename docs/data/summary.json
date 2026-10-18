@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-10-17T07:54:31+00:00",
- "active_postings": 735,
- "total_postings": 3234,
- "companies": 72,
+ "updated_at": "2026-10-18T08:09:07+00:00",
+ "active_postings": 703,
+ "total_postings": 3391,
+ "companies": 68,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,357 +10,357 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 98,
- "gulf_postings": 87,
+ "entry_postings": 76,
+ "gulf_postings": 82,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 18,
+  "postings": 14,
   "stops": [
    {
+    "name": "Excel",
+    "postings": 7,
+    "share": 0.5
+   },
+   {
     "name": "SQL",
-    "postings": 11,
-    "share": 0.611
+    "postings": 7,
+    "share": 0.5
    },
    {
     "name": "Python",
-    "postings": 10,
-    "share": 0.556
-   },
-   {
-    "name": "Excel",
-    "postings": 8,
-    "share": 0.444
+    "postings": 5,
+    "share": 0.357
    },
    {
     "name": "Machine Learning",
-    "postings": 5,
-    "share": 0.278
+    "postings": 4,
+    "share": 0.286
    },
    {
-    "name": "NumPy",
+    "name": "Statistics",
     "postings": 3,
-    "share": 0.167
+    "share": 0.214
    },
    {
-    "name": "Pandas",
-    "postings": 3,
-    "share": 0.167
+    "name": "Data Governance",
+    "postings": 2,
+    "share": 0.143
    },
    {
-    "name": "Scikit-learn",
-    "postings": 3,
-    "share": 0.167
+    "name": "Google Sheets",
+    "postings": 2,
+    "share": 0.143
    }
   ]
  },
  "routes": {
   "data": {
    "basis": "entry",
-   "postings": 18,
+   "postings": 14,
    "stops": [
     {
+     "name": "Excel",
+     "postings": 7,
+     "share": 0.5
+    },
+    {
      "name": "SQL",
-     "postings": 11,
-     "share": 0.611
+     "postings": 7,
+     "share": 0.5
     },
     {
      "name": "Python",
-     "postings": 10,
-     "share": 0.556
-    },
-    {
-     "name": "Excel",
-     "postings": 8,
-     "share": 0.444
+     "postings": 5,
+     "share": 0.357
     },
     {
      "name": "Machine Learning",
-     "postings": 5,
-     "share": 0.278
+     "postings": 4,
+     "share": 0.286
     },
     {
-     "name": "NumPy",
+     "name": "Statistics",
      "postings": 3,
-     "share": 0.167
+     "share": 0.214
     },
     {
-     "name": "Pandas",
-     "postings": 3,
-     "share": 0.167
+     "name": "Data Governance",
+     "postings": 2,
+     "share": 0.143
     },
     {
-     "name": "Scikit-learn",
-     "postings": 3,
-     "share": 0.167
+     "name": "Google Sheets",
+     "postings": 2,
+     "share": 0.143
     }
    ]
   },
   "tech": {
    "basis": "entry",
-   "postings": 29,
+   "postings": 18,
    "stops": [
-    {
-     "name": "Testing/QA",
-     "postings": 10,
-     "share": 0.345
-    },
-    {
-     "name": "SQL",
-     "postings": 6,
-     "share": 0.207
-    },
     {
      "name": "Java",
      "postings": 5,
-     "share": 0.172
+     "share": 0.278
     },
     {
      "name": "Python",
-     "postings": 5,
-     "share": 0.172
+     "postings": 4,
+     "share": 0.222
     },
     {
-     "name": "React",
-     "postings": 5,
-     "share": 0.172
+     "name": "Testing/QA",
+     "postings": 4,
+     "share": 0.222
     },
     {
      "name": "Git",
-     "postings": 4,
-     "share": 0.138
+     "postings": 3,
+     "share": 0.167
     },
     {
      "name": "Go",
      "postings": 3,
-     "share": 0.103
+     "share": 0.167
+    },
+    {
+     "name": "JavaScript",
+     "postings": 3,
+     "share": 0.167
+    },
+    {
+     "name": "React",
+     "postings": 3,
+     "share": 0.167
     }
    ]
   },
   "finance": {
    "basis": "entry",
-   "postings": 14,
+   "postings": 16,
    "stops": [
     {
      "name": "Excel",
-     "postings": 9,
-     "share": 0.643
+     "postings": 10,
+     "share": 0.625
+    },
+    {
+     "name": "Financial Reporting",
+     "postings": 7,
+     "share": 0.438
     },
     {
      "name": "Accounts Payable/Receivable",
-     "postings": 6,
-     "share": 0.429
-    },
-    {
-     "name": "Reconciliation",
      "postings": 5,
-     "share": 0.357
+     "share": 0.312
     },
     {
      "name": "Financial Modeling",
      "postings": 4,
-     "share": 0.286
+     "share": 0.25
     },
     {
-     "name": "Financial Reporting",
+     "name": "Reconciliation",
      "postings": 4,
-     "share": 0.286
+     "share": 0.25
     },
     {
      "name": "Accounts Payable/Reconciliation",
      "postings": 1,
-     "share": 0.071
+     "share": 0.062
     },
     {
      "name": "Budgeting",
      "postings": 1,
-     "share": 0.071
+     "share": 0.062
     }
    ]
   },
   "engineering": {
    "basis": "all",
-   "postings": 40,
+   "postings": 27,
    "stops": [
     {
-     "name": "AutoCAD",
-     "postings": 6,
-     "share": 0.15
-    },
-    {
      "name": "Testing/QA",
-     "postings": 6,
-     "share": 0.15
+     "postings": 5,
+     "share": 0.185
     },
     {
-     "name": "CI/CD",
+     "name": "AutoCAD",
      "postings": 3,
-     "share": 0.075
+     "share": 0.111
     },
     {
      "name": "FTA",
      "postings": 3,
-     "share": 0.075
+     "share": 0.111
     },
     {
      "name": "HARA",
      "postings": 3,
-     "share": 0.075
+     "share": 0.111
     },
     {
      "name": "HAZOP",
      "postings": 3,
-     "share": 0.075
+     "share": 0.111
     },
     {
-     "name": "HSE",
-     "postings": 3,
-     "share": 0.075
+     "name": "FMEA",
+     "postings": 2,
+     "share": 0.074
+    },
+    {
+     "name": "Functional Safety",
+     "postings": 2,
+     "share": 0.074
     }
    ]
   },
   "marketing": {
    "basis": "entry",
-   "postings": 16,
+   "postings": 14,
    "stops": [
     {
      "name": "Content Writing",
      "postings": 8,
-     "share": 0.5
+     "share": 0.571
     },
     {
      "name": "Social Media",
-     "postings": 8,
+     "postings": 7,
      "share": 0.5
     },
     {
      "name": "Market Research",
-     "postings": 5,
-     "share": 0.312
+     "postings": 4,
+     "share": 0.286
     },
     {
      "name": "Budgeting",
      "postings": 2,
-     "share": 0.125
+     "share": 0.143
     },
     {
      "name": "Email Marketing",
      "postings": 2,
-     "share": 0.125
+     "share": 0.143
     },
     {
      "name": "Excel",
      "postings": 2,
-     "share": 0.125
+     "share": 0.143
     },
     {
-     "name": "Google Analytics",
-     "postings": 2,
-     "share": 0.125
+     "name": "Financial Reporting",
+     "postings": 1,
+     "share": 0.071
     }
    ]
   },
   "hr": {
    "basis": "entry",
-   "postings": 14,
+   "postings": 13,
    "stops": [
     {
      "name": "Recruitment",
      "postings": 9,
-     "share": 0.643
+     "share": 0.692
     },
     {
      "name": "Onboarding",
-     "postings": 2,
-     "share": 0.143
+     "postings": 4,
+     "share": 0.308
     },
     {
      "name": "Saudi Labor Law",
      "postings": 2,
-     "share": 0.143
+     "share": 0.154
     },
     {
      "name": "Ashby",
      "postings": 1,
-     "share": 0.071
+     "share": 0.077
     },
     {
      "name": "Data Governance",
      "postings": 1,
-     "share": 0.071
+     "share": 0.077
     },
     {
      "name": "Excel",
      "postings": 1,
-     "share": 0.071
+     "share": 0.077
     },
     {
      "name": "HRIS",
      "postings": 1,
-     "share": 0.071
+     "share": 0.077
     }
    ]
   }
  },
  "fields": {
-  "data": 139,
-  "tech": 335,
-  "finance": 96,
-  "engineering": 40,
-  "marketing": 89,
-  "hr": 36
+  "data": 127,
+  "tech": 330,
+  "finance": 87,
+  "engineering": 27,
+  "marketing": 90,
+  "hr": 42
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 143,
-   "share": 0.195
-  },
-  {
-   "name": "SQL",
-   "postings": 109,
-   "share": 0.148
+   "postings": 134,
+   "share": 0.191
   },
   {
    "name": "Testing/QA",
-   "postings": 98,
-   "share": 0.133
+   "postings": 91,
+   "share": 0.129
   },
   {
-   "name": "CI/CD",
-   "postings": 79,
-   "share": 0.107
-  },
-  {
-   "name": "Excel",
-   "postings": 79,
-   "share": 0.107
+   "name": "SQL",
+   "postings": 88,
+   "share": 0.125
   },
   {
    "name": "GenAI/LLM",
-   "postings": 73,
-   "share": 0.099
+   "postings": 80,
+   "share": 0.114
+  },
+  {
+   "name": "CI/CD",
+   "postings": 77,
+   "share": 0.11
   },
   {
    "name": "AWS",
-   "postings": 69,
-   "share": 0.094
+   "postings": 71,
+   "share": 0.101
   },
   {
    "name": "REST API",
-   "postings": 69,
+   "postings": 71,
+   "share": 0.101
+  },
+  {
+   "name": "Excel",
+   "postings": 66,
    "share": 0.094
   },
   {
    "name": "Kubernetes",
-   "postings": 63,
-   "share": 0.086
+   "postings": 64,
+   "share": 0.091
   },
   {
    "name": "TypeScript",
-   "postings": 56,
-   "share": 0.076
+   "postings": 58,
+   "share": 0.083
   }
  ],
  "entry_jobs": [
@@ -371,14 +371,6 @@
    "url": "https://remoteOK.com/remote-jobs/remote-data-analyst-assistant-arabian-private-holdings-1136217",
    "level": "Junior",
    "posted_at": "2026-08-04"
-  },
-  {
-   "title": "VAT Accountant",
-   "company": "Confidential",
-   "location": "الرياض, SA",
-   "url": "https://sa.linkedin.com/jobs/view/vat-accountant-at-confidential-4476093910",
-   "level": "Junior",
-   "posted_at": ""
   },
   {
    "title": "Tamheer Trainee - Data Analyst (IT)",
@@ -397,10 +389,26 @@
    "posted_at": ""
   },
   {
+   "title": "Saudi Accountants",
+   "company": "Confidential",
+   "location": "",
+   "url": "https://www.bayt.com/en/saudi-arabia/jobs/%D9%85%D8%AD%D8%A7%D8%B3%D8%A8%D9%8A%D9%86-%D8%B3%D8%B9%D9%88%D8%AF%D9%8A%D9%8A%D9%86-5495948/",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
    "title": "Marketing specialist (Hybrid Team – Dammam)",
    "company": "Jobs for Humanity",
    "location": "الدمام, SA",
    "url": "https://www.bayt.com/ar/saudi-arabia/jobs/marketing-specialist-hybrid-team-dammam-74972598/",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
+   "title": "Marketing Specialist – Fresh Graduate (Jeddah): Campaigns & Growth",
+   "company": "Abdullah Hashim Co. Ltd",
+   "location": "جدة, SA",
+   "url": "https://www.jobleads.com/sa/job/marketing-specialist-fresh-graduate-jeddah-campaigns-growth--jeddah--ed49ce2a333eb0a772c9003d8bcfe8cf5",
    "level": "Junior",
    "posted_at": ""
   },
@@ -429,14 +437,6 @@
    "posted_at": ""
   },
   {
-   "title": "Junior Front-End Developer",
-   "company": "Client of Pulse Media NL",
-   "location": "الرياض, SA",
-   "url": "https://www.naukrigulf.com/junior-front-end-developer-jobs-in-riyadh-saudi-arabia-in-client-of-pulse-media-nl-0-to-5-years-n-cd-50000647-jid-091026501535",
-   "level": "Junior",
-   "posted_at": ""
-  },
-  {
    "title": "Human Resources Intern",
    "company": "Panda Retail Company – Savola Group",
    "location": "",
@@ -453,54 +453,54 @@
    "posted_at": ""
   },
   {
-   "title": "Field Engineer - NextGen Graduate Program Saudi Arabia",
-   "company": "وذرفورد",
-   "location": "الدمام, SA",
-   "url": "https://www.bayt.com/ar/saudi-arabia/jobs/field-engineer-nextgen-graduate-program-saudi-arabia-75312845/",
-   "level": "Junior",
+   "title": "Customer Relations Data Analyst (Tamheer)",
+   "company": "Nera",
+   "location": "الرياض, SA",
+   "url": "https://sa.linkedin.com/jobs/view/customer-relations-data-analyst-tamheer-at-%D9%86%D9%8A%D8%B1%D8%A7-nera-4477980122",
+   "level": "Intern",
    "posted_at": ""
   }
  ],
  "company_names": [
   "BEC Arabia",
-  "Imploy",
   "Eram Talent",
-  "Uasmart",
-  "GLOMACS Training & Consultancy",
-  "Confidential",
+  "Imploy",
   "Panda Retail Company – Savola Group",
+  "Abdullah Hashim Co. Ltd",
   "Jobs for Humanity",
   "حلولك الرقمية",
-  "زد",
-  "The PAC Group",
-  "شركة الزاد الطازج",
-  "Client of Next Ventures Limited",
-  "Alboom marine Saudi Arabia البوم مارين السعودية",
-  "Secure Tech",
-  "Nofoth Company",
-  "APTWatch",
-  "700apps",
-  "Esnad Contracting",
-  "Client of Pulse Media NL",
-  "وذرفورد",
-  "Jnta",
-  "T&S",
-  "i3PL AL-ARABIA LLC",
+  "Parsons Corporation",
+  "Confidential",
   "Arabian Private Holdings",
   "SSC Egypt",
-  "Abdullah Hashim Co. Ltd",
   "Mozn",
   "Future Look ITC",
   "QuantumBlack, AI by McKinsey",
   "ATAD Experience",
   "AMPO Arabia",
-  "KPMG Professional Services",
   "Lean Technologies, Ltd.",
   "Indra Group",
   "مجموعة ريف",
   "Khalejy",
   "ALPHA PLUS",
   "HAYS",
-  "Tawzef for Recruitment"
+  "Tawzef for Recruitment",
+  "Smart Technology Solutions",
+  "CoreSelect Talent",
+  "Contractor company",
+  "Naseej",
+  "ABYAT",
+  "تريدكس",
+  "فرع مجموعة الصين لبناء السكك الحديدية شركة البناء البسيط المركزية المحدودة لي",
+  "Jefferies",
+  "Total Safety EMEA",
+  "H. M. Al Rugaib & Sons Trading Co",
+  "GLOMACS Training & Consultancy",
+  "Influence Branding & Digital",
+  "scj",
+  "Fluor",
+  "Jobgether",
+  "Accor CN/ZH",
+  "ArcelorMittal Tubular Products Al-Jubail"
  ]
 }
