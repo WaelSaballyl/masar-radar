@@ -1,8 +1,8 @@
 {
- "updated_at": "2026-10-31T09:47:24+00:00",
- "active_postings": 715,
- "total_postings": 4705,
- "companies": 75,
+ "updated_at": "2026-11-02T11:24:18+00:00",
+ "active_postings": 675,
+ "total_postings": 4911,
+ "companies": 66,
  "sources": [
   "arbeitnow",
   "jobicy",
@@ -10,353 +10,360 @@
   "remoteok",
   "remotive"
  ],
- "entry_postings": 68,
- "gulf_postings": 82,
+ "entry_postings": 61,
+ "gulf_postings": 72,
  "jobs_basis": "gulf",
  "companies_basis": "gulf",
  "route": {
   "basis": "entry",
-  "postings": 11,
+  "postings": 12,
   "stops": [
    {
     "name": "Python",
-    "postings": 7,
-    "share": 0.636
+    "postings": 6,
+    "share": 0.5
    },
    {
-    "name": "A/B Testing",
+    "name": "Statistics",
     "postings": 4,
-    "share": 0.364
+    "share": 0.333
    },
    {
-    "name": "SQL",
-    "postings": 4,
-    "share": 0.364
+    "name": "Data Modeling",
+    "postings": 3,
+    "share": 0.25
+   },
+   {
+    "name": "Excel",
+    "postings": 3,
+    "share": 0.25
    },
    {
     "name": "Machine Learning",
     "postings": 3,
-    "share": 0.273
+    "share": 0.25
    },
    {
-    "name": "Statistics",
+    "name": "Power BI",
     "postings": 3,
-    "share": 0.273
+    "share": 0.25
    },
    {
-    "name": "Data Modeling",
-    "postings": 2,
-    "share": 0.182
-   },
-   {
-    "name": "Excel",
-    "postings": 2,
-    "share": 0.182
+    "name": "SQL",
+    "postings": 3,
+    "share": 0.25
    }
   ]
  },
  "routes": {
   "data": {
    "basis": "entry",
-   "postings": 11,
+   "postings": 12,
    "stops": [
     {
      "name": "Python",
-     "postings": 7,
-     "share": 0.636
+     "postings": 6,
+     "share": 0.5
     },
     {
-     "name": "A/B Testing",
+     "name": "Statistics",
      "postings": 4,
-     "share": 0.364
+     "share": 0.333
     },
     {
-     "name": "SQL",
-     "postings": 4,
-     "share": 0.364
+     "name": "Data Modeling",
+     "postings": 3,
+     "share": 0.25
+    },
+    {
+     "name": "Excel",
+     "postings": 3,
+     "share": 0.25
     },
     {
      "name": "Machine Learning",
      "postings": 3,
-     "share": 0.273
+     "share": 0.25
     },
     {
-     "name": "Statistics",
+     "name": "Power BI",
      "postings": 3,
-     "share": 0.273
+     "share": 0.25
     },
     {
-     "name": "Data Modeling",
-     "postings": 2,
-     "share": 0.182
-    },
-    {
-     "name": "Excel",
-     "postings": 2,
-     "share": 0.182
+     "name": "SQL",
+     "postings": 3,
+     "share": 0.25
     }
    ]
   },
   "tech": {
    "basis": "entry",
-   "postings": 16,
+   "postings": 15,
    "stops": [
     {
      "name": "REST API",
-     "postings": 6,
-     "share": 0.375
+     "postings": 5,
+     "share": 0.333
     },
     {
-     "name": "React",
-     "postings": 4,
-     "share": 0.25
+     "name": "HTML/CSS",
+     "postings": 3,
+     "share": 0.2
+    },
+    {
+     "name": "JavaScript",
+     "postings": 3,
+     "share": 0.2
     },
     {
      "name": "Testing/QA",
-     "postings": 4,
-     "share": 0.25
+     "postings": 3,
+     "share": 0.2
     },
     {
-     "name": "Angular",
+     "name": "TypeScript",
      "postings": 3,
-     "share": 0.188
+     "share": 0.2
+    },
+    {
+     "name": "Agile/Scrum",
+     "postings": 2,
+     "share": 0.133
     },
     {
      "name": "C#/.NET",
-     "postings": 3,
-     "share": 0.188
-    },
-    {
-     "name": "Git",
-     "postings": 3,
-     "share": 0.188
-    },
-    {
-     "name": "SQL",
-     "postings": 3,
-     "share": 0.188
+     "postings": 2,
+     "share": 0.133
     }
    ]
   },
   "finance": {
    "basis": "entry",
-   "postings": 14,
+   "postings": 13,
    "stops": [
     {
      "name": "Excel",
-     "postings": 10,
-     "share": 0.714
+     "postings": 9,
+     "share": 0.692
+    },
+    {
+     "name": "Accounts Payable/Receivable",
+     "postings": 8,
+     "share": 0.615
     },
     {
      "name": "Financial Reporting",
-     "postings": 9,
-     "share": 0.643
+     "postings": 8,
+     "share": 0.615
     },
     {
      "name": "Reconciliation",
      "postings": 7,
-     "share": 0.5
-    },
-    {
-     "name": "Accounts Payable/Receivable",
-     "postings": 5,
-     "share": 0.357
-    },
-    {
-     "name": "Budgeting",
-     "postings": 4,
-     "share": 0.286
+     "share": 0.538
     },
     {
      "name": "Audit",
-     "postings": 3,
-     "share": 0.214
+     "postings": 5,
+     "share": 0.385
     },
     {
-     "name": "Financial Modeling",
-     "postings": 2,
-     "share": 0.143
+     "name": "Budgeting",
+     "postings": 3,
+     "share": 0.231
+    },
+    {
+     "name": "Tax/VAT/Zakat",
+     "postings": 3,
+     "share": 0.231
     }
    ]
   },
   "engineering": {
    "basis": "all",
-   "postings": 23,
+   "postings": 19,
    "stops": [
     {
      "name": "AutoCAD",
-     "postings": 5,
-     "share": 0.217
+     "postings": 3,
+     "share": 0.158
     },
     {
-     "name": "Excel",
-     "postings": 5,
-     "share": 0.217
+     "name": "Testing/QA",
+     "postings": 3,
+     "share": 0.158
     },
     {
      "name": "CI/CD",
      "postings": 2,
-     "share": 0.087
+     "share": 0.105
     },
     {
-     "name": "Networking",
+     "name": "Excel",
      "postings": 2,
-     "share": 0.087
+     "share": 0.105
     },
     {
-     "name": "Revit/BIM",
+     "name": "HSE",
      "postings": 2,
-     "share": 0.087
+     "share": 0.105
     },
     {
-     "name": "Testing/QA",
+     "name": "Primavera/MS Project",
      "postings": 2,
-     "share": 0.087
+     "share": 0.105
     },
     {
      "name": "AWS",
      "postings": 1,
-     "share": 0.043
+     "share": 0.053
     }
    ]
   },
   "marketing": {
    "basis": "entry",
-   "postings": 14,
+   "postings": 15,
    "stops": [
     {
      "name": "Social Media",
-     "postings": 8,
-     "share": 0.571
-    },
-    {
-     "name": "Content Writing",
-     "postings": 7,
-     "share": 0.5
+     "postings": 6,
+     "share": 0.4
     },
     {
      "name": "Excel",
-     "postings": 3,
-     "share": 0.214
+     "postings": 4,
+     "share": 0.267
     },
     {
-     "name": "Market Research",
+     "name": "Content Writing",
      "postings": 3,
-     "share": 0.214
+     "share": 0.2
     },
     {
-     "name": "Canva",
+     "name": "Google Ads",
      "postings": 2,
-     "share": 0.143
+     "share": 0.133
     },
     {
      "name": "Google Analytics",
      "postings": 2,
-     "share": 0.143
+     "share": 0.133
     },
     {
-     "name": "Adobe Creative Suite",
-     "postings": 1,
-     "share": 0.071
+     "name": "Market Research",
+     "postings": 2,
+     "share": 0.133
+    },
+    {
+     "name": "Meta Ads",
+     "postings": 2,
+     "share": 0.133
     }
    ]
   },
   "hr": {
-   "basis": "entry",
-   "postings": 8,
+   "basis": "all",
+   "postings": 44,
    "stops": [
     {
      "name": "Recruitment",
-     "postings": 5,
-     "share": 0.625
-    },
-    {
-     "name": "Excel",
-     "postings": 2,
-     "share": 0.25
+     "postings": 24,
+     "share": 0.545
     },
     {
      "name": "Onboarding",
-     "postings": 2,
-     "share": 0.25
+     "postings": 13,
+     "share": 0.295
     },
     {
-     "name": "Greenhouse",
-     "postings": 1,
-     "share": 0.125
+     "name": "Excel",
+     "postings": 7,
+     "share": 0.159
+    },
+    {
+     "name": "HRIS",
+     "postings": 7,
+     "share": 0.159
+    },
+    {
+     "name": "Employee Relations",
+     "postings": 6,
+     "share": 0.136
+    },
+    {
+     "name": "Payroll",
+     "postings": 6,
+     "share": 0.136
+    },
+    {
+     "name": "Audit",
+     "postings": 2,
+     "share": 0.045
     }
    ]
   }
  },
  "fields": {
-  "data": 129,
-  "tech": 337,
-  "finance": 92,
-  "engineering": 23,
-  "marketing": 76,
-  "hr": 58
+  "data": 122,
+  "tech": 326,
+  "finance": 80,
+  "engineering": 19,
+  "marketing": 84,
+  "hr": 44
  },
  "top_skills": [
   {
    "name": "Python",
-   "postings": 164,
-   "share": 0.229
+   "postings": 160,
+   "share": 0.237
   },
   {
    "name": "SQL",
-   "postings": 99,
-   "share": 0.138
+   "postings": 82,
+   "share": 0.121
   },
   {
    "name": "Kubernetes",
-   "postings": 79,
-   "share": 0.11
+   "postings": 77,
+   "share": 0.114
   },
   {
    "name": "AWS",
-   "postings": 74,
-   "share": 0.103
-  },
-  {
-   "name": "Excel",
-   "postings": 69,
-   "share": 0.097
+   "postings": 76,
+   "share": 0.113
   },
   {
    "name": "CI/CD",
-   "postings": 67,
-   "share": 0.094
-  },
-  {
-   "name": "Go",
-   "postings": 50,
-   "share": 0.07
-  },
-  {
-   "name": "Financial Reporting",
-   "postings": 49,
-   "share": 0.069
+   "postings": 63,
+   "share": 0.093
   },
   {
    "name": "REST API",
-   "postings": 49,
-   "share": 0.069
+   "postings": 60,
+   "share": 0.089
   },
   {
-   "name": "Testing/QA",
-   "postings": 49,
-   "share": 0.069
+   "name": "Go",
+   "postings": 59,
+   "share": 0.087
+  },
+  {
+   "name": "Excel",
+   "postings": 55,
+   "share": 0.081
+  },
+  {
+   "name": "TypeScript",
+   "postings": 54,
+   "share": 0.08
+  },
+  {
+   "name": "Terraform",
+   "postings": 51,
+   "share": 0.076
   }
  ],
  "entry_jobs": [
-  {
-   "title": "Software Developer IT Services",
-   "company": "Dar AlBalad",
-   "location": "",
-   "url": "https://sabbar.com/ar/jobs/c-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6-r-software-developer-it-services/id-e9c5ba4b-7d71-45ee-9f60-a417cba4162a",
-   "level": "Junior",
-   "posted_at": ""
-  },
   {
    "title": "Quality Assurance Engineer (Saudi National Only)",
    "company": "Gathern.co",
@@ -374,18 +381,10 @@
    "posted_at": ""
   },
   {
-   "title": "Marketing specialist (Hybrid Team – Dammam)",
-   "company": "Jobs for Humanity",
-   "location": "الدمام, SA",
-   "url": "https://www.bayt.com/ar/saudi-arabia/jobs/marketing-specialist-hybrid-team-dammam-74972598/",
-   "level": "Junior",
-   "posted_at": ""
-  },
-  {
-   "title": "Marketing Specialist – Underground Cable (UGC) Projects",
-   "company": "تالنتس سي",
+   "title": "Marketing Specialist; Temheer) Ad Number",
+   "company": "Opus",
    "location": "الرياض, SA",
-   "url": "https://sa.linkedin.com/jobs/view/marketing-specialist-%E2%80%93-underground-cable-ugc-projects-at-talents-sea-%D8%AA%D8%A7%D9%84%D9%86%D8%AA%D8%B3-%D8%B3%D9%8A-4478787642",
+   "url": "https://www.learn4good.com/jobs/riyadh/saudiarabia/marketing_and_pr/5573426712/e/",
    "level": "Junior",
    "posted_at": ""
   },
@@ -398,18 +397,18 @@
    "posted_at": ""
   },
   {
-   "title": "Managed Services Engineering Intern",
-   "company": "936000 Motorola Solutions Arabia, Inc., Saudi Branch",
-   "location": "الرياض, SA",
-   "url": "https://motorolasolutions.wd5.myworkdayjobs.com/careers/job/riyadh-saudi-arabia/managed-services-engineering-intern_r67096",
-   "level": "Intern",
-   "posted_at": ""
-  },
-  {
    "title": "Junior Software Developer",
    "company": "Logitera",
    "location": "الدمام, SA",
    "url": "https://www.jobleads.com/sa/job/junior-software-developer--dammam--ea05fee914f1a181ef577353dd902a3e3",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
+   "title": "Junior Accountant - Saudi National",
+   "company": "Foods gate trading Company",
+   "location": "الرياض, SA",
+   "url": "https://sa.indeed.com/viewjob?jk=5c3a334eb5a0ab97",
    "level": "Junior",
    "posted_at": ""
   },
@@ -422,14 +421,6 @@
    "posted_at": ""
   },
   {
-   "title": "Graduate Marketing Trainee | Internship & Tamheer Program",
-   "company": "FLOW Medical Solutions",
-   "location": "الرياض, SA",
-   "url": "https://www.jobleads.com/sa/job/graduate-marketing-trainee-internship-tamheer-program--riyadh--e7e8c38501eef55ddf19274b4caad5162",
-   "level": "Intern",
-   "posted_at": ""
-  },
-  {
    "title": "General Accountant (SAUDI NATIONALS ONLY)",
    "company": "tameer steel",
    "location": "",
@@ -438,54 +429,78 @@
    "posted_at": ""
   },
   {
-   "title": "Full-Stack Developer (Java Spring Boot / Angular)",
-   "company": "مسارات التأمين - Masarat Insurance",
+   "title": "Full Stack Developer (.NET & Angular)- Saudi Arabia",
+   "company": "Diyar United Company",
+   "location": "",
+   "url": "https://www.bayt.com/en/saudi-arabia/jobs/full-stack-developer-net-angular-saudi-arabia-5497811/",
+   "level": "Junior",
+   "posted_at": ""
+  },
+  {
+   "title": "Finance Intern: Hands-On Accounting & Reporting",
+   "company": "Invenio",
    "location": "الرياض, SA",
-   "url": "https://www.jobleads.com/sa/job/full-stack-developer-java-spring-boot-angular--riyadh--e51cf254392e72ac6ea02ba18e849c89b",
+   "url": "https://www.jobleads.com/sa/job/finance-intern-hands-on-accounting-reporting--riyadh--ea574906d3ae4d8b1811055c265f287a3",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
+   "title": "Finance Intern",
+   "company": "invenioLSI",
+   "location": "الرياض, SA",
+   "url": "https://sa.linkedin.com/jobs/view/finance-intern-at-invenio-4483413876",
+   "level": "Intern",
+   "posted_at": ""
+  },
+  {
+   "title": "Data Analytics & Performance Management Analyst",
+   "company": "My Clinic KSA",
+   "location": "",
+   "url": "https://sa.linkedin.com/jobs/view/data-analytics-performance-management-analyst-at-my-clinic-ksa-4485404446",
    "level": "Junior",
    "posted_at": ""
   }
  ],
  "company_names": [
   "Eram Talent",
-  "DXC Technology",
-  "BEC Arabia",
-  "Astek Middle East",
   "Opus",
-  "Accor CN/ZH",
-  "The Financeer",
-  "The Punta Gorda Garden Club, Inc.",
-  "تالنتس سي",
-  "Holoolk@2030",
-  "Jobs for Humanity",
-  "936000 Motorola Solutions Arabia, Inc., Saudi Branch",
-  "1st Executive",
-  "Müller's Solutions",
-  "Alhugayetjob",
-  "Ghobash Group",
-  "SAUDI ARABIAN RESOURCES COMPANY",
-  "iHR (International Human Resources)",
-  "FLOW Medical Solutions",
-  "Saudi Azm عزم السعودية",
+  "Royal Cyber KSA",
+  "BEC Arabia",
+  "BYD Europe",
+  "ArcelorMittal Tubular Products Al-Jubail",
+  "AIMuhaseb",
+  "Ideolux",
+  "CD Horizon Arabia Company Ltd",
+  "Hays",
+  "Diyar United Company",
+  "Salt",
+  "Khalejy",
+  "Logitera",
+  "Confidential Careers",
+  "Alomar Holding Company",
+  "GT Medical",
+  "Mafaheem",
+  "Globus Travel And Tours",
+  "Client of Hudson Manpower",
+  "Bayan Gardens School- Saudi Arabia, Alkhobar",
+  "Gathern.co",
+  "Diyar Alwatan Trading & Contracting Company (DACO)",
+  "DXC Technology Morocco",
+  "Urban Ridge Supplies",
+  "ATAD Experience",
+  "Azure",
+  "invenioLSI",
+  "Apexops",
+  "Digital HR Consultancy",
+  "PPOAR",
+  "Takara Hospitality Group",
+  "DXC Technology",
+  "Hitachi Global",
   "Parsons Corporation",
-  "Fine Hygienic Holding",
   "Holo",
-  "Takara Hospitality Group (THG)",
-  "شركة ثمين محاسبون ومراجعون قانونيون",
-  "Healthcare Company",
-  "CDHORIZON Saudi Arabia",
-  "Robou Al Yasmeen Agricultural",
-  "AECOM",
-  "مسارات التأمين - Masarat Insurance",
-  "Jobmaze FZ LLC",
-  "EMPA WOOD",
-  "Express Food Company",
-  "ABrag almokhtsas",
-  "Yo AI Labs",
-  "Dar AlBalad",
-  "Nebius",
-  "Riyadh Cables Group",
-  "OPXO Group",
-  "Peroptyx"
+  "Astek Middle East",
+  "Lemon.io",
+  "Germany.sa الالمانية الرقمية",
+  "RLDatix"
  ]
 }
