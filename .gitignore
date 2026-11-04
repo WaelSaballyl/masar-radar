@@ -2,6 +2,5 @@ data/last_run.json
 data/radar.db
 __pycache__/
 *.pyc
-graphify-out/
 data/radar_backup_*.db
 data/radar_pre_*.db
